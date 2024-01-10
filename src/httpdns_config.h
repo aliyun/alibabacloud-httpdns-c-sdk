@@ -10,16 +10,25 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define DEFAULT_BOOT_SERVER   "203.107.1.1"
+#define DEFAULT_TIMEOUT_MS     5000L
+#define REGION_CHINA_MAINLAND  "cn"
+#define REGION_HONG_KONG       "hk"
+#define REGION_SINGAPORE       "sg"
+
+
 typedef struct _httpdns_config {
     char *account_id;
     char *secret_key;
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
     int64_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
-    bool using_async;  // default 1, 0 synchronously, 1 asynchronously
-    bool using_cache;  // default 1, 0 without cache, 1 with cache
-    bool using_https;  // default 0, 0 http, 1 https
-    bool using_sign;   // default 0, 0 not sign, 1 use sign
-    bool fallbacking_localdns;  // default 1, 0 not fallback, 1 fallback localdns
+    bool using_async;  // default true, false synchronously, true asynchronously
+    bool using_cache;  // default true, false without cache, true with cache
+    bool using_https;  // default false, false http, true https
+    bool using_sign;   // default false, false not sign, true use sign
+    bool fallbacking_localdns;  // default true, false not fallback, true fallback localdns
+    struct list_head pre_resolve_hosts;
+    struct list_head boot_servers;
 } httpdns_config_t;
 
 
@@ -101,6 +110,22 @@ int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool using_sign)
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
 int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool fallbacking_localdns);
+
+/**
+ * @description add pre-resolve host name
+ * @param config
+ * @param host host name
+ * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
+ */
+int32_t httpdns_config_add_pre_resolve_host(httpdns_config_t *config, const char *host);
+
+/**
+ * @description add boot server
+ * @param config
+ * @param boot_server
+ * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
+ */
+int32_t httpdns_config_add_boot_server(httpdns_config_t *config, const char *boot_server);
 
 /**
  * check if given config is valid

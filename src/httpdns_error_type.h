@@ -8,6 +8,6 @@
 #define HTTPDNS_FAILURE                     (-1)
 #define HTTPDNS_PARAMETER_EMPTY             (-101)
 #define HTTPDNS_PARAMETER_ERROR             (-102)
-
+#define HTTPDNS_MEMORY_ALLOCATION_ERROR     (-103)
 #endif
 

@@ -10,7 +10,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define DEFAULT_BOOT_SERVER   "203.107.1.1"
+#define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
+#define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
 #define DEFAULT_TIMEOUT_MS     5000L
 #define REGION_CHINA_MAINLAND  "cn"
 #define REGION_HONG_KONG       "hk"
@@ -28,7 +29,8 @@ typedef struct _httpdns_config {
     bool using_sign;   // default false, false not sign, true use sign
     bool fallbacking_localdns;  // default true, false not fallback, true fallback localdns
     struct list_head pre_resolve_hosts;
-    struct list_head boot_servers;
+    struct list_head ipv4_boot_servers;
+    struct list_head ipv6_boot_servers;
 } httpdns_config_t;
 
 
@@ -109,7 +111,7 @@ int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool using_sign)
  * @param using_https default 1, 0 not fallback, 1 fallback localdns
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
-int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool fallbacking_localdns);
+int32_t httpdns_config_set_fallbacking_localdns(httpdns_config_t *config, bool fallbacking_localdns);
 
 /**
  * @description add pre-resolve host name
@@ -120,12 +122,20 @@ int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool fallbacking
 int32_t httpdns_config_add_pre_resolve_host(httpdns_config_t *config, const char *host);
 
 /**
- * @description add boot server
+ * @description add ipv4 boot server
  * @param config
  * @param boot_server
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
-int32_t httpdns_config_add_boot_server(httpdns_config_t *config, const char *boot_server);
+int32_t httpdns_config_add_ipv4_boot_server(httpdns_config_t *config, const char *boot_server);
+
+/**
+ * @description add ipv6 boot server
+ * @param config
+ * @param boot_server
+ * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
+ */
+int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char *boot_server);
 
 /**
  * check if given config is valid

@@ -70,13 +70,14 @@ size_t httpdns_list_size(struct list_head *head) {
     return size;
 }
 
-void httpdns_list_free(struct list_head *head) {
+void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_func) {
     if (NULL == head) {
         return;
     }
     httpdns_list_node_t *cursor, *temp_node;
     list_for_each_entry_safe(cursor, temp_node, head, list) {
         list_del(&cursor->list);
+        free_func(cursor->data);
         free(cursor);
     }
 }

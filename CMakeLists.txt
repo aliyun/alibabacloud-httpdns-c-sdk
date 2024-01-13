@@ -62,11 +62,12 @@ ELSE ()
 ENDIF ()
 
 
-#file(GLOB HEADER_FILES ${SRC_PATH}/*.h ${LIBS_PATH}/*.h)
-#
-#INSTALL(FILES
-#  ${HEADER_FILES}
-#  DESTINATION include/alicloud_httpdns_c_sdk)
+file(GLOB HEADER_FILES ${SRC_PATH}/*.h ${LIBS_PATH}/*.h)
 
-#add_subdirectory(tests)
-#add_subdirectory(examples)
+INSTALL(FILES
+  ${HEADER_FILES}
+  DESTINATION include/alicloud_httpdns_c_sdk)
+
+enable_testing()
+add_subdirectory(tests)
+

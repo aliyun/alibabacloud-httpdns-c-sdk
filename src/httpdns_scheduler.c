@@ -100,7 +100,7 @@ void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char *
                                                                      : scheduler->ipv4_resolve_servers;
     size_t resolve_server_num = httpdns_list_size(&resolve_servers);
     int max_weight_resolve_server_index = 0;
-    int max_weight = INT64_MIN;
+    int max_weight = INT32_MIN;
     for (int i = 0; i < resolve_server_num; i++) {
         httpdns_resolve_server_t *resolver = httpdns_list_get(&resolve_servers, i);
         if (resolver->weight == DEFAULT_RESOLVER_WEIGHT) {

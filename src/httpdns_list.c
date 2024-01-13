@@ -33,7 +33,7 @@ int32_t httpdns_list_rotate(struct list_head *head) {
 }
 
 
-struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_new_function_ptr_t new_func) {
+struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t new_func) {
     if (NULL == dst_head || NULL == src_head) {
         return NULL;
     }
@@ -45,7 +45,7 @@ struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head 
     return dst_head;
 }
 
-httpdns_list_node_t *httpdns_list_get(struct list_head *head, int index) {
+void *httpdns_list_get(struct list_head *head, int index) {
     if (NULL == head || index < 0) {
         return NULL;
     }
@@ -53,7 +53,7 @@ httpdns_list_node_t *httpdns_list_get(struct list_head *head, int index) {
     httpdns_list_node_t *cursor;
     list_for_each_entry(cursor, head, list) {
         if (i == index) {
-            return cursor;
+            return cursor->data;
         }
         i++;
     }

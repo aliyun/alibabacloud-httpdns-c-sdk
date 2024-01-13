@@ -50,8 +50,12 @@ u_int32_t _test_net_stack_by_udp() {
     bool have_ipv6 = (_have_ipv6_by_udp() == HTTPDNS_SUCCESS);
     u_int32_t net_stack_type = IP_STACK_UNKNOWN;
     if(have_ipv4) {
-
+        ADD_IPV4_NET_TYPE(net_stack_type);
     }
+    if(have_ipv6){
+        ADD_IPV6_NET_TYPE(net_stack_type);
+    }
+    return net_stack_type;
 }
 
 
@@ -81,7 +85,7 @@ u_int32_t _test_net_stack_by_dns(const char *probe_domain) {
     if(have_ipv6) {
         ADD_IPV6_NET_TYPE(net_stack_type);
     }
-
+    return net_stack_type;
 }
 
 u_int32_t _test_net_stack(const char *probe_domain) {

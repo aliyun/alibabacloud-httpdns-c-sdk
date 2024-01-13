@@ -68,10 +68,10 @@ httpdns_http_response_t *httpdns_http_single_request_exchange(httpdns_http_reque
     httpdns_list_init(&requests);
     httpdns_list_add(&requests, request);
     struct list_head responses = httpdns_http_multiple_request_exchange(&requests);
-    if (httpdns_list_size(&requests) <= 0) {
+    if (httpdns_list_size(&responses) <= 0) {
         return NULL;
     }
-    httpdns_list_node_t *node = httpdns_list_get(&requests, 0);
+    httpdns_list_node_t *node = httpdns_list_get(&responses, 0);
     if (NULL != node) {
         return node->data;
     }
@@ -111,7 +111,7 @@ static CURLcode _ssl_verify_callback(CURL *curl, void *sslctx, void *parm) {
 
 
 struct list_head httpdns_http_multiple_request_exchange(struct list_head *requests) {
-    struct list_head response_head;
+    struct list_head response_head = {NULL, NULL};
     if (!is_inited) {
         return response_head;
     }
@@ -122,7 +122,8 @@ struct list_head httpdns_http_multiple_request_exchange(struct list_head *reques
     CURLM *multi_handle = curl_multi_init();
     int max_timeout_ms = MULTI_HANDLE_TIMEOUT_MS;
     for (int i = 0; i < request_num; i++) {
-        httpdns_http_request_t *request = httpdns_list_get(requests, i);
+        httpdns_list_node_t *node = httpdns_list_get(requests, i);
+        httpdns_http_request_t *request = node->data;
         httpdns_http_response_t *response_ptr = create_httpdns_http_response(sdsnew(request->url));
         response_ptr->cache_key = sdsdup(request->cache_key);
         CURL *handle = curl_easy_init();

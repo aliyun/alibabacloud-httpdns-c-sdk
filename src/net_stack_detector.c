@@ -45,26 +45,17 @@ static int32_t _have_ipv4_by_udp() {
 }
 
 
-net_stack_type_t _build_net_stack_type(bool have_ipv4, bool have_ipv6) {
-    if (have_ipv4 && have_ipv6) {
-        return IP_DUAL_STACK;
-    } else if (have_ipv4) {
-        return IPV4_ONLY;
-    } else if (have_ipv6) {
-        return IPV6_ONLY;
-    } else {
-        return IP_STACK_UNKNOWN;
+u_int32_t _test_net_stack_by_udp() {
+    bool have_ipv4 = (_have_ipv4_by_udp() == HTTPDNS_SUCCESS);
+    bool have_ipv6 = (_have_ipv6_by_udp() == HTTPDNS_SUCCESS);
+    u_int32_t net_stack_type = IP_STACK_UNKNOWN;
+    if(have_ipv4) {
+
     }
 }
 
-net_stack_type_t _test_net_stack_by_udp() {
-    bool have_ipv4 = (_have_ipv4_by_udp() == HTTPDNS_SUCCESS);
-    bool have_ipv6 = (_have_ipv6_by_udp() == HTTPDNS_SUCCESS);
-    return _build_net_stack_type(have_ipv4, have_ipv6);
-}
 
-
-net_stack_type_t _test_net_stack_by_dns(const char *probe_domain) {
+u_int32_t _test_net_stack_by_dns(const char *probe_domain) {
     struct addrinfo hint, *answer, *curr;
     memset(&hint, 0, sizeof(hint));
     hint.ai_family = AF_UNSPEC;
@@ -83,11 +74,18 @@ net_stack_type_t _test_net_stack_by_dns(const char *probe_domain) {
         }
     }
     freeaddrinfo(answer);
-    return _build_net_stack_type(have_ipv4, have_ipv6);
+    u_int32_t net_stack_type = IP_STACK_UNKNOWN;
+    if(have_ipv4) {
+        ADD_IPV4_NET_TYPE(net_stack_type);
+    }
+    if(have_ipv6) {
+        ADD_IPV6_NET_TYPE(net_stack_type);
+    }
+
 }
 
-net_stack_type_t _test_net_stack(const char *probe_domain) {
-    net_stack_type_t net_stack_type = _test_net_stack_by_udp();
+u_int32_t _test_net_stack(const char *probe_domain) {
+    u_int32_t net_stack_type = _test_net_stack_by_udp();
     if (net_stack_type != IP_STACK_UNKNOWN) {
         return net_stack_type;
     }
@@ -101,12 +99,16 @@ net_stack_type_t _test_net_stack(const char *probe_domain) {
     return IP_STACK_UNKNOWN;
 }
 
-net_stack_detector_t *create_net_stack_detector() {
+net_stack_detector_t *create_net_stack_detector(char* probe_domain) {
     net_stack_detector_t *detector_ptr = (net_stack_detector_t *) malloc(sizeof(net_stack_detector_t));
     memset(detector_ptr, 0, sizeof(net_stack_detector_t));
     detector_ptr->net_stack_type_cache = IP_STACK_UNKNOWN;
     detector_ptr->using_cache = true;
-    detector_ptr->probe_domain = sdsnew(PROBE_DOMAIN);
+    if(NULL == probe_domain) {
+        detector_ptr->probe_domain = sdsnew(PROBE_DOMAIN);
+    } else {
+        detector_ptr->probe_domain = sdsdup(probe_domain);
+    }
     return detector_ptr;
 }
 
@@ -123,7 +125,7 @@ void net_stack_detector_update_cache(net_stack_detector_t *detector) {
     if (NULL == detector) {
         return;
     }
-    net_stack_type_t net_stack_type = _test_net_stack(detector->probe_domain);
+    u_int32_t net_stack_type = _test_net_stack(detector->probe_domain);
     if (net_stack_type != IP_STACK_UNKNOWN) {
         detector->net_stack_type_cache = net_stack_type;
     }
@@ -143,11 +145,11 @@ void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const c
 }
 
 
-net_stack_type_t get_net_stack_type(net_stack_detector_t *detector) {
+u_int32_t get_net_stack_type(net_stack_detector_t *detector) {
     if (NULL == detector) {
         return IP_STACK_UNKNOWN;
     }
-    net_stack_type_t net_stack_type = detector->net_stack_type_cache;
+    u_int32_t net_stack_type = detector->net_stack_type_cache;
     if (detector->using_cache && net_stack_type != IP_STACK_UNKNOWN) {
         return net_stack_type;
     }

@@ -29,20 +29,30 @@
 #define PROBE_DOMAIN     "www.taobao.com"
 #define PROBE_PORT        0xFFFF
 
-typedef enum _net_stack_type {
-    IP_STACK_UNKNOWN,
-    IPV4_ONLY,
-    IPV6_ONLY,
-    IP_DUAL_STACK
-} net_stack_type_t;
+#define IP_STACK_UNKNOWN 0x0000
+#define IPV4_ONLY        0x0001
+#define IPV6_ONLY        0x0002
+#define IP_DUAL_STACK    0x0003
+
+#define ADD_IPV4_NET_TYPE(net_stack_type) \
+net_stack_type = net_stack_type | (1 << 0)
+
+#define ADD_IPV6_NET_TYPE(net_stack_type) \
+net_stack_type = net_stack_type | (1 << 1)
+
+#define HAVE_IPV4_NET_TYPE(net_stack_type) \
+net_stack_type & (1<<0)
+
+#define HAVE_IPV6_NET_TYPE(net_stack_type) \
+net_stack_type & (1<<1)
 
 typedef struct _net_stack_detector {
-    net_stack_type_t net_stack_type_cache;
+    u_int32_t net_stack_type_cache;
     char *probe_domain;
     bool using_cache;
 } net_stack_detector_t;
 
-net_stack_detector_t *create_net_stack_detector();
+net_stack_detector_t *create_net_stack_detector(char *probe_domain);
 
 void destroy_net_stack_detector(net_stack_detector_t *detector);
 
@@ -52,7 +62,7 @@ void net_stack_detector_set_using_cache(net_stack_detector_t *detector, bool usi
 
 void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const char *probe_domain);
 
-net_stack_type_t get_net_stack_type(net_stack_detector_t *detector);
+u_int32_t get_net_stack_type(net_stack_detector_t *detector);
 
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_NET_STACK_DETECTOR_H

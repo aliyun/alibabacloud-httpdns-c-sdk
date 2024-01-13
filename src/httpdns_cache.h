@@ -14,5 +14,4 @@ typedef dict httpdns_cache_t;
 
 
 
-
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H

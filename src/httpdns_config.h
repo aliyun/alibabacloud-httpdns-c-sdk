@@ -6,10 +6,12 @@
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H
 
 #include "../libs/list.h"
+#include "net_stack_detector.h"
 #include "httpdns_error_type.h"
 #include <stdint.h>
 #include <stdbool.h>
 
+#define SDK_VERSION        "1.0.0"
 #define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
 #define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
 #define DEFAULT_TIMEOUT_MS     5000L
@@ -21,8 +23,10 @@
 typedef struct _httpdns_config {
     char *account_id;
     char *secret_key;
+    char *probe_domain;  //default www.taobao.com
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
     int64_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
+    char * sdk_version;
     bool using_async;  // default true, false synchronously, true asynchronously
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https
@@ -60,6 +64,7 @@ int32_t httpdns_config_set_account_id(httpdns_config_t *config, const char *acco
  */
 int32_t httpdns_config_set_secret_key(httpdns_config_t *config, const char *secret_key);
 
+int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char *probe_domain);
 
 /**
  * @description set the maximum timeout for requests to the httpdns server

@@ -33,14 +33,14 @@ int32_t httpdns_list_rotate(struct list_head *head) {
 }
 
 
-struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t new_func) {
+struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func) {
     if (NULL == dst_head || NULL == src_head) {
         return NULL;
     }
     httpdns_list_node_t *cursor;
     httpdns_list_init(dst_head);
     list_for_each_entry(cursor, src_head, list) {
-        httpdns_list_add(dst_head, new_func(cursor->data));
+        httpdns_list_add(dst_head, clone_func(cursor->data));
     }
     return dst_head;
 }
@@ -83,16 +83,21 @@ void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_fun
 }
 
 void httpdns_list_shuffle(struct list_head *head) {
-    if (NULL == head) {
+    if (NULL == head || httpdns_list_size(head) <= 1) {
         return;
     }
-    srand(time(NULL));
     size_t list_size = httpdns_list_size(head);
-    for (int i = 0; i < list_size; i++) {
+    for (int outer_loop_i = 0; outer_loop_i < list_size; outer_loop_i++) {
         int swap_index = rand() % list_size;
-        httpdns_list_node_t *node = httpdns_list_get(head, swap_index);
-        list_del_init(&node->list);
-        list_add_tail(&node->list, head);
+        httpdns_list_node_t *cursor;
+        int inner_loop_i = 0;
+        list_for_each_entry(cursor, head, list) {
+            if (swap_index == inner_loop_i) {
+                list_del_init(&cursor->list);
+                list_add_tail(&cursor->list, head);
+            }
+            inner_loop_i++;
+        }
     }
 }
 

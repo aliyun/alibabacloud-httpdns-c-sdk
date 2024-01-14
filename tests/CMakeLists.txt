@@ -26,6 +26,6 @@ function(_TARGET_TEST_LIBRARIES TEST_BIN_NAME SOURCE_FILES)
     add_test(NAME ${TEST_BIN_NAME}_test COMMAND ${TEST_BIN_NAME})
 endfunction()
 
-
-_TARGET_TEST_LIBRARIES(hello_world  hello_world.c)
 _TARGET_TEST_LIBRARIES(net_stack_detector  net_stack_detector_test.c)
+
+_TARGET_TEST_LIBRARIES(httpdns_list  httpdns_list_test.c)

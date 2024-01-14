@@ -21,12 +21,17 @@ typedef void (* data_free_function_ptr_t )(void * data);
 typedef void *(*data_clone_function_ptr_t )(void *data);
 
 void httpdns_list_init(struct list_head *head);
-
+/**
+ *
+ * @param head
+ * @param data don't free data after httpdns_list_add, data will free when httpdns_list_free
+ * @return
+ */
 int32_t httpdns_list_add(struct list_head *head, void *data);
 
 int32_t httpdns_list_rotate(struct list_head *head);
 
-struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t new_func);
+struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
 
 void *httpdns_list_get(struct list_head *head, int index);
 

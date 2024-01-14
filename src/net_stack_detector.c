@@ -125,7 +125,7 @@ void net_stack_detector_update_cache(net_stack_detector_t *detector) {
     if (NULL == detector) {
         return;
     }
-    u_int32_t net_stack_type = _test_net_stack(detector->probe_domain);
+    net_stack_type_t net_stack_type = _test_net_stack(detector->probe_domain);
     if (net_stack_type != IP_STACK_UNKNOWN) {
         detector->net_stack_type_cache = net_stack_type;
     }

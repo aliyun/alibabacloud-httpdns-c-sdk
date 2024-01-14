@@ -46,13 +46,14 @@ net_stack_type & (1<<0)
 #define HAVE_IPV6_NET_TYPE(net_stack_type) \
 net_stack_type & (1<<1)
 
+typedef u_int32_t net_stack_type_t;
+
 typedef struct _net_stack_detector {
-    u_int32_t net_stack_type_cache;
+    net_stack_type_t net_stack_type_cache;
     char *probe_domain;
     bool using_cache;
 } net_stack_detector_t;
 
-typedef u_int32_t net_stack_type_t;
 
 net_stack_detector_t *create_net_stack_detector();
 

@@ -28,6 +28,12 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 
+option(ADD_LOG_KEY_VALUE_FUN "ON for generating add log key&value functions" OFF)
+
+IF(ADD_LOG_KEY_VALUE_FUN)
+    add_definitions(-DLOG_KEY_VALUE_FLAG)
+ENDIF(ADD_LOG_KEY_VALUE_FUN)
+
 #curl-config
 FIND_PROGRAM(CURL_CONFIG_BIN NAMES curl-config)
 
@@ -41,7 +47,11 @@ ELSE ()
     MESSAGE(FATAL_ERROR "Could not find curl-config")
 ENDIF ()
 
+# Compile and link lib_log_c_sdk
+include_directories(${CURL_INCLUDE_DIR})
+
 aux_source_directory(src SRC_LIST)
+
 
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
@@ -51,7 +61,7 @@ IF (APPLE)
 ELSE ()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC BUILD_SHARED_LIB)
-    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION} SOVERSION ${CMAKE_VERSION})
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION}  SOVERSION ${CMAKE_VERSION})
     INSTALL(TARGETS ${CMAKE_PROJECT_NAME} LIBRARY DESTINATION lib)
 ENDIF ()
 
@@ -59,8 +69,8 @@ ENDIF ()
 file(GLOB HEADER_FILES src/*.h)
 
 INSTALL(FILES
-  ${HEADER_FILES}
-  DESTINATION include/${CMAKE_PROJECT_NAME})
+        ${HEADER_FILES}
+        DESTINATION include/${CMAKE_PROJECT_NAME})
 
 enable_testing()
 add_subdirectory(tests)

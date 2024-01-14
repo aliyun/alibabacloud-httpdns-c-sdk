@@ -1,10 +1,6 @@
 project (alicloud_httpdns_c_sdk_test)
 include_directories(${CMAKE_SOURCE_DIR})
 
-
-set(HELLO_WORLD_SOURCE_FILES hello_world.c)
-
-
 include_directories (${CURL_INCLUDE_DIR})
 include_directories ("${CMAKE_SOURCE_DIR}/src")
 
@@ -31,4 +27,5 @@ function(_TARGET_TEST_LIBRARIES TEST_BIN_NAME SOURCE_FILES)
 endfunction()
 
 
-_TARGET_TEST_LIBRARIES(hello_world "${HELLO_WORLD_SOURCE_FILES}")
+_TARGET_TEST_LIBRARIES(hello_world  hello_world.c)
+_TARGET_TEST_LIBRARIES(net_stack_detector  net_stack_detector_test.c)

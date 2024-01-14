@@ -3,7 +3,7 @@
 //
 
 #include<stdio.h>
-#include<httpdns_c_sdk/net_stack_detector.h>
+#include "net_stack_detector.h"
 
 int main(int argc, char *argv[])
 {

@@ -22,7 +22,7 @@
 #include <stdbool.h>
 #include <netdb.h>
 #include "httpdns_error_type.h"
-#include "../libs/sds.h"
+#include "sds.h"
 
 #define IPV4_PROBE_ADDR  "8.8.8.8"
 #define IPV6_PROBE_ADDR  "2000::"
@@ -52,7 +52,7 @@ typedef struct _net_stack_detector {
     bool using_cache;
 } net_stack_detector_t;
 
-net_stack_detector_t *create_net_stack_detector(char *probe_domain);
+net_stack_detector_t *create_net_stack_detector(const char *probe_domain);
 
 void destroy_net_stack_detector(net_stack_detector_t *detector);
 

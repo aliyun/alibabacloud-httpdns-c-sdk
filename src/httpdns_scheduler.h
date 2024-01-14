@@ -7,7 +7,7 @@
 
 #include "httpdns_list.h"
 #include "httpdns_http.h"
-#include "../libs/cJSON.h"
+#include "cJSON.h"
 #include "httpdns_config.h"
 #include <stdint.h>
 

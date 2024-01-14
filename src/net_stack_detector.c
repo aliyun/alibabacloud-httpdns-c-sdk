@@ -103,7 +103,7 @@ u_int32_t _test_net_stack(const char *probe_domain) {
     return IP_STACK_UNKNOWN;
 }
 
-net_stack_detector_t *create_net_stack_detector(char* probe_domain) {
+net_stack_detector_t *create_net_stack_detector(const char* probe_domain) {
     net_stack_detector_t *detector_ptr = (net_stack_detector_t *) malloc(sizeof(net_stack_detector_t));
     memset(detector_ptr, 0, sizeof(net_stack_detector_t));
     detector_ptr->net_stack_type_cache = IP_STACK_UNKNOWN;
@@ -111,7 +111,7 @@ net_stack_detector_t *create_net_stack_detector(char* probe_domain) {
     if(NULL == probe_domain) {
         detector_ptr->probe_domain = sdsnew(PROBE_DOMAIN);
     } else {
-        detector_ptr->probe_domain = sdsdup(probe_domain);
+        detector_ptr->probe_domain = sdsnew(probe_domain);
     }
     return detector_ptr;
 }

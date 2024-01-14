@@ -19,7 +19,7 @@ find_library(DL_LIBRARY dl)
 
 function(_TARGET_TEST_LIBRARIES TEST_BIN_NAME SOURCE_FILES)
     add_executable(${TEST_BIN_NAME} ${SOURCE_FILES})
-    target_link_libraries(${TEST_BIN_NAME} alicloud_httpdns_c_sdk_static)
+    target_link_libraries(${TEST_BIN_NAME} ${CMAKE_PROJECT_NAME}_static)
     target_link_libraries(${TEST_BIN_NAME} ${CURL_LIBRARY})
     target_link_libraries(${TEST_BIN_NAME} ${PTHREAD_LIBRARY})
     target_link_libraries(${TEST_BIN_NAME} ${M_LIBRARY})

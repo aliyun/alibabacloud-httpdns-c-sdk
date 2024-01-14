@@ -6,8 +6,8 @@
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESULT_H
 #include <stdio.h>
 #include <stdlib.h>
-#include "../libs/list.h"
-#include "../libs/dict.h"
+#include "list.h"
+#include "dict.h"
 
 
 typedef struct _httpdns_generic_result {

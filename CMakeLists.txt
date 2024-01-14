@@ -1,11 +1,8 @@
-PROJECT(alicloud_httpdns_c_sdk)
+PROJECT(httpdns_c_sdk)
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 
 set(CMAKE_VERSION 2.0.0)
-
-set(SRC_PATH src)
-set(LIBS_PATH libs)
 
 # default Release C / CXX flags
 set(CMAKE_C_FLAGS " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
@@ -44,29 +41,26 @@ ELSE ()
     MESSAGE(FATAL_ERROR "Could not find curl-config")
 ENDIF ()
 
-aux_source_directory(${SRC_PATH} SRC_LIST)
-aux_source_directory(${LIBS_PATH} LIBS_SRC_LIST)
-set(ALL_SOURCE_LIST ${SRC_LIST} ${LIBS_SRC_LIST})
+aux_source_directory(src SRC_LIST)
 
-
-add_library(${CMAKE_PROJECT_NAME}_static STATIC ${ALL_SOURCE_LIST})
+add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
 IF (APPLE)
     MESSAGE(STATUS "For mac os, skip build dynamic library")
 ELSE ()
-    add_library(${CMAKE_PROJECT_NAME} SHARED ${ALL_SOURCE_LIST})
+    add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC BUILD_SHARED_LIB)
     set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION} SOVERSION ${CMAKE_VERSION})
     INSTALL(TARGETS ${CMAKE_PROJECT_NAME} LIBRARY DESTINATION lib)
 ENDIF ()
 
 
-file(GLOB HEADER_FILES ${SRC_PATH}/*.h ${LIBS_PATH}/*.h)
+file(GLOB HEADER_FILES src/*.h)
 
 INSTALL(FILES
   ${HEADER_FILES}
-  DESTINATION include/alicloud_httpdns_c_sdk)
+  DESTINATION include/${CMAKE_PROJECT_NAME})
 
 enable_testing()
 add_subdirectory(tests)

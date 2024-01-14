@@ -16,7 +16,7 @@
 #include <stdbool.h>
 #include <curl/curl.h>
 #include "httpdns_list.h"
-#include "../libs/sds.h"
+#include "sds.h"
 
 typedef struct _httpdns_http_response {
     char *url;

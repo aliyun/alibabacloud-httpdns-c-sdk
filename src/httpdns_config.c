@@ -5,7 +5,7 @@
 
 #include "httpdns_config.h"
 #include "httpdns_list.h"
-#include "../libs/sds.h"
+#include "sds.h"
 #include <string.h>
 #include <stdlib.h>
 

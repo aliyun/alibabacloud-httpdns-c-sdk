@@ -5,7 +5,7 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H
 
-#include "../libs/dict.h"
+#include "dict.h"
 
 typedef dict httpdns_cache_t;
 

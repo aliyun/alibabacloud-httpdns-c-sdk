@@ -87,7 +87,7 @@ void httpdns_list_shuffle(struct list_head *head) {
         return;
     }
     size_t list_size = httpdns_list_size(head);
-    for (int outer_loop_i = 0; outer_loop_i < list_size; outer_loop_i++) {
+    for (int outer_loop_i = 0; outer_loop_i < 2 * list_size; outer_loop_i++) {
         int swap_index = rand() % list_size;
         httpdns_list_node_t *cursor;
         int inner_loop_i = 0;

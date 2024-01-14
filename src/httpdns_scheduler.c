@@ -11,7 +11,8 @@ httpdns_scheduler_t *create_httpdns_scheduler(httpdns_config_t *config) {
     memset(scheduler, 0, sizeof(httpdns_scheduler_t));
     httpdns_list_init(&scheduler->ipv4_resolve_servers);
     httpdns_list_init(&scheduler->ipv6_resolve_servers);
-    scheduler->net_stack_detector = create_net_stack_detector(config->probe_domain);
+    scheduler->net_stack_detector = create_net_stack_detector();
+    net_stack_detector_set_probe_domain(scheduler->net_stack_detector, config->probe_domain);
     scheduler->config = config;
     return scheduler;
 }

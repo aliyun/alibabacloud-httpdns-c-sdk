@@ -17,16 +17,23 @@
 #define IS_EMPTY_LIST(list) \
  (NULL == list || httpdns_list_size(list) <=0)
 
+#define DATA_CLONE_FUNC(func) \
+   (data_clone_function_ptr_t)func
+
+#define DATA_CMP_FUNC(func) \
+   (data_cmp_function_ptr_t) func
+
+#define DATA_FREE_FUNC(func) \
+   (data_free_function_ptr_t)func
 
 #define STRING_CLONE_FUNC \
-   (data_clone_function_ptr_t)sdsnew
-
+   DATA_CLONE_FUNC(sdsnew)
 
 #define STRING_CMP_FUNC \
-(data_cmp_function_ptr_t) strcmp
+    DATA_CMP_FUNC(strcmp)
 
 #define STRING_FREE_FUNC \
-  (data_free_function_ptr_t)sdsfree
+  DATA_FREE_FUNC(sdsfree)
 
 typedef struct {
     struct list_head list;

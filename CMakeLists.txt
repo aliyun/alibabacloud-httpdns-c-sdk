@@ -47,11 +47,22 @@ ELSE ()
     MESSAGE(FATAL_ERROR "Could not find curl-config")
 ENDIF ()
 
-# Compile and link lib_log_c_sdk
+#-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
+set(OPENSSL_ROOT_DIR /opt/homebrew/opt/openssl@3)
+find_package(OpenSSL REQUIRED)
+if(OPENSSL_FOUND)
+    message(STATUS "OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
+    message(STATUS "OpenSSL library dir: ${OPENSSL_LIBRARIES}")
+
+    include_directories(${OPENSSL_INCLUDE_DIR})
+else()
+    message(FATAL_ERROR "OpenSSL not found")
+endif()
+
+# Compile and link httpdns_c_sdk
 include_directories(${CURL_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
-
 
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)

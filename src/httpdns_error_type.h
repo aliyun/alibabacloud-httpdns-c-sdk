@@ -10,5 +10,6 @@
 #define HTTPDNS_PARAMETER_ERROR             (-102)
 #define HTTPDNS_MEMORY_ALLOCATION_ERROR     (-103)
 #define HTTPDNS_LIST_NODE_DUPLICATED        (-104)
+#define HTTPDNS_CERT_VERIFY_FAILED          (-105)
 #endif
 

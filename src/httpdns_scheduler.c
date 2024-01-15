@@ -94,7 +94,8 @@ int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler
         url = sdscat(url, "/ss?platform=linux&sdk_version=");
         url = sdscat(url, config->sdk_version);
         httpdns_http_request_t *request = create_httpdns_http_request(url, config->timeout_ms, NULL);
-        httpdns_http_response_t *response = httpdns_http_single_request_exchange(request);
+        httpdns_http_response_t *response;
+        httpdns_http_single_request_exchange(request, &response);
         if (response->http_status == HTTP_STATUS_OK) {
             _httpdns_parse_body(response->body, scheduler);
         }

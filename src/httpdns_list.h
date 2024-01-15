@@ -10,6 +10,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <stdint.h>
 #include <time.h>
 
 #define IS_EMPTY_LIST(list) \
@@ -24,7 +25,7 @@ typedef void (*data_free_function_ptr_t )(void *data);
 
 typedef void *(*data_clone_function_ptr_t )(void *data);
 
-typedef uint32_t (*data_cmp_function_ptr_t)(void *data1, void *data2);
+typedef int32_t (*data_cmp_function_ptr_t)(void *data1, void *data2);
 
 void httpdns_list_init(struct list_head *head);
 

@@ -20,13 +20,13 @@
 #define REGION_SINGAPORE       "sg"
 
 
-typedef struct _httpdns_config {
+typedef struct {
     char *account_id;
     char *secret_key;
     char *probe_domain;  //default www.taobao.com
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
     int64_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
-    char * sdk_version;
+    char *sdk_version;
     bool using_async;  // default true, false synchronously, true asynchronously
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https

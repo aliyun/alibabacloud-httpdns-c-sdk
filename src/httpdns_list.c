@@ -33,7 +33,8 @@ int32_t httpdns_list_rotate(struct list_head *head) {
 }
 
 
-struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func) {
+struct list_head *
+httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func) {
     if (NULL == dst_head || NULL == src_head) {
         return NULL;
     }
@@ -99,6 +100,19 @@ void httpdns_list_shuffle(struct list_head *head) {
             inner_loop_i++;
         }
     }
+}
+
+bool httpdns_list_contain(struct list_head *head, void *data, data_cmp_function_ptr_t cmp_func) {
+    if (NULL == head) {
+        return false;
+    }
+    httpdns_list_node_t *cursor;
+    list_for_each_entry(cursor, head, list) {
+        if (cmp_func(cursor->data, data) == 0) {
+            return true;
+        }
+    }
+    return false;
 }
 
 

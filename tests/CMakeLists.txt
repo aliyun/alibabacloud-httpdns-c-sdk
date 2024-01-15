@@ -29,3 +29,5 @@ endfunction()
 _TARGET_TEST_LIBRARIES(net_stack_detector  net_stack_detector_test.c)
 
 _TARGET_TEST_LIBRARIES(httpdns_list  httpdns_list_test.c)
+
+_TARGET_TEST_LIBRARIES(httpdns_config  httpdns_config_test.c)

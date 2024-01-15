@@ -10,7 +10,7 @@
 #include <stdlib.h>
 
 
-static void _set_default_httpdns_config(httpdns_config_t *config_ptr) {
+static void set_default_httpdns_config(httpdns_config_t *config_ptr) {
     config_ptr->using_async = true;
     config_ptr->using_cache = true;
     config_ptr->using_https = false;
@@ -29,7 +29,7 @@ static void _set_default_httpdns_config(httpdns_config_t *config_ptr) {
 httpdns_config_t *create_httpdns_config() {
     httpdns_config_t *config_ptr = (httpdns_config_t *) malloc(sizeof(httpdns_config_t));
     memset(config_ptr, 0, sizeof(httpdns_config_t));
-    _set_default_httpdns_config(config_ptr);
+    set_default_httpdns_config(config_ptr);
     return config_ptr;
 }
 
@@ -54,7 +54,7 @@ int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char
     if (NULL == config || NULL == probe_domain) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    config->secret_key = sdsnew(probe_domain);
+    config->probe_domain = sdsnew(probe_domain);
     return HTTPDNS_SUCCESS;
 }
 
@@ -114,8 +114,11 @@ int32_t httpdns_config_add_pre_resolve_host(httpdns_config_t *config, const char
     if (NULL == config || NULL == host) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_list_add(&config->pre_resolve_hosts, sdsnew(host));
-    return HTTPDNS_SUCCESS;
+    if (!httpdns_list_contain(&config->pre_resolve_hosts, (void *) host, (data_cmp_function_ptr_t) strcmp)) {
+        httpdns_list_add(&config->pre_resolve_hosts, sdsnew(host));
+        return HTTPDNS_SUCCESS;
+    }
+    return HTTPDNS_LIST_NODE_DUPLICATED;
 }
 
 
@@ -123,35 +126,41 @@ int32_t httpdns_config_add_ipv4_boot_server(httpdns_config_t *config, const char
     if (NULL == config || NULL == boot_server) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_list_add(&config->ipv4_boot_servers, sdsnew(boot_server));
-    return HTTPDNS_SUCCESS;
+    if (!httpdns_list_contain(&config->ipv4_boot_servers, (void *) boot_server, (data_cmp_function_ptr_t) strcmp)) {
+        httpdns_list_add(&config->ipv4_boot_servers, sdsnew(boot_server));
+        return HTTPDNS_SUCCESS;
+    }
+    return HTTPDNS_LIST_NODE_DUPLICATED;
 }
 
 int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char *boot_server) {
     if (NULL == config || NULL == boot_server) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_list_add(&config->ipv6_boot_servers, sdsnew(boot_server));
-    return HTTPDNS_SUCCESS;
+    if (!httpdns_list_contain(&config->ipv6_boot_servers, (void *) boot_server, (data_cmp_function_ptr_t) strcmp)) {
+        httpdns_list_add(&config->ipv6_boot_servers, sdsnew(boot_server));
+        return HTTPDNS_SUCCESS;
+    }
+    return HTTPDNS_LIST_NODE_DUPLICATED;
 }
 
 int32_t httpdns_config_is_valid(httpdns_config_t *config) {
     if (NULL == config) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (sdslen(config->sdk_version) <= 0) {
+    if (IS_BLANK_SDS(config->sdk_version)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (sdslen(config->account_id) <= 0) {
+    if (IS_BLANK_SDS(config->account_id)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (config->using_sign && sdslen(config->secret_key) <= 0) {
+    if (config->using_sign && IS_BLANK_SDS(config->secret_key)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (httpdns_list_size(&config->ipv4_boot_servers) <= 0 && httpdns_list_size(&config->ipv6_boot_servers) <= 0) {
+    if (IS_EMPTY_LIST(&config->ipv4_boot_servers) && IS_EMPTY_LIST(&config->ipv6_boot_servers)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (sdslen(config->region) <= 0) {
+    if (IS_BLANK_SDS(config->region)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (config->timeout_ms <= 0) {

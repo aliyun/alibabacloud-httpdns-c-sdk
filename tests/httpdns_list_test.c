@@ -8,7 +8,7 @@
 #include "httpdns_global_init.h"
 
 
-static int32_t _test_httpdns_list_add() {
+static int32_t test_httpdns_list_add() {
     struct list_head list_head;
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("hello"));
@@ -21,7 +21,7 @@ static int32_t _test_httpdns_list_add() {
     return ret;
 }
 
-static int32_t _test_httpdns_list_size() {
+static int32_t test_httpdns_list_size() {
     struct list_head list_head;
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("hello world!"));
@@ -33,7 +33,7 @@ static int32_t _test_httpdns_list_size() {
     return ret;
 }
 
-static int32_t _test_httpdns_list_dup() {
+static int32_t test_httpdns_list_dup() {
     struct list_head list_head;
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("hello"));
@@ -60,7 +60,7 @@ static int32_t _test_httpdns_list_dup() {
     return ret;
 }
 
-static int32_t _test_httpdns_list_rotate() {
+static int32_t test_httpdns_list_rotate() {
     struct list_head list_head;
     const char *test_data = "world!";
     httpdns_list_init(&list_head);
@@ -77,7 +77,7 @@ static int32_t _test_httpdns_list_rotate() {
 }
 
 
-static void _test_httpdns_list_shuffle() {
+static void test_httpdns_list_shuffle() {
     struct list_head list_head;
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("0"));
@@ -101,22 +101,42 @@ static void _test_httpdns_list_shuffle() {
     httpdns_list_free(&list_head, (data_free_function_ptr_t) sdsfree);
 }
 
+static int32_t test_httpdns_list_contain() {
+    struct list_head list_head;
+    httpdns_list_init(&list_head);
+    httpdns_list_add(&list_head, sdsnew("0"));
+    httpdns_list_add(&list_head, sdsnew("1"));
+    int32_t ret = HTTPDNS_FAILURE;
+    if (httpdns_list_contain(&list_head, "2", (data_cmp_function_ptr_t) strcmp) == false) {
+        ret = HTTPDNS_SUCCESS;
+    }
+    if (httpdns_list_contain(&list_head, "0", (data_cmp_function_ptr_t) strcmp) == true) {
+        ret = HTTPDNS_SUCCESS | ret;
+    }
+    httpdns_list_free(&list_head, (data_free_function_ptr_t) sdsfree);
+    return ret;
+}
 
-int main(int argc, char *argv[]) {
+
+int main(void) {
     init_httpdns_sdk();
-    if (_test_httpdns_list_add() != HTTPDNS_SUCCESS) {
+    if (test_httpdns_list_add() != HTTPDNS_SUCCESS) {
         return -1;
     }
-    if (_test_httpdns_list_size() != HTTPDNS_SUCCESS) {
+    if (test_httpdns_list_size() != HTTPDNS_SUCCESS) {
         return -1;
     }
-    if (_test_httpdns_list_dup() != HTTPDNS_SUCCESS) {
+    if (test_httpdns_list_dup() != HTTPDNS_SUCCESS) {
         return -1;
     }
 
-    if (_test_httpdns_list_rotate() != HTTPDNS_SUCCESS) {
+    if (test_httpdns_list_rotate() != HTTPDNS_SUCCESS) {
         return -1;
     }
-    _test_httpdns_list_shuffle();
+    if (test_httpdns_list_contain() != HTTPDNS_SUCCESS) {
+        return -1;
+    }
+
+    test_httpdns_list_shuffle();
     return 0;
 }

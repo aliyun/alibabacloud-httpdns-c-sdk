@@ -18,18 +18,18 @@
 #include "httpdns_list.h"
 #include "sds.h"
 
-typedef struct _httpdns_http_response {
+typedef struct {
     char *url;
     int32_t http_status;
     char *body;
     int64_t total_time_ms;
-    char * cache_key;
+    char *cache_key;
 } httpdns_http_response_t;
 
-typedef struct _httpdns_http_request {
+typedef struct {
     char *url;
     int64_t timeout_ms;
-    char * cache_key;
+    char *cache_key;
 } httpdns_http_request_t;
 
 httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_ms, char *cache_key);
@@ -38,16 +38,18 @@ void destroy_httpdns_http_request(httpdns_http_request_t *request);
 
 void destroy_httpdns_http_requests(struct list_head *requests);
 
-httpdns_http_response_t * create_httpdns_http_response(char *url);
+httpdns_http_response_t *create_httpdns_http_response(char *url);
 
 void
-httpdns_http_fill_response(httpdns_http_response_t *response, int32_t http_status, char *body, char *error_message, int64_t time_cost_ms,
+httpdns_http_fill_response(httpdns_http_response_t *response, int32_t http_status, char *body, char *error_message,
+                           int64_t time_cost_ms,
                            char *cache_key);
+
 void destroy_httpdns_http_response(httpdns_http_response_t *response);
 
 void destroy_httpdns_http_responses(struct list_head *responses);
 
-httpdns_http_response_t* httpdns_http_single_request_exchange(httpdns_http_request_t *request);
+httpdns_http_response_t *httpdns_http_single_request_exchange(httpdns_http_request_t *request);
 
 struct list_head httpdns_http_multiple_request_exchange(struct list_head *requests);
 

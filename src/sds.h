@@ -40,6 +40,10 @@
 #define inline __inline
 #endif
 
+
+#define IS_BLANK_SDS(sds) \
+(NULL == sds || sdslen(sds) <=0)
+
 typedef char *sds;
 
 struct sdshdr {

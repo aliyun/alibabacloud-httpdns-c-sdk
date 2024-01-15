@@ -42,37 +42,42 @@ static int32_t _test_httpdns_list_dup() {
     httpdns_list_dup(&list_head_dup, &list_head, (data_clone_function_ptr_t) sdsnew);
     size_t list_head_size = httpdns_list_size(&list_head);
     size_t list_head_dup_size = httpdns_list_size(&list_head_dup);
+    int32_t ret = HTTPDNS_SUCCESS;
     if (list_head_size != list_head_dup_size) {
-        return HTTPDNS_FAILURE;
-    }
-    for (int i = 0; i < list_head_size; i++) {
-        sds list_head_data = httpdns_list_get(&list_head, i);
-        sds list_head_dup_data = httpdns_list_get(&list_head_dup, i);
-        if (strcmp(list_head_data, list_head_dup_data) != 0) {
-            return HTTPDNS_FAILURE;
+        ret = HTTPDNS_FAILURE;
+    } else {
+        for (int i = 0; i < list_head_size; i++) {
+            sds list_head_data = httpdns_list_get(&list_head, i);
+            sds list_head_dup_data = httpdns_list_get(&list_head_dup, i);
+            if (strcmp(list_head_data, list_head_dup_data) != 0) {
+                ret = HTTPDNS_FAILURE;
+                break;
+            }
         }
     }
     httpdns_list_free(&list_head, (data_free_function_ptr_t) sdsfree);
     httpdns_list_free(&list_head_dup, (data_free_function_ptr_t) sdsfree);
-    return HTTPDNS_SUCCESS;
+    return ret;
 }
 
 static int32_t _test_httpdns_list_rotate() {
     struct list_head list_head;
-    const char* test_data = "world!";
+    const char *test_data = "world!";
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("hello"));
     httpdns_list_add(&list_head, sdsnew(test_data));
     httpdns_list_rotate(&list_head);
     sds data = httpdns_list_get(&list_head, 0);
+    int32_t ret = HTTPDNS_SUCCESS;
     if (strcmp(test_data, data) != 0) {
-        return HTTPDNS_SUCCESS;
+        ret = HTTPDNS_FAILURE;
     }
-    return HTTPDNS_SUCCESS;
+    httpdns_list_free(&list_head, (data_free_function_ptr_t) sdsfree);
+    return ret;
 }
 
 
-static int32_t _test_httpdns_list_shuffle() {
+static void _test_httpdns_list_shuffle() {
     struct list_head list_head;
     httpdns_list_init(&list_head);
     httpdns_list_add(&list_head, sdsnew("0"));
@@ -93,7 +98,7 @@ static int32_t _test_httpdns_list_shuffle() {
         sds list_head_data = httpdns_list_get(&list_head, i);
         printf("%s\t", list_head_data);
     }
-    return HTTPDNS_SUCCESS;
+    httpdns_list_free(&list_head, (data_free_function_ptr_t) sdsfree);
 }
 
 
@@ -112,8 +117,6 @@ int main(int argc, char *argv[]) {
     if (_test_httpdns_list_rotate() != HTTPDNS_SUCCESS) {
         return -1;
     }
-    if (_test_httpdns_list_shuffle() != HTTPDNS_SUCCESS) {
-        return -1;
-    }
+    _test_httpdns_list_shuffle();
     return 0;
 }

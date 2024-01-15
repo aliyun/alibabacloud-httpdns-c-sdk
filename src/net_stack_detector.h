@@ -48,7 +48,7 @@ net_stack_type & (1<<1)
 
 typedef u_int32_t net_stack_type_t;
 
-typedef struct _net_stack_detector {
+typedef struct {
     net_stack_type_t net_stack_type_cache;
     char *probe_domain;
     bool using_cache;

@@ -53,8 +53,4 @@ httpdns_http_response_t *httpdns_http_single_request_exchange(httpdns_http_reque
 
 struct list_head httpdns_http_multiple_request_exchange(struct list_head *requests);
 
-int32_t httpdns_http_init();
-
-void httpdns_http_destroy();
-
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H

@@ -5,7 +5,7 @@
 #include<stdio.h>
 #include "httpdns_list.h"
 #include "sds.h"
-#include "httpdns_global_init.h"
+#include "httpdns_global_config.h"
 
 
 static int32_t test_httpdns_list_add() {

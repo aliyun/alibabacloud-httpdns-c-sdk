@@ -3,17 +3,17 @@
 //
 #include "httpdns_http.h"
 
-static volatile bool is_inited = false;
-
 httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_ms, char *cache_key) {
-    if (sdslen(url) <= 0 || timeout_ms <= 0) {
+    if (IS_BLANK_SDS(url) || timeout_ms <= 0) {
         return NULL;
     }
     httpdns_http_request_t *request = (httpdns_http_request_t *) malloc(sizeof(httpdns_http_request_t));
     memset(request, 0, sizeof(httpdns_http_request_t));
     request->timeout_ms = timeout_ms;
     request->url = sdsnew(url);
-    request->cache_key = cache_key;
+    if (NULL != cache_key) {
+        request->cache_key = sdsnew(cache_key);
+    }
     return request;
 }
 
@@ -24,12 +24,15 @@ void destroy_httpdns_http_request(httpdns_http_request_t *request) {
     if (NULL != request->url) {
         sdsfree(request->url);
     }
+    if (NULL != request->cache_key) {
+        sdsfree(request->cache_key);
+    }
     free(request);
 }
 
 
 httpdns_http_response_t *create_httpdns_http_response(char *url) {
-    if (sdslen(url) <= 0) {
+    if (IS_BLANK_SDS(url)) {
         return NULL;
     }
     httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
@@ -78,7 +81,7 @@ httpdns_http_response_t *httpdns_http_single_request_exchange(httpdns_http_reque
     return NULL;
 }
 
-static size_t _write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
+static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
     size_t realsize = size * nmemb;
     httpdns_http_response_t *response_ptr = (httpdns_http_response_t *) write_data;
     memset(response_ptr, 0, sizeof(httpdns_http_response_t));
@@ -86,7 +89,7 @@ static size_t _write_data_callback(void *buffer, size_t size, size_t nmemb, void
     return realsize;
 }
 
-static CURLcode _ssl_verify_callback(CURL *curl, void *sslctx, void *parm) {
+static CURLcode ssl_verify_callback(CURL *curl, void *sslctx, void *parm) {
     const char *expected_domain = SSL_VERIFY_HOST;
     struct curl_certinfo *certinfo;
     CURLcode res = curl_easy_getinfo(curl, CURLINFO_CERTINFO, &certinfo);
@@ -112,9 +115,6 @@ static CURLcode _ssl_verify_callback(CURL *curl, void *sslctx, void *parm) {
 
 struct list_head httpdns_http_multiple_request_exchange(struct list_head *requests) {
     struct list_head response_head = {NULL, NULL};
-    if (!is_inited) {
-        return response_head;
-    }
     size_t request_num = httpdns_list_size(requests);
     if (request_num <= 0) {
         return response_head;
@@ -132,9 +132,9 @@ struct list_head httpdns_http_multiple_request_exchange(struct list_head *reques
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
         curl_easy_setopt(handle, CURLOPT_PRIVATE, response_ptr);
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, _write_data_callback);
+        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, response_ptr);
-        curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, _ssl_verify_callback);
+        curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_verify_callback);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYSTATUS, 1L);
         curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         curl_multi_add_handle(multi_handle, handle);
@@ -169,18 +169,4 @@ struct list_head httpdns_http_multiple_request_exchange(struct list_head *reques
         }
     }
     return response_head;
-}
-
-int32_t httpdns_http_init() {
-    CURLcode ecode = curl_global_init(CURL_GLOBAL_ALL);
-    if (ecode != CURLE_OK) {
-        return HTTPDNS_FAILURE;
-    }
-    is_inited = true;
-    return HTTPDNS_SUCCESS;
-}
-
-void httpdns_http_destroy() {
-    is_inited = false;
-    curl_global_cleanup();
 }

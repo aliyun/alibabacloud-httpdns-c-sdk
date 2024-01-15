@@ -21,9 +21,9 @@ static void set_default_httpdns_config(httpdns_config_t *config_ptr) {
     config_ptr->sdk_version = sdsnew(SDK_VERSION);
     httpdns_list_init(&config_ptr->pre_resolve_hosts);
     httpdns_list_init(&config_ptr->ipv4_boot_servers);
-    httpdns_list_add(&config_ptr->ipv4_boot_servers, sdsnew(DEFAULT_IPV4_BOOT_SERVER));
+    httpdns_list_add(&config_ptr->ipv4_boot_servers, DEFAULT_IPV4_BOOT_SERVER, STRING_CLONE_FUNC);
     httpdns_list_init(&config_ptr->ipv6_boot_servers);
-    httpdns_list_add(&config_ptr->ipv6_boot_servers, sdsnew(DEFAULT_IPV6_BOOT_SERVER));
+    httpdns_list_add(&config_ptr->ipv6_boot_servers, DEFAULT_IPV6_BOOT_SERVER, STRING_CLONE_FUNC);
 }
 
 httpdns_config_t *create_httpdns_config() {
@@ -114,8 +114,8 @@ int32_t httpdns_config_add_pre_resolve_host(httpdns_config_t *config, const char
     if (NULL == config || NULL == host) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->pre_resolve_hosts, (void *) host, (data_cmp_function_ptr_t) strcmp)) {
-        httpdns_list_add(&config->pre_resolve_hosts, sdsnew(host));
+    if (!httpdns_list_contain(&config->pre_resolve_hosts, host, STRING_CMP_FUNC)) {
+        httpdns_list_add(&config->pre_resolve_hosts, host, STRING_CLONE_FUNC);
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_LIST_NODE_DUPLICATED;
@@ -126,8 +126,8 @@ int32_t httpdns_config_add_ipv4_boot_server(httpdns_config_t *config, const char
     if (NULL == config || NULL == boot_server) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->ipv4_boot_servers, (void *) boot_server, (data_cmp_function_ptr_t) strcmp)) {
-        httpdns_list_add(&config->ipv4_boot_servers, sdsnew(boot_server));
+    if (!httpdns_list_contain(&config->ipv4_boot_servers, boot_server, STRING_CMP_FUNC)) {
+        httpdns_list_add(&config->ipv4_boot_servers, boot_server, STRING_CLONE_FUNC);
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_LIST_NODE_DUPLICATED;
@@ -137,8 +137,8 @@ int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char
     if (NULL == config || NULL == boot_server) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->ipv6_boot_servers, (void *) boot_server, (data_cmp_function_ptr_t) strcmp)) {
-        httpdns_list_add(&config->ipv6_boot_servers, sdsnew(boot_server));
+    if (!httpdns_list_contain(&config->ipv6_boot_servers, boot_server, STRING_CMP_FUNC)) {
+        httpdns_list_add(&config->ipv6_boot_servers, boot_server, STRING_CLONE_FUNC);
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_LIST_NODE_DUPLICATED;

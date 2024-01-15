@@ -32,6 +32,8 @@ typedef struct {
     char *cache_key;
 } httpdns_http_request_t;
 
+httpdns_http_request_t *clone_httpdns_http_request(const httpdns_http_request_t *request);
+
 httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_ms, char *cache_key);
 
 void destroy_httpdns_http_request(httpdns_http_request_t *request);

@@ -7,12 +7,12 @@ void httpdns_list_init(struct list_head *ips) {
     INIT_LIST_HEAD(ips);
 }
 
-int32_t httpdns_list_add(struct list_head *head, void *data) {
+int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_function_ptr_t clone_func) {
     size_t size = sizeof(httpdns_list_node_t);
     httpdns_list_node_t *node = malloc(size);
     if (NULL != node) {
         memset(node, 0, size);
-        node->data = data;
+        node->data = clone_func(data);
         list_add_tail(&node->list, head);
         return HTTPDNS_SUCCESS;
     }
@@ -41,7 +41,7 @@ httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_cl
     httpdns_list_node_t *cursor;
     httpdns_list_init(dst_head);
     list_for_each_entry(cursor, src_head, list) {
-        httpdns_list_add(dst_head, clone_func(cursor->data));
+        httpdns_list_add(dst_head, cursor->data, clone_func);
     }
     return dst_head;
 }
@@ -102,7 +102,7 @@ void httpdns_list_shuffle(struct list_head *head) {
     }
 }
 
-bool httpdns_list_contain(struct list_head *head, void *data, data_cmp_function_ptr_t cmp_func) {
+bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func) {
     if (NULL == head) {
         return false;
     }

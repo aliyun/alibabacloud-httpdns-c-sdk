@@ -17,6 +17,13 @@ httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_m
     return request;
 }
 
+httpdns_http_request_t *clone_httpdns_http_request(const httpdns_http_request_t *request) {
+    if (NULL != request) {
+        return NULL;
+    }
+    return create_httpdns_http_request(request->url, request->timeout_ms, request->cache_key);
+}
+
 void destroy_httpdns_http_request(httpdns_http_request_t *request) {
     if (NULL == request) {
         return;
@@ -69,7 +76,7 @@ void destroy_httpdns_http_requests(struct list_head *requests) {
 httpdns_http_response_t *httpdns_http_single_request_exchange(httpdns_http_request_t *request) {
     struct list_head requests;
     httpdns_list_init(&requests);
-    httpdns_list_add(&requests, request);
+    httpdns_list_add(&requests, request, (data_clone_function_ptr_t) clone_httpdns_http_request);
     struct list_head responses = httpdns_http_multiple_request_exchange(&requests);
     if (httpdns_list_size(&responses) <= 0) {
         return NULL;
@@ -162,7 +169,7 @@ struct list_head httpdns_http_multiple_request_exchange(struct list_head *reques
                 double total_time_sec;
                 curl_easy_getinfo(msg->easy_handle, CURLINFO_TOTAL_TIME, &total_time_sec);
                 resonse_ptr->total_time_ms = (int64_t) (total_time_sec * 1000.0);
-                httpdns_list_add(&response_head, resonse_ptr);
+                httpdns_list_add(&response_head, resonse_ptr, (data_clone_function_ptr_t) clone_httpdns_http_request);
             }
             curl_multi_remove_handle(multi_handle, msg->easy_handle);
             curl_easy_cleanup(msg->easy_handle);

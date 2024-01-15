@@ -32,6 +32,18 @@ static httpdns_resolve_server_t *_clone_resolve_server(httpdns_resolve_server_t 
     return create_httpdns_resolve_server(resolve_server->server);
 }
 
+static httpdns_resolve_server_t *clone_httpdns_resolve_server(const httpdns_resolve_server_t *origin_resolver) {
+    if (NULL == origin_resolver) {
+        return NULL;
+    }
+    httpdns_resolve_server_t *resolver = (httpdns_resolve_server_t *) malloc(sizeof(httpdns_resolve_server_t));
+    if (NULL != origin_resolver->server) {
+        resolver->server = sdsdup(origin_resolver->server);
+    }
+    resolver->weight = origin_resolver->weight;
+    return resolver;
+}
+
 static void _httpdns_parse_resolvers(cJSON *c_json_body, const char *item_name, struct list_head *dst_resolvers) {
     cJSON *resolvers = cJSON_GetObjectItem(c_json_body, item_name);
     if (NULL != resolvers) {
@@ -41,7 +53,7 @@ static void _httpdns_parse_resolvers(cJSON *c_json_body, const char *item_name, 
         for (int i = 0; i < resolve_num; i++) {
             cJSON *ipv4_resolver = cJSON_GetArrayItem(resolvers, i);
             httpdns_resolve_server_t *resolver = create_httpdns_resolve_server(ipv4_resolver->valuestring);
-            httpdns_list_add(&resolve_list, resolver);
+            httpdns_list_add(&resolve_list, resolver, (data_clone_function_ptr_t)clone_httpdns_resolve_server);
         }
         if (httpdns_list_size(&resolve_list) > 0) {
             httpdns_list_free(dst_resolvers, (data_free_function_ptr_t) destroy_httpdns_resolve_server);

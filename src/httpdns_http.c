@@ -47,7 +47,9 @@ httpdns_http_response_t *create_httpdns_http_response(char *url, char *cache_key
     }
     httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
     memset(response, 0, sizeof(httpdns_http_response_t));
-    response->url = sdsnew(url);
+    if (!IS_BLANK_SDS(url)) {
+        response->url = sdsnew(url);
+    }
     if (!IS_BLANK_SDS(cache_key)) {
         response->cache_key = sdsnew(cache_key);
     }
@@ -107,7 +109,9 @@ int32_t httpdns_http_single_request_exchange(httpdns_http_request_t *request, ht
     if (ret != HTTPDNS_SUCCESS) {
         return ret;
     }
-    *response = httpdns_list_get(&responses, 0);
+    *response = clone_httpdns_http_response(httpdns_list_get(&responses, 0));
+    httpdns_list_free(&requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
+    httpdns_list_free(&responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
     return HTTPDNS_SUCCESS;
 }
 
@@ -278,7 +282,7 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &resonse->http_status);
                     double total_time_sec;
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_TOTAL_TIME, &total_time_sec);
-                    resonse->total_time_ms = (int64_t) (total_time_sec * 1000.0);
+                    resonse->total_time_ms = (int32_t) (total_time_sec * 1000.0);
                     httpdns_list_add(responses, resonse, DATA_CLONE_FUNC(clone_httpdns_http_response));
                 }
                 destroy_httpdns_http_response(resonse);
@@ -286,6 +290,9 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
             curl_multi_remove_handle(multi_handle, msg->easy_handle);
             curl_easy_cleanup(msg->easy_handle);
         }
+    }
+    if (NULL != multi_handle) {
+        curl_multi_cleanup(multi_handle);
     }
     return HTTPDNS_SUCCESS;
 }

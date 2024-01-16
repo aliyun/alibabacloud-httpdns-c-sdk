@@ -58,7 +58,7 @@ int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char
     return HTTPDNS_SUCCESS;
 }
 
-int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int64_t timeout_ms) {
+int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int32_t timeout_ms) {
     if (config == NULL || timeout_ms <= 0) {
         return HTTPDNS_PARAMETER_ERROR;
     }

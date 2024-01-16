@@ -10,6 +10,7 @@
 #define MULTI_HANDLE_TIMEOUT_MS  10
 #define HTTP_SCHEME        "http://"
 #define HTTPS_SCHEME        "https://"
+#define CERT_PEM_NAME       "Cert:"
 #define HTTP_STATUS_OK 200
 #define IS_HTTPS_SCHEME(URL) \
 (strncmp(URL, HTTPS_SCHEME, strlen(HTTPS_SCHEME)) == 0)
@@ -26,19 +27,19 @@ typedef struct {
     char *url;
     int32_t http_status;
     char *body;
-    int64_t total_time_ms;
+    int32_t total_time_ms;
     char *cache_key;
 } httpdns_http_response_t;
 
 typedef struct {
     char *url;
-    int64_t timeout_ms;
+    int32_t timeout_ms;
     char *cache_key;
 } httpdns_http_request_t;
 
 httpdns_http_request_t *clone_httpdns_http_request(const httpdns_http_request_t *request);
 
-httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_ms, char *cache_key);
+httpdns_http_request_t *create_httpdns_http_request(char *url, int32_t timeout_ms, char *cache_key);
 
 void destroy_httpdns_http_request(httpdns_http_request_t *request);
 

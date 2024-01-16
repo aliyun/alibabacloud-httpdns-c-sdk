@@ -25,7 +25,7 @@ typedef struct {
     char *secret_key;
     char *probe_domain;  //default www.taobao.com
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
-    int64_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
+    int32_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
     char *sdk_version;
     bool using_async;  // default true, false synchronously, true asynchronously
     bool using_cache;  // default true, false without cache, true with cache
@@ -73,7 +73,7 @@ int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char
  * @param timeout_ms timeout interval
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
-int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int64_t timeout_ms);
+int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int32_t timeout_ms);
 
 
 /**

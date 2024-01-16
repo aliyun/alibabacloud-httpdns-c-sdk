@@ -197,6 +197,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
         }
     }
     bool is_domain_matched = httpdns_list_contain(&host_names, SSL_VERIFY_HOST, STRING_CMP_FUNC);
+    httpdns_list_free(&host_names, STRING_FREE_FUNC);
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
 }
 

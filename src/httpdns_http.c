@@ -13,8 +13,10 @@ httpdns_http_request_t *create_httpdns_http_request(char *url, int32_t timeout_m
     httpdns_http_request_t *request = (httpdns_http_request_t *) malloc(sizeof(httpdns_http_request_t));
     memset(request, 0, sizeof(httpdns_http_request_t));
     request->timeout_ms = timeout_ms;
-    request->url = sdsnew(url);
-    if (NULL != cache_key) {
+    if (!IS_BLANK_SDS(url)) {
+        request->url = sdsnew(url);
+    }
+    if (!IS_BLANK_SDS(cache_key)) {
         request->cache_key = sdsnew(cache_key);
     }
     return request;

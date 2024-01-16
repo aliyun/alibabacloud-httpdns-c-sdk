@@ -29,8 +29,8 @@ static int32_t test_exchange_singel_request() {
     if (!ret) {
         print_response(response);
         destroy_httpdns_http_response(response);
-        destroy_httpdns_http_request(request);
     }
+    destroy_httpdns_http_request(request);
     return ret;
 }
 

@@ -279,8 +279,8 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_TOTAL_TIME, &total_time_sec);
                     resonse->total_time_ms = (int64_t) (total_time_sec * 1000.0);
                     httpdns_list_add(responses, resonse, DATA_CLONE_FUNC(clone_httpdns_http_response));
-                    destroy_httpdns_http_response(resonse);
                 }
+                destroy_httpdns_http_response(resonse);
             }
             curl_multi_remove_handle(multi_handle, msg->easy_handle);
             curl_easy_cleanup(msg->easy_handle);

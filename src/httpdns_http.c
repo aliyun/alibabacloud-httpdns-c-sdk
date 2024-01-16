@@ -106,11 +106,11 @@ int32_t httpdns_http_single_request_exchange(httpdns_http_request_t *request, ht
     httpdns_list_init(&responses);
     httpdns_list_add(&requests, request, DATA_CLONE_FUNC(clone_httpdns_http_request));
     int32_t ret = httpdns_http_multiple_request_exchange(&requests, &responses);
-    if (ret != HTTPDNS_SUCCESS) {
-        return ret;
+    httpdns_list_free(&requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
+    if (ret != HTTPDNS_SUCCESS || IS_EMPTY_LIST(&responses)) {
+        return HTTPDNS_CORRECT_RESPONSE_EMPTY;
     }
     *response = clone_httpdns_http_response(httpdns_list_get(&responses, 0));
-    httpdns_list_free(&requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
     httpdns_list_free(&responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
     return HTTPDNS_SUCCESS;
 }

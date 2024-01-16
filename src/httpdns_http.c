@@ -2,6 +2,9 @@
 // Created by cagaoshuai on 2024/1/12.
 //
 #include "httpdns_http.h"
+#include <arpa/inet.h>
+#include "openssl/ssl.h"
+#include "openssl/x509v3.h"
 
 httpdns_http_request_t *create_httpdns_http_request(char *url, int64_t timeout_ms, char *cache_key) {
     if (IS_BLANK_SDS(url) || timeout_ms <= 0) {
@@ -118,30 +121,120 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
 static int32_t ssl_cert_verify(CURL *curl) {
     struct curl_certinfo *certinfo;
     CURLcode res = curl_easy_getinfo(curl, CURLINFO_CERTINFO, &certinfo);
-    if (res != CURLE_OK || !certinfo || !certinfo->certinfo) {
-        return HTTPDNS_CERT_VERIFY_FAILED;
-    }
-    for (int i = 0; i < certinfo->num_of_certs; i++) {
-        for (struct curl_slist *slist = certinfo->certinfo[i]; slist; slist = slist->next) {
-            if (strstr(slist->data, "Subject:")) {
-                const char *cn = strstr(slist->data, "CN = ");
-                if (cn) {
-                    const char *domain_start = cn + 3;
-                    if (strncmp(domain_start, SSL_VERIFY_HOST, strlen(SSL_VERIFY_HOST)) == 0) {
-                        return HTTPDNS_SUCCESS;
+
+    if(!res && certinfo) {
+        for(int i = 0; i < certinfo->num_of_certs; i++) {
+            for(struct curl_slist *slist = certinfo->certinfo[i]; slist; slist = slist->next) {
+                if(strncmp(slist->data, "Cert:", 5) == 0) {
+                    // PEM格式的证书字符串位于"Cert:"后面
+                    const char *pem_cert = slist->data + 5;
+
+                    BIO *bio = BIO_new(BIO_s_mem());
+                    BIO_puts(bio, pem_cert);
+
+                    X509 *cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
+                    if(cert) {
+                        // 提取 Common Name (CN)
+                        X509_NAME *subject = X509_get_subject_name(cert);
+                        int index = X509_NAME_get_index_by_NID(subject, NID_commonName, -1);
+                        if(index >= 0) {
+                            X509_NAME_ENTRY *entry = X509_NAME_get_entry(subject, index);
+                            ASN1_STRING *data = X509_NAME_ENTRY_get_data(entry);
+                            unsigned char *cn;
+                            ASN1_STRING_to_UTF8(&cn, data);
+                            printf("Common Name: %s\n", cn);
+                            OPENSSL_free(cn);
+                        }
+
+                        // 提取 Subject Alternative Name (SAN)
+                        index = X509_get_ext_by_NID(cert, NID_subject_alt_name, -1);
+                        if(index >0){
+                            X509_EXTENSION* san_extension = X509_get_ext(cert, index);
+                            if (san_extension) {
+                                GENERAL_NAMES* san_names = (GENERAL_NAMES*)X509V3_EXT_d2i(san_extension);
+                                int san_count = sk_GENERAL_NAME_num(san_names);
+                                for (int inner_i = 0; inner_i < san_count; ++inner_i) {
+                                    GENERAL_NAME* san_entry = sk_GENERAL_NAME_value(san_names, inner_i);
+                                    if (!san_entry) {
+                                        continue;
+                                    }
+
+                                    // 根据 SAN 类型处理不同数据
+                                    if (san_entry->type == GEN_DNS) {
+                                        const char *dns_name = (const char *)ASN1_STRING_get0_data(san_entry->d.dNSName);
+                                        printf("DNS: %s\n", dns_name);
+                                    } else if(san_entry->type == GEN_IPADD) {
+                                        unsigned char *ip_addr = NULL;
+                                        char ip_str[INET6_ADDRSTRLEN];
+                                        ip_addr = (unsigned char *)ASN1_STRING_get0_data(san_entry->d.iPAddress);
+                                        if (ASN1_STRING_length(san_entry->d.iPAddress) == 4) {
+                                            // IPv4 地址
+                                            inet_ntop(AF_INET, ip_addr, ip_str, sizeof(ip_str));
+                                        } else if (ASN1_STRING_length(san_entry->d.iPAddress) == 16) {
+                                            // IPv6 地址
+                                            inet_ntop(AF_INET6, ip_addr, ip_str, sizeof(ip_str));
+                                        }
+                                        printf("IP Address: %s\n", ip_str);
+                                    }
+                                    // 可以添加处理其他类型的代码，如 IP 地址 (GEN_IPADD)
+                                }
+
+                                // 释放 GENERAL_NAMES 结构占用的内存
+                                sk_GENERAL_NAME_pop_free(san_names, GENERAL_NAME_free);
+                            }
+                        }
+
+
+
+                        int ext_count = X509_get_ext_count(cert);
+                        for(int j = 0; j < ext_count; j++) {
+                            X509_EXTENSION *ext = X509_get_ext(cert, j);
+                            ASN1_OBJECT *obj = X509_EXTENSION_get_object(ext);
+                            printf("%d\n", OBJ_obj2nid(obj));
+                            if(OBJ_obj2nid(obj) == NID_subject_alt_name) {
+                                GENERAL_NAMES *names = X509V3_EXT_d2i(ext);
+                                if(names) {
+                                    int name_count = sk_GENERAL_NAME_num(names);
+
+                                    for(int k = 0; k < name_count; k++) {
+                                        GENERAL_NAME *name = sk_GENERAL_NAME_value(names, k);
+                                        if(name->type == GEN_DNS) {
+                                            char *dns_name = (char *)ASN1_STRING_get0_data(name->d.dNSName);
+                                            printf("SAN: %s\n", dns_name);
+                                        }
+                                    }
+                                    GENERAL_NAMES_free(names);
+                                }
+                            }
+                        }
+                        X509_free(cert);
                     }
+                    BIO_free(bio);
                 }
             }
         }
     }
+
+//    struct curl_certinfo *certinfo;
+//    CURLcode res = curl_easy_getinfo(curl, CURLINFO_CERTINFO, &certinfo);
+//    if (res != CURLE_OK || !certinfo || !certinfo->certinfo) {
+//        return HTTPDNS_CERT_VERIFY_FAILED;
+//    }
+//    for (int i = 0; i < certinfo->num_of_certs; i++) {
+//        for (struct curl_slist *slist = certinfo->certinfo[i]; slist; slist = slist->next) {
+//            if (strstr(slist->data, "Subject:")) {
+//                const char *cn = strstr(slist->data, "CN = ");
+//                if (cn) {
+//                    const char *domain_start = cn + 3;
+//                    if (strncmp(domain_start, SSL_VERIFY_HOST, strlen(SSL_VERIFY_HOST)) == 0) {
+//                        return HTTPDNS_SUCCESS;
+//                    }
+//                }
+//            }
+//        }
+//    }
     return HTTPDNS_SUCCESS;
 }
-
-static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_data) {
-
-    return CURLE_OK;
-}
-
 
 int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struct list_head *responses) {
     if (NULL == responses || NULL == requests) {
@@ -161,7 +254,6 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
         curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, request->timeout_ms);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
         curl_easy_setopt(handle, CURLOPT_PRIVATE, response);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);

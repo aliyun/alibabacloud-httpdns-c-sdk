@@ -20,8 +20,7 @@ static void print_response(httpdns_http_response_t *response) {
     }
 }
 
-static int32_t test_exchange_singel_request() {
-    char *url = "https://203.107.1.1/139450/d?host=www.baidu.com";
+static int32_t test_exchange_singel_request(char * url) {
     httpdns_http_request_t *request = create_httpdns_http_request(url, 10000, NULL);
     print_request(request);
     httpdns_http_response_t *response;
@@ -34,9 +33,22 @@ static int32_t test_exchange_singel_request() {
     return ret;
 }
 
+static int32_t test_exchange_singel_request_with_resolve() {
+    char *url = "https://203.107.1.1/139450/d?host=www.baidu.com";
+    return test_exchange_singel_request(url);
+}
+
+static int32_t test_exchange_singel_request_with_schedule() {
+    char *url = "https://203.107.1.1/139450/ss";
+    return test_exchange_singel_request(url);
+}
+
 
 int main(void) {
-    if (test_exchange_singel_request() != HTTPDNS_SUCCESS) {
+    if (test_exchange_singel_request_with_resolve() != HTTPDNS_SUCCESS) {
+        return -1;
+    }
+    if (test_exchange_singel_request_with_schedule() != HTTPDNS_SUCCESS) {
         return -1;
     }
     return 0;

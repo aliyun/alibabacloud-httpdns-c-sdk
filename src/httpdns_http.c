@@ -125,7 +125,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
 }
 
 /**
- * 对于mac 环境，暂时通过响应后进行证书校验
+ * 对于mac环境，目前无法在请求前进行证书校验，只能请求后校验
  */
 static int32_t ssl_cert_verify(CURL *curl) {
     struct curl_certinfo *certinfo;
@@ -207,12 +207,6 @@ static int32_t ssl_cert_verify(CURL *curl) {
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
 }
 
-/**
- *
- *  该方法在unbuntu 上测试生效，在mac上测试不生效
- *
- * @refer to https://android.googlesource.com/platform/external/curl/+/9bd90e6e25f1e55f50201c87a1b5837de7e5b64a/docs/examples/curlx.c
- */
 static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     (void) curl;
     (void) user_param;
@@ -257,7 +251,9 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
         curl_easy_setopt(handle, CURLOPT_PRIVATE, response);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
 #ifdef __linux__
-        curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
+        //仅支持OpenSSL, wolfSSL, mbedTLS or BearSSL，对于mac环境的LibreSSL不支持
+        //https://curl.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html
+       curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
 #endif
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
         curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);

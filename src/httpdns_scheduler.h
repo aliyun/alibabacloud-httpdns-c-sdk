@@ -35,9 +35,13 @@ void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server);
 
 httpdns_scheduler_t *create_httpdns_scheduler(httpdns_config_t *config);
 
+void httpdns_scheduler_update_server_weight(httpdns_scheduler_t* scheduler, char *resolve_server_name, int32_t time_cost);
+
 int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char **resolve_server_ptr);
+
+void httpdns_scheduler_print_resolve_servers(httpdns_scheduler_t *scheduler);
 
 /*
  * config需要单独释放

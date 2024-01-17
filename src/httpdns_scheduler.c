@@ -3,6 +3,23 @@
 //
 #include "httpdns_scheduler.h"
 
+static void print_resolve_servers(struct list_head *servers) {
+    size_t server_size = httpdns_list_size(servers);
+    printf("[");
+    for (int i = 0; i < server_size; i++) {
+        httpdns_resolve_server_t *server = httpdns_list_get(servers, i);
+        printf(" { server=%s, weight=%d } ", server->server, server->weight);
+    }
+    printf("]\n");
+}
+void httpdns_scheduler_print_resolve_servers(httpdns_scheduler_t *scheduler) {
+    if(NULL != scheduler) {
+        print_resolve_servers(&scheduler->ipv4_resolve_servers);
+        print_resolve_servers(&scheduler->ipv6_resolve_servers);
+    }
+}
+
+
 httpdns_scheduler_t *create_httpdns_scheduler(httpdns_config_t *config) {
     if (httpdns_config_is_valid(config) != HTTPDNS_SUCCESS) {
         return NULL;
@@ -105,6 +122,45 @@ int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler
         destroy_httpdns_http_response(response);
     }
     return HTTPDNS_SUCCESS;
+}
+
+static httpdns_resolve_server_t *search_resolve_server(struct list_head *resolve_servers, char *resolve_server_name) {
+    if (NULL == resolve_servers) {
+        return NULL;
+    }
+    size_t resolve_server_size = httpdns_list_size(resolve_servers);
+    for (int i = 0; i < resolve_server_size; i++) {
+        httpdns_resolve_server_t *target_server = httpdns_list_get(resolve_servers, i);
+        if (strcmp(target_server->server, resolve_server_name) == 0) {
+            return target_server;
+        }
+    }
+    return NULL;
+}
+
+static int32_t update_server_weight(int32_t old_val, int32_t new_val) {
+    if (old_val == DEFAULT_RESOLVER_WEIGHT) {
+        return new_val;
+    }
+    if (new_val * 0.2 > old_val) {
+        return old_val;
+    }
+    return new_val * 0.2 + old_val * 0.8;
+}
+
+void httpdns_scheduler_update_server_weight(httpdns_scheduler_t *scheduler, char *resolve_server_name, int32_t time_cost) {
+    if (IS_BLANK_SDS(resolve_server_name) || NULL == scheduler || time_cost <= 0) {
+        return;
+    }
+    httpdns_resolve_server_t *resolve_server = search_resolve_server(&scheduler->ipv4_resolve_servers,
+                                                                     resolve_server_name);
+    if (NULL != resolve_server) {
+        resolve_server->weight = update_server_weight(resolve_server->weight, -time_cost);
+    }
+    resolve_server = search_resolve_server(&scheduler->ipv6_resolve_servers, resolve_server_name);
+    if (NULL != resolve_server) {
+        resolve_server->weight = update_server_weight(resolve_server->weight, -time_cost);
+    }
 }
 
 void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char **resolve_server_ptr) {

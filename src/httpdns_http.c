@@ -42,6 +42,15 @@ void destroy_httpdns_http_request(httpdns_http_request_t *request) {
     free(request);
 }
 
+void httpdns_http_print_response(httpdns_http_response_t *response) {
+    if (response) {
+        printf("HTTP response:\n");
+        printf("\turl:%s\n", response->url);
+        printf("\tstatus_code:%d\n", response->http_status);
+        printf("\tbody:%s\n", response->body);
+        printf("\ttime_cost: %d ms\n", response->total_time_ms);
+    }
+}
 
 httpdns_http_response_t *create_httpdns_http_response(char *url, char *cache_key) {
     if (IS_BLANK_SDS(url)) {

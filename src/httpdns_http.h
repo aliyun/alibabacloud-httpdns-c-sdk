@@ -62,4 +62,6 @@ int32_t httpdns_http_single_request_exchange(httpdns_http_request_t *request, ht
 
 int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struct list_head *responses);
 
+void httpdns_http_print_response(httpdns_http_response_t *response);
+
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H

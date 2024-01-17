@@ -5,22 +5,12 @@
 #include "httpdns_http.h"
 #include "httpdns_global_config.h"
 
-static void print_response(httpdns_http_response_t *response) {
-    if (response) {
-        printf("HTTP response:\n");
-        printf("\turl:%s\n", response->url);
-        printf("\tstatus_code:%d\n", response->http_status);
-        printf("\tbody:%s\n", response->body);
-        printf("\ttime_cost: %d ms\n", response->total_time_ms);
-    }
-}
-
 static int32_t test_exchange_singel_request(char *url) {
     httpdns_http_request_t *request = create_httpdns_http_request(url, 10000, NULL);
     httpdns_http_response_t *response;
     int32_t ret = httpdns_http_single_request_exchange(request, &response);
     if (!ret) {
-        print_response(response);
+        httpdns_http_print_response(response);
         destroy_httpdns_http_response(response);
     }
     destroy_httpdns_http_request(request);

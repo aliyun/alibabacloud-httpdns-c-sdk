@@ -20,25 +20,28 @@ typedef struct _httpdns_scheduler {
     struct list_head ipv4_resolve_servers;
     struct list_head ipv6_resolve_servers;
     net_stack_detector_t *net_stack_detector;
-    httpdns_config_t* config;
+    httpdns_config_t *config;
 } httpdns_scheduler_t;
 
 
 typedef struct _httpdns_resolve_server {
     char *server;
-    int64_t weight;
+    int32_t weight;
 } httpdns_resolve_server_t;
 
-httpdns_resolve_server_t* create_httpdns_resolve_server(char* server);
+httpdns_resolve_server_t *create_httpdns_resolve_server(char *server);
 
-void destroy_httpdns_resolve_server(httpdns_resolve_server_t* resolve_server);
+void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server);
 
 httpdns_scheduler_t *create_httpdns_scheduler(httpdns_config_t *config);
 
 int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char** resolve_server_ptr);
+void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char **resolve_server_ptr);
 
+/*
+ * config需要单独释放
+ */
 void destroy_httpdns_scheduler(httpdns_scheduler_t *scheduler);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SCHEDULER_H

@@ -13,10 +13,10 @@ httpdns_http_request_t *create_httpdns_http_request(char *url, int32_t timeout_m
     httpdns_http_request_t *request = (httpdns_http_request_t *) malloc(sizeof(httpdns_http_request_t));
     memset(request, 0, sizeof(httpdns_http_request_t));
     request->timeout_ms = timeout_ms;
-    if (!IS_BLANK_SDS(url)) {
+    if (IS_NOT_BLANK_SDS(url)) {
         request->url = sdsnew(url);
     }
-    if (!IS_BLANK_SDS(cache_key)) {
+    if (IS_NOT_BLANK_SDS(cache_key)) {
         request->cache_key = sdsnew(cache_key);
     }
     return request;
@@ -49,10 +49,10 @@ httpdns_http_response_t *create_httpdns_http_response(char *url, char *cache_key
     }
     httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
     memset(response, 0, sizeof(httpdns_http_response_t));
-    if (!IS_BLANK_SDS(url)) {
+    if (IS_NOT_BLANK_SDS(url)) {
         response->url = sdsnew(url);
     }
-    if (!IS_BLANK_SDS(cache_key)) {
+    if (IS_NOT_BLANK_SDS(cache_key)) {
         response->cache_key = sdsnew(cache_key);
     }
     return response;
@@ -64,10 +64,10 @@ httpdns_http_response_t *clone_httpdns_http_response(const httpdns_http_response
     }
     httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
     memset(response, 0, sizeof(httpdns_http_response_t));
-    if (!IS_BLANK_SDS(origin_response->url)) {
+    if (IS_NOT_BLANK_SDS(origin_response->url)) {
         response->url = sdsnew(origin_response->url);
     }
-    if (!IS_BLANK_SDS(origin_response->cache_key)) {
+    if (IS_NOT_BLANK_SDS(origin_response->cache_key)) {
         response->cache_key = sdsnew(origin_response->cache_key);
     }
     response->http_status = origin_response->http_status;

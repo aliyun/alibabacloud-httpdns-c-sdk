@@ -49,10 +49,10 @@ net_stack_type_t test_net_stack_by_udp() {
     bool have_ipv4 = (have_ipv4_by_udp() == HTTPDNS_SUCCESS);
     bool have_ipv6 = (have_ipv6_by_udp() == HTTPDNS_SUCCESS);
     net_stack_type_t net_stack_type = IP_STACK_UNKNOWN;
-    if(have_ipv4) {
+    if (have_ipv4) {
         ADD_IPV4_NET_TYPE(net_stack_type);
     }
-    if(have_ipv6){
+    if (have_ipv6) {
         ADD_IPV6_NET_TYPE(net_stack_type);
     }
     return net_stack_type;
@@ -79,10 +79,10 @@ net_stack_type_t test_net_stack_by_dns(const char *probe_domain) {
     }
     freeaddrinfo(answer);
     net_stack_type_t net_stack_type = IP_STACK_UNKNOWN;
-    if(have_ipv4) {
+    if (have_ipv4) {
         ADD_IPV4_NET_TYPE(net_stack_type);
     }
-    if(have_ipv6) {
+    if (have_ipv6) {
         ADD_IPV6_NET_TYPE(net_stack_type);
     }
     return net_stack_type;
@@ -114,7 +114,7 @@ net_stack_detector_t *create_net_stack_detector() {
 
 void destroy_net_stack_detector(net_stack_detector_t *detector) {
     if (NULL != detector) {
-        if (NULL != detector->probe_domain) {
+        if (IS_NOT_BLANK_SDS(detector->probe_domain)) {
             sdsfree(detector->probe_domain);
         }
         free(detector);
@@ -139,7 +139,7 @@ void net_stack_detector_set_using_cache(net_stack_detector_t *detector, bool usi
 }
 
 void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const char *probe_domain) {
-    if (NULL != detector && NULL != probe_domain) {
+    if (NULL != detector && IS_NOT_BLANK_SDS(probe_domain)) {
         detector->probe_domain = sdsnew(probe_domain);
     }
 }

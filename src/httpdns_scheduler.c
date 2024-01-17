@@ -38,7 +38,7 @@ static httpdns_resolve_server_t *clone_httpdns_resolve_server(const httpdns_reso
     }
     httpdns_resolve_server_t *resolver = (httpdns_resolve_server_t *) malloc(sizeof(httpdns_resolve_server_t));
     if (NULL != origin_resolver->server) {
-        resolver->server = sdsdup(origin_resolver->server);
+        resolver->server = sdsnew(origin_resolver->server);
     }
     resolver->weight = origin_resolver->weight;
     return resolver;
@@ -127,7 +127,7 @@ void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char *
         }
     }
     httpdns_resolve_server_t *resolve_server = httpdns_list_get(&resolve_servers, max_weight_resolve_server_index);
-    *resolve_server_ptr = sdsdup(resolve_server->server);
+    *resolve_server_ptr = sdsnew(resolve_server->server);
 }
 
 httpdns_resolve_server_t *create_httpdns_resolve_server(char *server) {

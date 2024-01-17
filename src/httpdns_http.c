@@ -65,13 +65,13 @@ httpdns_http_response_t *clone_httpdns_http_response(const httpdns_http_response
     httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
     memset(response, 0, sizeof(httpdns_http_response_t));
     if (!IS_BLANK_SDS(origin_response->url)) {
-        response->url = sdsdup(origin_response->url);
+        response->url = sdsnew(origin_response->url);
     }
     if (!IS_BLANK_SDS(origin_response->cache_key)) {
-        response->cache_key = sdsdup(origin_response->cache_key);
+        response->cache_key = sdsnew(origin_response->cache_key);
     }
     response->http_status = origin_response->http_status;
-    response->body = sdsdup(origin_response->body);
+    response->body = sdsnew(origin_response->body);
     response->total_time_ms = origin_response->total_time_ms;
     return response;
 }
@@ -246,13 +246,19 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
         curl_easy_setopt(handle, CURLOPT_URL, request->url);
         curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, request->timeout_ms);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
-        // curl本身的host name校验关闭，并不关闭openssl的校验
-        //https://github.com/curl/curl/blob/master/lib/vtls/openssl.c
-        // Curl_ossl_verifyhost方法关闭
+        /**
+         * 这里curl本身的host name校验关闭，但并不关闭openssl的校验
+         *
+         * 即 https://github.com/curl/curl/blob/master/lib/vtls/openssl.c
+         *
+         * 文件中的Curl_ossl_verifyhost方法不调用
+         */
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
         curl_easy_setopt(handle, CURLOPT_PRIVATE, response);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
+#ifdef __linux__
         curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
+#endif
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
         curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
@@ -279,7 +285,11 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
             curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resonse);
             if (NULL != resonse) {
                 bool using_https = IS_HTTPS_SCHEME(resonse->url);
+#ifdef __APPLE__
                 bool very_https_cert_success = (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
+#else
+                bool very_https_cert_success = true;
+#endif
                 if (!using_https || very_https_cert_success) {
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &resonse->http_status);
                     double total_time_sec;
@@ -296,5 +306,5 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
     if (NULL != multi_handle) {
         curl_multi_cleanup(multi_handle);
     }
-    return HTTPDNS_SUCCESS;
+    return IS_EMPTY_LIST(responses) ? HTTPDNS_CORRECT_RESPONSE_EMPTY : HTTPDNS_SUCCESS;
 }

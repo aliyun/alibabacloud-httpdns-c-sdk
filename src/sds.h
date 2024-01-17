@@ -34,6 +34,7 @@
 #define SDS_MAX_PREALLOC (1024*1024)
 
 #include <sys/types.h>
+#include <string.h>
 #include <stdarg.h>
 
 #ifdef WIN32
@@ -42,7 +43,7 @@
 
 
 #define IS_BLANK_SDS(sds) \
-(NULL == sds || sdslen(sds) <=0)
+(NULL == sds || strlen(sds) <=0)
 
 typedef char *sds;
 

@@ -5,20 +5,20 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 set(CMAKE_VERSION 2.0.0)
 
 # default Release C / CXX flags
-set(CMAKE_C_FLAGS " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS " -O3 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_CXX_FLAGS " -O3 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-set(CMAKE_C_FLAGS_RELEASE " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_RELEASE " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_RELEASE " -O3 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_CXX_FLAGS_RELEASE " -O3 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-set(CMAKE_C_FLAGS_MINSIZEREF " -Os -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_MINSIZEREF " -Os -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
 set(CMAKE_C_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
 set(CMAKE_CXX_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverag")
@@ -28,43 +28,19 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 
-option(ADD_LOG_KEY_VALUE_FUN "ON for generating add log key&value functions" OFF)
 
-IF(ADD_LOG_KEY_VALUE_FUN)
-    add_definitions(-DLOG_KEY_VALUE_FLAG)
-ENDIF(ADD_LOG_KEY_VALUE_FUN)
-
-#curl-config
-FIND_PROGRAM(CURL_CONFIG_BIN NAMES curl-config)
-
-IF (CURL_CONFIG_BIN)
-    EXECUTE_PROCESS(
-            COMMAND ${CURL_CONFIG_BIN} --libs
-            OUTPUT_VARIABLE CURL_LIBRARIES
-            OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-ELSE ()
-    MESSAGE(FATAL_ERROR "Could not find curl-config")
-ENDIF ()
-# Compile and link httpdns_c_sdk
-
-#-DOPENSSL_ROOT_DIR=/opt/homebrew/opt/openssl@3
-set(OPENSSL_ROOT_DIR /opt/homebrew/opt/openssl@3)
+find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
-if(OPENSSL_FOUND)
-    message(STATUS "OpenSSL include dir: ${OPENSSL_INCLUDE_DIR}")
-    message(STATUS "OpenSSL library dir: ${OPENSSL_LIBRARIES}")
-else()
-    message(FATAL_ERROR "OpenSSL not found")
-endif()
-#-DCURL_INCLUDE_DIR=/usr/local/include/curl/ -DCURL_LIBRARY=/usr/local/lib/libcurl.a
+
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static ${OPENSSL_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CURL_LIBRARY})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
+
 
 IF (APPLE)
     MESSAGE(STATUS "For mac os, skip build dynamic library")

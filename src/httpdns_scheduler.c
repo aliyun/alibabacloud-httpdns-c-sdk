@@ -12,8 +12,10 @@ static void print_resolve_servers(struct list_head *servers) {
     }
     printf("]\n");
 }
+
 void httpdns_scheduler_print_resolve_servers(httpdns_scheduler_t *scheduler) {
-    if(NULL != scheduler) {
+    if (NULL != scheduler) {
+        printf("Resolve servers:\n");
         print_resolve_servers(&scheduler->ipv4_resolve_servers);
         print_resolve_servers(&scheduler->ipv6_resolve_servers);
     }
@@ -142,10 +144,10 @@ static int32_t update_server_weight(int32_t old_val, int32_t new_val) {
     if (old_val == DEFAULT_RESOLVER_WEIGHT) {
         return new_val;
     }
-    if (new_val * 0.2 > old_val) {
+    if (new_val * DELTA_WEIGHT_UPDATE_RATION < old_val) {
         return old_val;
     }
-    return new_val * 0.2 + old_val * 0.8;
+    return (int32_t) (new_val * DELTA_WEIGHT_UPDATE_RATION + old_val * (1.0 - DELTA_WEIGHT_UPDATE_RATION));
 }
 
 void httpdns_scheduler_update_server_weight(httpdns_scheduler_t *scheduler, char *resolve_server_name, int32_t time_cost) {

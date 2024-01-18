@@ -15,6 +15,7 @@
 #define JSON_BODY_IPV4_RESOLVERS_ITEM  "service_ip"
 #define JSON_BODY_IPV6_RESOLVERS_ITEM  "service_ipv6"
 #define DEFAULT_RESOLVER_WEIGHT        0
+#define DELTA_WEIGHT_UPDATE_RATION     0.3
 
 typedef struct _httpdns_scheduler {
     struct list_head ipv4_resolve_servers;

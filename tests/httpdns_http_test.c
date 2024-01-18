@@ -50,7 +50,7 @@ static int32_t test_exchange_multi_request_with_resolve() {
     if (!ret) {
         size_t size = httpdns_list_size(&responses);
         for (int i = 0; i < size; i++) {
-            print_response(httpdns_list_get(&responses, i));
+            httpdns_http_print_response(httpdns_list_get(&responses, i));
         }
     }
     destroy_httpdns_http_request(request1);

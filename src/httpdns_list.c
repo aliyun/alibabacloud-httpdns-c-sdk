@@ -12,14 +12,18 @@ void httpdns_list_init(struct list_head *ips) {
 }
 
 int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_function_ptr_t clone_func) {
-    if (NULL == head || NULL == data || NULL == clone_func) {
+    if (NULL == head || NULL == data) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     size_t size = sizeof(httpdns_list_node_t);
     httpdns_list_node_t *node = malloc(size);
     if (NULL != node) {
         memset(node, 0, size);
-        node->data = clone_func(data);
+        if (NULL == clone_func) {
+            node->data = (void *) data;
+        } else {
+            node->data = clone_func(data);
+        }
         list_add_tail(&node->list, head);
         return HTTPDNS_SUCCESS;
     }

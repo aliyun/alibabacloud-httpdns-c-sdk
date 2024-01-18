@@ -52,7 +52,7 @@ httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_tabl
     return dict_entry->val;
 }
 
-void httpnds_cache_clean_cache(httpdns_cache_table_t *cache_table) {
+void httpdns_cache_clean_cache(httpdns_cache_table_t *cache_table) {
     if (NULL != cache_table) {
         dictIterator *di = dictGetSafeIterator(cache_table);
         if (NULL != di) {
@@ -110,6 +110,7 @@ void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
 
 void destroy_httpdns_cache_table(httpdns_cache_table_t *cache) {
     if (NULL != cache) {
+        httpdns_cache_clean_cache(cache);
         dictRelease(cache);
     }
 }

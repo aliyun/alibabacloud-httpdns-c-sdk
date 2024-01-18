@@ -24,12 +24,12 @@ int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_c
 
 httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_table, char *key);
 
-void httpnds_cache_clean_cache(httpdns_cache_table_t *cache_table);
+void httpdns_cache_clean_cache(httpdns_cache_table_t *cache_table);
 
 void httpdns_cache_table_print(httpdns_cache_table_t *cache_table);
 
 void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry);
 
-void destroy_httpdns_cache_table();
+void destroy_httpdns_cache_table(httpdns_cache_table_t *cache_table);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H

@@ -10,18 +10,45 @@
 #include "httpdns_cache.h"
 #include "httpdns_result.h"
 
-typedef struct _httpdns_resolver {
-    httpdns_scheduler_t scheduler;
-    httpdns_config_t config;
-    httpdns_cache_t cache;
+typedef struct {
+    httpdns_scheduler_t *scheduler;
+    net_stack_detector_t *net_stack_detector;
+    httpdns_config_t *config;
+    httpdns_cache_table_t *cache;
 } httpdns_resolver_t;
 
-typedef enum _dns_type {
+typedef struct {
+    httpdns_resolver_t *resolver;
+    struct list_head requests;
+    struct list_head results;
+} httpdns_resolve_task_t;
+
+typedef enum {
     A,
     AAAA,
     BOTH,
     AUTO
 } dns_type_t;
+
+typedef struct {
+    char *host;
+    dns_type_t dns_type;
+    char *sdns_params;
+    char *cache_key
+} httpdns_resolve_request_t;
+
+
+httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, dns_type_t dns_type);
+void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t* request, char* key, char* value);
+void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t* request, char* cache_key);
+void destroy_httpdns_resolve_request(httpdns_resolve_request_t* request);
+httpdns_resolve_request_t* clone_httpdns_resolve_request(httpdns_resolve_request_t* request);
+
+
+httpdns_resolve_task_t *create_httpdns_resolve_task(httpdns_resolver_t* resolver);
+void httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_resolve_request_t *request);
+void httpdns_resolve_task_add_result(httpdns_resolve_task_t *task, httpdns_resolve_result_t *result);
+void destroy_httpdns_resolve_task(httpdns_resolve_task_t *task);
 
 /**
  * @description create httpdns resolver
@@ -37,22 +64,13 @@ httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config);
  * @param dns_type target DNS record type
  * @return:  httpdns_generic_result_t
  */
-httpdns_generic_result_t get_httpdns_result_for_host(httpdns_resolver_t *resolver, const char *host, dns_type_t dns_type);
+httpdns_resolve_result_t *resolve(httpdns_resolve_task_t* task);
 
-/**
- * @description resolve domain synchronously and do not refer to cached results
- * @param resolver resolver
- * @param host domain to be resolve
- * @param dns_type target DNS record type
- * @return:  httpdns_generic_result_t
- */
-httpdns_generic_result_t get_httpdns_result_for_host_with_sdns(httpdns_resolver_t *resolver, const char *host, dns_type_t dns_type, dict params,
-                                      const char *cache_key);
 
 /**
  * destroy resolver, this will free all memory allocated by this config
  * @param config
  */
-void destroy_create_httpdns_resolver(httpdns_resolver_t *resolver);
+void destroy_httpdns_resolver(httpdns_resolver_t *resolver);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESOLVER_H

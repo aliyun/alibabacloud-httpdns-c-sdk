@@ -8,7 +8,7 @@ static void print_resolve_servers(struct list_head *servers) {
     printf("[");
     for (int i = 0; i < server_size; i++) {
         httpdns_resolve_server_t *server = httpdns_list_get(servers, i);
-        printf(" { server=%s, weight=%d } ", server->server, server->weight);
+        printf(" { server=%s, response_time_ms=%d } ", server->server, server->response_time_ms);
     }
     printf("]\n");
 }
@@ -56,7 +56,7 @@ static httpdns_resolve_server_t *clone_httpdns_resolve_server(const httpdns_reso
     if (NULL != origin_resolver->server) {
         resolver->server = sdsnew(origin_resolver->server);
     }
-    resolver->weight = origin_resolver->weight;
+    resolver->response_time_ms = origin_resolver->response_time_ms;
     return resolver;
 }
 
@@ -144,28 +144,30 @@ static httpdns_resolve_server_t *search_resolve_server(struct list_head *resolve
     return NULL;
 }
 
-static int32_t update_server_weight(int32_t old_val, int32_t new_val) {
-    if (old_val == DEFAULT_RESOLVER_WEIGHT) {
-        return new_val;
+static int32_t update_server_response_time(int32_t old_rt_val, int32_t new_rt_val) {
+    if (old_rt_val == DEFAULT_RESOLVE_SERVER_RT) {
+        return new_rt_val;
     }
-    if (new_val * DELTA_WEIGHT_UPDATE_RATION < old_val) {
-        return old_val;
+    if (new_rt_val * DELTA_WEIGHT_UPDATE_RATION > old_rt_val) {
+        return old_rt_val;
     }
-    return (int32_t) (new_val * DELTA_WEIGHT_UPDATE_RATION + old_val * (1.0 - DELTA_WEIGHT_UPDATE_RATION));
+    return (int32_t) (new_rt_val * DELTA_WEIGHT_UPDATE_RATION + old_rt_val * (1.0 - DELTA_WEIGHT_UPDATE_RATION));
 }
 
-void httpdns_scheduler_update_server_weight(httpdns_scheduler_t *scheduler, char *resolve_server_name, int32_t time_cost) {
-    if (IS_BLANK_SDS(resolve_server_name) || NULL == scheduler || time_cost <= 0) {
+void httpdns_scheduler_update_server_rt(httpdns_scheduler_t *scheduler, char *resolve_server_name, int32_t new_time_cost_ms) {
+    if (IS_BLANK_SDS(resolve_server_name) || NULL == scheduler || new_time_cost_ms <= 0) {
         return;
     }
     httpdns_resolve_server_t *resolve_server = search_resolve_server(&scheduler->ipv4_resolve_servers,
                                                                      resolve_server_name);
     if (NULL != resolve_server) {
-        resolve_server->weight = update_server_weight(resolve_server->weight, -time_cost);
+        resolve_server->response_time_ms = update_server_response_time(resolve_server->response_time_ms,
+                                                                       new_time_cost_ms);
     }
     resolve_server = search_resolve_server(&scheduler->ipv6_resolve_servers, resolve_server_name);
     if (NULL != resolve_server) {
-        resolve_server->weight = update_server_weight(resolve_server->weight, -time_cost);
+        resolve_server->response_time_ms = update_server_response_time(resolve_server->response_time_ms,
+                                                                       new_time_cost_ms);
     }
 }
 
@@ -180,21 +182,7 @@ void httpdns_scheduler_get_resolve_server(httpdns_scheduler_t *scheduler, char *
     } else {
         resolve_servers = &scheduler->ipv4_resolve_servers;
     }
-    size_t resolve_server_num = httpdns_list_size(resolve_servers);
-    int max_weight_resolve_server_index = 0;
-    int max_weight = INT32_MIN;
-    for (int i = 0; i < resolve_server_num; i++) {
-        httpdns_resolve_server_t *resolver = httpdns_list_get(resolve_servers, i);
-        if (resolver->weight == DEFAULT_RESOLVER_WEIGHT) {
-            max_weight_resolve_server_index = i;
-            break;
-        }
-        if (resolver->weight > max_weight) {
-            max_weight = resolver->weight;
-            max_weight_resolve_server_index = i;
-        }
-    }
-    httpdns_resolve_server_t *resolve_server = httpdns_list_get(resolve_servers, max_weight_resolve_server_index);
+    httpdns_resolve_server_t *resolve_server = httpdns_list_min(resolve_servers,DATA_CMP_FUNC(compare_httpdns_resolve_server));
     *resolve_server_ptr = sdsnew(resolve_server->server);
 }
 
@@ -202,7 +190,7 @@ httpdns_resolve_server_t *create_httpdns_resolve_server(char *server) {
     httpdns_resolve_server_t *resolver = (httpdns_resolve_server_t *) malloc(sizeof(httpdns_resolve_server_t));
     memset(resolver, 0, sizeof(httpdns_resolve_server_t));
     resolver->server = sdsnew(server);
-    resolver->weight = DEFAULT_RESOLVER_WEIGHT;
+    resolver->response_time_ms = DEFAULT_RESOLVE_SERVER_RT;
     return resolver;
 }
 
@@ -216,3 +204,15 @@ void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server) {
     free(resolve_server);
 }
 
+int32_t compare_httpdns_resolve_server(httpdns_resolve_server_t *server1, httpdns_resolve_server_t *server2) {
+    if (NULL == server1 && NULL == server2) {
+        return 0;
+    }
+    if (NULL == server1 && NULL != server2) {
+        return -1;
+    }
+    if (NULL != server1 && NULL == server2) {
+        return 1;
+    }
+    return server1->response_time_ms - server2->response_time_ms;
+}

@@ -69,7 +69,13 @@ void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_fun
 
 void httpdns_list_shuffle(struct list_head *head);
 
-bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t);
+bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func);
+
+void* httpdns_list_min(struct list_head* head, data_cmp_function_ptr_t cmp_func);
+
+void* httpdns_list_max(struct list_head* head, data_cmp_function_ptr_t cmp_func);
+
+void httpdns_list_sort(struct list_head* head, data_cmp_function_ptr_t cmp_func);
 
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

@@ -115,6 +115,56 @@ bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_fun
     return false;
 }
 
+void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
+    if (NULL == head) {
+        return NULL;
+    }
+    httpdns_list_node_t *cursor;
+    void *max_data = NULL;
+    list_for_each_entry(cursor, head, list) {
+        if (NULL == max_data || cmp_func(cursor->data, max_data) < 0) {
+            max_data = cursor->data;
+        }
+    }
+    return max_data;
+}
+
+void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
+    if (NULL == head) {
+        return NULL;
+    }
+    httpdns_list_node_t *cursor;
+    void *max_data = NULL;
+    list_for_each_entry(cursor, head, list) {
+        if (NULL == max_data || cmp_func(cursor->data, max_data) > 0) {
+            max_data = cursor->data;
+        }
+    }
+    return max_data;
+}
+
+void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
+    if (NULL == head) {
+        return;
+    }
+    struct list_head *current, *previous, *next_tmp;
+    httpdns_list_node_t *current_data;
+    list_for_each_safe(current, next_tmp, head) {
+        current_data = list_entry(current, httpdns_list_node_t, list);
+        previous = current->prev;
+        while (previous != head) {
+            httpdns_list_node_t *previous_data = list_entry(previous, httpdns_list_node_t, list);
+            if (cmp_func(previous_data->data, current_data->data) <= 0) {
+                break;
+            }
+            previous = previous->prev;
+        }
+        if (current != previous->next) {
+            list_move(current, previous);
+        }
+    }
+}
+
 
 
 

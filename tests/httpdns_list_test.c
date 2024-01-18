@@ -87,18 +87,67 @@ static void test_httpdns_list_shuffle() {
     httpdns_list_add(&list_head, "4",STRING_CLONE_FUNC);
     httpdns_list_add(&list_head, "5",STRING_CLONE_FUNC);
     size_t list_head_size = httpdns_list_size(&list_head);
-    printf("before shuffle: ");
+    printf("\nbefore shuffle: ");
     for (int i = 0; i < list_head_size; i++) {
         sds list_head_data = httpdns_list_get(&list_head, i);
         printf("%s\t", list_head_data);
     }
-    printf("after shuffle: ");
+    printf("\nafter shuffle: ");
     httpdns_list_shuffle(&list_head);
     for (int i = 0; i < list_head_size; i++) {
         sds list_head_data = httpdns_list_get(&list_head, i);
         printf("%s\t", list_head_data);
     }
     httpdns_list_free(&list_head, STRING_FREE_FUNC);
+}
+
+static void test_httpdns_list_sort() {
+    struct list_head list_head;
+    httpdns_list_init(&list_head);
+    httpdns_list_add(&list_head, "5", STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, "0", STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, "2",STRING_CLONE_FUNC);
+    size_t list_head_size = httpdns_list_size(&list_head);
+    printf("\nbefore sort: ");
+    for (int i = 0; i < list_head_size; i++) {
+        sds list_head_data = httpdns_list_get(&list_head, i);
+        printf("%s\t", list_head_data);
+    }
+    printf("\nafter sort: ");
+    httpdns_list_sort(&list_head, STRING_CMP_FUNC);
+    for (int i = 0; i < list_head_size; i++) {
+        sds list_head_data = httpdns_list_get(&list_head, i);
+        printf("%s\t", list_head_data);
+    }
+    httpdns_list_free(&list_head, STRING_FREE_FUNC);
+}
+
+static int32_t test_httpdns_list_min() {
+    char* excepted_min_val = "0";
+    struct list_head list_head;
+    httpdns_list_init(&list_head);
+    httpdns_list_add(&list_head, "5", STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, excepted_min_val, STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, "2", STRING_CLONE_FUNC);
+    char* min_val = (char *) httpdns_list_min(&list_head, STRING_CMP_FUNC);
+    printf("\nmin: %s", min_val);
+    int32_t ret = (strcmp(min_val, excepted_min_val) == 0) ? HTTPDNS_SUCCESS: HTTPDNS_FAILURE;
+    httpdns_list_free(&list_head, STRING_FREE_FUNC);
+    return ret;
+}
+
+static int32_t test_httpdns_list_max() {
+    char* excepted_max_val = "5";
+    struct list_head list_head;
+    httpdns_list_init(&list_head);
+    httpdns_list_add(&list_head, excepted_max_val, STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, "0", STRING_CLONE_FUNC);
+    httpdns_list_add(&list_head, "2", STRING_CLONE_FUNC);
+    char* max_val = (char *) httpdns_list_max(&list_head, STRING_CMP_FUNC);
+    printf("\nmax: %s", max_val);
+    int32_t ret =  (strcmp(max_val, excepted_max_val) == 0) ? HTTPDNS_SUCCESS: HTTPDNS_FAILURE;
+    httpdns_list_free(&list_head, STRING_FREE_FUNC);
+    return ret;
 }
 
 static int32_t test_httpdns_list_contain() {
@@ -136,7 +185,14 @@ int main(void) {
     if (test_httpdns_list_contain() != HTTPDNS_SUCCESS) {
         return -1;
     }
+    if (test_httpdns_list_min() != HTTPDNS_SUCCESS) {
+        return -1;
+    }
+    if (test_httpdns_list_max() != HTTPDNS_SUCCESS) {
+        return -1;
+    }
 
     test_httpdns_list_shuffle();
+    test_httpdns_list_sort();
     return 0;
 }

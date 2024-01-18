@@ -36,7 +36,7 @@ static int32_t test_httpdns_scheduler_get_resolve_server() {
                 ret = httpdns_http_single_request_exchange(request, &response);
                 if (!ret) {
                     httpdns_http_print_response(response);
-                    httpdns_scheduler_update_server_weight(scheduler, server_name, response->total_time_ms);
+                    httpdns_scheduler_update_server_rt(scheduler, server_name, response->total_time_ms);
                     httpdns_scheduler_print_resolve_servers(scheduler);
                     destroy_httpdns_http_response(response);
                 }

@@ -14,7 +14,7 @@
 
 #define JSON_BODY_IPV4_RESOLVERS_ITEM  "service_ip"
 #define JSON_BODY_IPV6_RESOLVERS_ITEM  "service_ipv6"
-#define DEFAULT_RESOLVER_WEIGHT        0
+#define DEFAULT_RESOLVE_SERVER_RT        0
 #define DELTA_WEIGHT_UPDATE_RATION     0.3
 
 typedef struct _httpdns_scheduler {
@@ -27,16 +27,18 @@ typedef struct _httpdns_scheduler {
 
 typedef struct _httpdns_resolve_server {
     char *server;
-    int32_t weight;
+    int32_t response_time_ms;
 } httpdns_resolve_server_t;
 
 httpdns_resolve_server_t *create_httpdns_resolve_server(char *server);
 
 void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server);
 
+int32_t compare_httpdns_resolve_server(httpdns_resolve_server_t *server1, httpdns_resolve_server_t *server2);
+
 httpdns_scheduler_t *create_httpdns_scheduler(httpdns_config_t *config);
 
-void httpdns_scheduler_update_server_weight(httpdns_scheduler_t* scheduler, char *resolve_server_name, int32_t time_cost);
+void httpdns_scheduler_update_server_rt(httpdns_scheduler_t* scheduler, char *resolve_server_name, int32_t new_time_cost_ms);
 
 int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler);
 

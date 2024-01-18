@@ -2,12 +2,19 @@
 // Created by cagaoshuai on 2024/1/10.
 //
 #include "httpdns_list.h"
+#include <stdio.h>
 
 void httpdns_list_init(struct list_head *ips) {
+    if (NULL == ips) {
+        return;
+    }
     INIT_LIST_HEAD(ips);
 }
 
 int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_function_ptr_t clone_func) {
+    if (NULL == head || NULL == data || NULL == clone_func) {
+        return HTTPDNS_PARAMETER_ERROR;
+    }
     size_t size = sizeof(httpdns_list_node_t);
     httpdns_list_node_t *node = malloc(size);
     if (NULL != node) {
@@ -35,7 +42,7 @@ int32_t httpdns_list_rotate(struct list_head *head) {
 
 struct list_head *
 httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func) {
-    if (NULL == dst_head || NULL == src_head) {
+    if (NULL == dst_head || NULL == src_head || NULL == clone_func) {
         return NULL;
     }
     httpdns_list_node_t *cursor;
@@ -63,6 +70,9 @@ void *httpdns_list_get(struct list_head *head, int index) {
 
 
 size_t httpdns_list_size(struct list_head *head) {
+    if (NULL == head) {
+        return 0;
+    }
     httpdns_list_node_t *cursor;
     size_t size = 0;
     list_for_each_entry(cursor, head, list) {
@@ -72,7 +82,7 @@ size_t httpdns_list_size(struct list_head *head) {
 }
 
 void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_func) {
-    if (NULL == head) {
+    if (NULL == head || NULL == free_func) {
         return;
     }
     httpdns_list_node_t *cursor, *temp_node;
@@ -103,7 +113,7 @@ void httpdns_list_shuffle(struct list_head *head) {
 }
 
 bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func) {
-    if (NULL == head) {
+    if (NULL == head || NULL == data || NULL == cmp_func) {
         return false;
     }
     httpdns_list_node_t *cursor;
@@ -116,7 +126,7 @@ bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_fun
 }
 
 void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
-    if (NULL == head) {
+    if (NULL == head || NULL == cmp_func) {
         return NULL;
     }
     httpdns_list_node_t *cursor;
@@ -130,7 +140,7 @@ void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func)
 }
 
 void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
-    if (NULL == head) {
+    if (NULL == head || NULL == cmp_func) {
         return NULL;
     }
     httpdns_list_node_t *cursor;
@@ -144,7 +154,7 @@ void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func)
 }
 
 void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
-    if (NULL == head) {
+    if (NULL == head || NULL == cmp_func) {
         return;
     }
     struct list_head *current, *previous, *next_tmp;
@@ -164,6 +174,21 @@ void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func)
         }
     }
 }
+
+void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func) {
+    if (NULL == head || NULL == print_func) {
+        printf("[");
+        httpdns_list_node_t *cursor, *temp_node;
+        list_for_each_entry_safe(cursor, temp_node, head, list) {
+            printf("\t");
+            print_func(cursor->data);
+            printf("\t");
+        }
+        printf("]");
+    }
+}
+
+
 
 
 

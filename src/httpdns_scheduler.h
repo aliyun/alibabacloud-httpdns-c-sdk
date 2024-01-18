@@ -17,7 +17,7 @@
 #define DEFAULT_RESOLVE_SERVER_RT        0
 #define DELTA_WEIGHT_UPDATE_RATION     0.3
 
-typedef struct _httpdns_scheduler {
+typedef struct {
     struct list_head ipv4_resolve_servers;
     struct list_head ipv6_resolve_servers;
     net_stack_detector_t *net_stack_detector;
@@ -25,7 +25,7 @@ typedef struct _httpdns_scheduler {
 } httpdns_scheduler_t;
 
 
-typedef struct _httpdns_resolve_server {
+typedef struct {
     char *server;
     int32_t response_time_ms;
 } httpdns_resolve_server_t;

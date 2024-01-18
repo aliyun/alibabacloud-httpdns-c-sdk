@@ -26,6 +26,9 @@
 #define DATA_FREE_FUNC(func) \
    (data_free_function_ptr_t)func
 
+#define DATA_PRINT_FUNC(func) \
+   (data_print_function_ptr_t)func
+
 #define STRING_CLONE_FUNC \
    DATA_CLONE_FUNC(sdsnew)
 
@@ -45,6 +48,8 @@ typedef void (*data_free_function_ptr_t )(const void *data);
 typedef void *(*data_clone_function_ptr_t )(const void *data);
 
 typedef int32_t (*data_cmp_function_ptr_t)(const void *data1, const void *data2);
+
+typedef void (*data_print_function_ptr_t )(const void *data);
 
 void httpdns_list_init(struct list_head *head);
 
@@ -77,5 +82,6 @@ void* httpdns_list_max(struct list_head* head, data_cmp_function_ptr_t cmp_func)
 
 void httpdns_list_sort(struct list_head* head, data_cmp_function_ptr_t cmp_func);
 
+void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

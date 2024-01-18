@@ -48,10 +48,8 @@ static int32_t test_exchange_multi_request_with_resolve() {
     httpdns_list_add(&requests, request4, DATA_CLONE_FUNC(clone_httpdns_http_request));
     int32_t ret = httpdns_http_multiple_request_exchange(&requests, &responses);
     if (!ret) {
-        size_t size = httpdns_list_size(&responses);
-        for (int i = 0; i < size; i++) {
-            httpdns_http_print_response(httpdns_list_get(&responses, i));
-        }
+        printf("\n");
+        httpdns_list_print(&responses, DATA_PRINT_FUNC(httpdns_http_print_response));
     }
     destroy_httpdns_http_request(request1);
     destroy_httpdns_http_request(request2);
@@ -61,7 +59,6 @@ static int32_t test_exchange_multi_request_with_resolve() {
     httpdns_list_free(&responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
     return ret;
 }
-
 
 
 int main(void) {

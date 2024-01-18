@@ -44,11 +44,13 @@ void destroy_httpdns_http_request(httpdns_http_request_t *request) {
 
 void httpdns_http_print_response(httpdns_http_response_t *response) {
     if (response) {
-        printf("HTTP response:\n");
-        printf("\turl:%s\n", response->url);
-        printf("\tstatus_code:%d\n", response->http_status);
-        printf("\tbody:%s\n", response->body);
-        printf("\ttime_cost: %d ms\n", response->total_time_ms);
+        printf("{");
+        printf("url=%s,", response->url);
+        printf("status_code=%d,", response->http_status);
+        printf("body=%s,", response->body);
+        printf("cache_key=%s,", response->cache_key);
+        printf("time_cost=%d", response->total_time_ms);
+        printf("}");
     }
 }
 

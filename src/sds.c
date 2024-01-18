@@ -397,4 +397,8 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
     return t;
 }
 
+void sdsprint(char *s) {
+    printf("%s", s);
+}
+
 

@@ -87,17 +87,11 @@ static void test_httpdns_list_shuffle() {
     httpdns_list_add(&list_head, "4",STRING_CLONE_FUNC);
     httpdns_list_add(&list_head, "5",STRING_CLONE_FUNC);
     size_t list_head_size = httpdns_list_size(&list_head);
-    printf("\nbefore shuffle: ");
-    for (int i = 0; i < list_head_size; i++) {
-        sds list_head_data = httpdns_list_get(&list_head, i);
-        printf("%s\t", list_head_data);
-    }
-    printf("\nafter shuffle: ");
+    printf("\nbefore shuffle:\n");
+    httpdns_list_print(&list_head, STRING_PRINT_FUNC);
+    printf("\nafter shuffle:\n");
     httpdns_list_shuffle(&list_head);
-    for (int i = 0; i < list_head_size; i++) {
-        sds list_head_data = httpdns_list_get(&list_head, i);
-        printf("%s\t", list_head_data);
-    }
+    httpdns_list_print(&list_head, STRING_PRINT_FUNC);
     httpdns_list_free(&list_head, STRING_FREE_FUNC);
 }
 
@@ -107,18 +101,11 @@ static void test_httpdns_list_sort() {
     httpdns_list_add(&list_head, "5", STRING_CLONE_FUNC);
     httpdns_list_add(&list_head, "0", STRING_CLONE_FUNC);
     httpdns_list_add(&list_head, "2",STRING_CLONE_FUNC);
-    size_t list_head_size = httpdns_list_size(&list_head);
-    printf("\nbefore sort: ");
-    for (int i = 0; i < list_head_size; i++) {
-        sds list_head_data = httpdns_list_get(&list_head, i);
-        printf("%s\t", list_head_data);
-    }
-    printf("\nafter sort: ");
+    printf("\nbefore sort:\n");
+    httpdns_list_print(&list_head, STRING_PRINT_FUNC);
+    printf("\nafter sort:\n");
     httpdns_list_sort(&list_head, STRING_CMP_FUNC);
-    for (int i = 0; i < list_head_size; i++) {
-        sds list_head_data = httpdns_list_get(&list_head, i);
-        printf("%s\t", list_head_data);
-    }
+    httpdns_list_print(&list_head, STRING_PRINT_FUNC);
     httpdns_list_free(&list_head, STRING_FREE_FUNC);
 }
 

@@ -32,6 +32,8 @@ typedef struct {
 
 httpdns_resolve_server_t *create_httpdns_resolve_server(char *server);
 
+void httpdns_resolve_server_print(httpdns_resolve_server_t *resolve_server);
+
 void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server);
 
 int32_t compare_httpdns_resolve_server(httpdns_resolve_server_t *server1, httpdns_resolve_server_t *server2);

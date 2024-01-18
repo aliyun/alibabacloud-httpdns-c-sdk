@@ -13,11 +13,19 @@ static void print_resolve_servers(struct list_head *servers) {
     printf("]\n");
 }
 
+void httpdns_resolve_server_print(httpdns_resolve_server_t *resolve_server) {
+    if (NULL == resolve_server) {
+        printf(" { server=null, response_time_ms=null } ");
+        return;
+    }
+    printf(" { server=%s, response_time_ms=%d } ", resolve_server->server, resolve_server->response_time_ms);
+}
+
 void httpdns_scheduler_print_resolve_servers(httpdns_scheduler_t *scheduler) {
     if (NULL != scheduler) {
-        printf("Resolve servers:\n");
-        print_resolve_servers(&scheduler->ipv4_resolve_servers);
-        print_resolve_servers(&scheduler->ipv6_resolve_servers);
+        printf("\nResolve servers:\n");
+        httpdns_list_print(&scheduler->ipv4_resolve_servers, DATA_PRINT_FUNC(httpdns_resolve_server_print));
+        httpdns_list_print(&scheduler->ipv6_resolve_servers, DATA_PRINT_FUNC(httpdns_resolve_server_print));
     }
 }
 

@@ -38,6 +38,9 @@
 #define STRING_FREE_FUNC \
   DATA_FREE_FUNC(sdsfree)
 
+#define STRING_PRINT_FUNC \
+  DATA_FREE_FUNC(sdsprint)
+
 typedef struct {
     struct list_head list;
     void *data;

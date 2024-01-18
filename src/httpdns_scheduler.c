@@ -45,6 +45,7 @@ void destroy_httpdns_scheduler(httpdns_scheduler_t *scheduler) {
     }
     httpdns_list_free(&scheduler->ipv4_resolve_servers, DATA_FREE_FUNC(destroy_httpdns_resolve_server));
     httpdns_list_free(&scheduler->ipv6_resolve_servers, DATA_FREE_FUNC(destroy_httpdns_resolve_server));
+    free(scheduler);
 }
 
 static httpdns_resolve_server_t *clone_httpdns_resolve_server(const httpdns_resolve_server_t *origin_resolver) {
@@ -66,14 +67,16 @@ static void httpdns_parse_resolvers(cJSON *c_json_body, const char *item_name, s
         struct list_head resolve_list;
         httpdns_list_init(&resolve_list);
         for (int i = 0; i < resolve_num; i++) {
-            cJSON *ipv4_resolver = cJSON_GetArrayItem(resolvers, i);
-            httpdns_resolve_server_t *resolver = create_httpdns_resolve_server(ipv4_resolver->valuestring);
+            cJSON *resolver_json = cJSON_GetArrayItem(resolvers, i);
+            httpdns_resolve_server_t *resolver = create_httpdns_resolve_server(resolver_json->valuestring);
             httpdns_list_add(&resolve_list, resolver, (data_clone_function_ptr_t) clone_httpdns_resolve_server);
+            destroy_httpdns_resolve_server(resolver);
         }
         if (httpdns_list_size(&resolve_list) > 0) {
             httpdns_list_free(dst_resolvers, DATA_FREE_FUNC(destroy_httpdns_resolve_server));
             // 只有当不为空时，才更新
             httpdns_list_dup(dst_resolvers, &resolve_list, DATA_CLONE_FUNC(clone_httpdns_resolve_server));
+            httpdns_list_free(&resolve_list, DATA_FREE_FUNC(destroy_httpdns_resolve_server));
             httpdns_list_shuffle(dst_resolvers);
         }
     }
@@ -86,6 +89,7 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
     }
     httpdns_parse_resolvers(c_json_body, JSON_BODY_IPV4_RESOLVERS_ITEM, &scheduler->ipv4_resolve_servers);
     httpdns_parse_resolvers(c_json_body, JSON_BODY_IPV6_RESOLVERS_ITEM, &scheduler->ipv6_resolve_servers);
+    cJSON_Delete(c_json_body);
 }
 
 int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler) {

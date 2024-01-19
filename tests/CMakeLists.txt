@@ -17,3 +17,7 @@ _TARGET_TEST_LIBRARIES(httpdns_config httpdns_config_test.c)
 _TARGET_TEST_LIBRARIES(httpdns_http httpdns_http_test.c)
 
 _TARGET_TEST_LIBRARIES(httpdns_scheduler httpdns_scheduler_test.c)
+
+_TARGET_TEST_LIBRARIES(httpdns_sign httpdns_sign_test.c)
+
+_TARGET_TEST_LIBRARIES(response_parser response_parser_test.c)

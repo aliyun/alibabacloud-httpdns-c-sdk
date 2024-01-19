@@ -4,6 +4,7 @@
 
 #include "httpdns_resolver.h"
 #include "httpdns_cache.h"
+#include "httpdns_sign.h"
 
 
 httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config) {
@@ -21,7 +22,7 @@ httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config) {
 }
 
 
-httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, dns_type_t dns_type) {
+httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, resolve_type_t dns_type, char *cache_key) {
     if (IS_BLANK_SDS(host)) {
         return NULL;
     }
@@ -29,6 +30,12 @@ httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, dns_type_t
     memset(request, 0, sizeof(httpdns_resolve_request_t));
     request->host = sdsnew(host);
     request->dns_type = dns_type;
+    if (IS_BLANK_SDS(cache_key)) {
+        request->cache_key = sdsnew(host);
+    } else {
+        request->cache_key = sdsnew(cache_key);
+    }
+    request->hit_cache = false;
     return request;
 }
 
@@ -83,6 +90,8 @@ httpdns_resolve_request_t *clone_httpdns_resolve_request(httpdns_resolve_request
         request->cache_key = sdsnew(origin_request->cache_key);
     }
     request->dns_type = origin_request->dns_type;
+    request->timeout_ms = origin_request->timeout_ms;
+    request->hit_cache = origin_request->hit_cache;
     return request;
 }
 
@@ -120,9 +129,104 @@ void destroy_httpdns_resolve_task(httpdns_resolve_task_t *task) {
     httpdns_list_free(&task->results, DATA_FREE_FUNC(destroy_httpdns_resolve_result));
 }
 
+static httpdns_http_request_t *
+resolve_request_to_http_request(httpdns_resolve_request_t *resolve_request, httpdns_resolver_t *resolver) {
+    if (NULL == resolve_request || NULL == resolver) {
+        return NULL;
+    }
+    httpdns_config_t *config = resolver->config;
+    httpdns_scheduler_t *scheduler = resolver->scheduler;
+    if (NULL == config || NULL == scheduler) {
+        return NULL;
+    }
+    const char *http_scheme = config->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
+    const char *http_api = config->using_sign ? HTTPDNS_API_SIGN_D : HTTPDNS_API_D;
+    char *resolve_server_ip;
+    httpdns_scheduler_get_resolve_server(scheduler, &resolve_server_ip);
+    if (NULL == resolve_server_ip) {
+        return NULL;
+    }
+    httpdns_http_request_t *http_request = (httpdns_http_request_t *) malloc(sizeof(httpdns_http_request_t));
+    http_request->timeout_ms = config->timeout_ms;
+    http_request->cache_key = sdsnew(resolve_request->cache_key);
+    sds url = sdsnew(http_scheme);
+    url = sdscat(url, resolve_server_ip);
+    url = sdscat(url, "/");
+    url = sdscat(url, config->account_id);
+    url = sdscat(url, http_api);
+    url = sdscat(url, "?host=");
+    url = sdscat(url, resolve_request->host);
+    if (config->using_sign && NULL != config->secret_key) {
+        httpdns_signature_t *signature = create_httpdns_signature(resolve_request->host, config->secret_key);
+        url = sdscat(url, "&s=");
+        url = sdscat(url, signature->sign);
+        url = sdscat(url, "&t=");
+        url = sdscat(url, signature->timestamp);
+        destroy_httpdns_signature(signature);
+    }
+    url = sdscat(url, "&platform=linux&sdk_version=");
+    url = sdscat(url, config->sdk_version);
+    http_request->url = url;
+    return http_request;
+}
 
-httpdns_resolve_result_t *resolve(httpdns_resolve_task_t *task) {
-    return NULL;
+static void resolve_requests_to_http_requests(struct list_head *http_requests, httpdns_resolve_task_t *task) {
+    struct list_head *resolve_requests = &task->requests;
+    httpdns_resolver_t *resolver = task->resolver;
+    httpdns_config_t *config = resolver->config;
+    httpdns_cache_table_t *cache_table = resolver->cache;
+    size_t resolve_req_nums = httpdns_list_size(resolve_requests);
+    for (int i = 0; i < resolve_req_nums; i++) {
+        httpdns_resolve_request_t *resolve_request = httpdns_list_get(resolve_requests, i);
+        if (config->using_cache) {
+            httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, resolve_request->cache_key);
+            if (NULL != entry) {
+                httpdns_resolve_result_t *result = clone_httpdns_resolve_result(entry);
+                result->hit_cache = true;
+                httpdns_list_add(&task->results, entry, NULL);
+                continue;
+            }
+        }
+        httpdns_http_request_t *http_request = resolve_request_to_http_request(resolve_request, resolver);
+        httpdns_list_add(http_requests, http_request, NULL);
+    }
+}
+
+static httpdns_resolve_result_t *http_response_to_resolve_result(httpdns_http_response_t *http_response) {
+    if(NULL == http_response) {
+        return NULL;
+    }
+    if(http_response->http_status == HTTP_STATUS_OK) {
+
+    }
+}
+
+static void http_responses_to_resolve_results(struct list_head *http_responses, struct list_head *resolve_results) {
+
+
+}
+
+int32_t resolve(httpdns_resolve_task_t *task) {
+    if (NULL == task || NULL == task->resolver || IS_EMPTY_LIST(&task->requests)) {
+        return HTTPDNS_PARAMETER_EMPTY;
+    }
+    struct list_head http_requests;
+    httpdns_list_init(&http_requests);
+    struct list_head http_responses;
+    httpdns_list_init(&http_responses);
+
+    resolve_requests_to_http_requests(&http_requests, task);
+    if (IS_EMPTY_LIST(&http_requests)) {
+        return HTTPDNS_SUCCESS;
+    }
+    int32_t ret = httpdns_http_multiple_request_exchange(&http_requests, &http_responses);
+    httpdns_list_free(&http_requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
+    if (ret != HTTPDNS_SUCCESS || IS_EMPTY_LIST(&http_responses)) {
+        return HTTPDNS_CORRECT_RESPONSE_EMPTY;
+    }
+
+
+    return 0;
 }
 
 

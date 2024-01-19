@@ -269,6 +269,7 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
         curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
+        //FIXME 设置SDK的User Agent
 
         curl_multi_add_handle(multi_handle, handle);
         if (max_timeout_ms < request->timeout_ms) {

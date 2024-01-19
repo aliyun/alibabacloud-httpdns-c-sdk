@@ -130,6 +130,8 @@ int32_t httpdns_scheduler_refresh_resolve_servers(httpdns_scheduler_t *scheduler
         httpdns_http_single_request_exchange(request, &response);
         if (response->http_status == HTTP_STATUS_OK) {
             httpdns_parse_body(response->body, scheduler);
+            //FIXME 一个启动IP拉取成功，不仅要更新解析IP，而且要更新启动IP
+            //FIXME 只要有一个更新成功，就不再更新
         }
         sdsfree(url);
         destroy_httpdns_http_request(request);

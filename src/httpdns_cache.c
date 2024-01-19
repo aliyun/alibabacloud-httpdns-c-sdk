@@ -11,10 +11,10 @@ httpdns_cache_table_t *create_httpdns_cache_table() {
 }
 
 int32_t httpdns_cache_add_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == entry || IS_BLANK_SDS(entry->host)) {
+    if (NULL == entry || IS_BLANK_SDS(entry->cache_key)) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (dictAdd(cache_table, entry->host, entry) != DICT_OK) {
+    if (dictAdd(cache_table, entry->cache_key, entry) != DICT_OK) {
         return HTTPDNS_FAILURE;
     }
     return HTTPDNS_SUCCESS;
@@ -34,10 +34,10 @@ int32_t httpdns_cache_delete_entry(httpdns_cache_table_t *cache_table, char *key
 }
 
 int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == cache_table || NULL == entry || IS_BLANK_SDS(entry->host)) {
+    if (NULL == cache_table || NULL == entry || IS_BLANK_SDS(entry->cache_key)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    httpdns_cache_delete_entry(cache_table, entry->host);
+    httpdns_cache_delete_entry(cache_table, entry->cache_key);
     return httpdns_cache_add_entry(cache_table, entry);
 }
 
@@ -49,6 +49,13 @@ httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_tabl
     if (NULL == dict_entry) {
         return NULL;
     }
+    httpdns_cache_entry_t *entry = dict_entry->val;
+    int ttl = entry->origin_ttl > 0 ? entry->origin_ttl : entry->ttl;
+    if (httpdns_time_is_expired(entry->query_ts, ttl)) {
+        dictDelete(cache_table, key);
+        destroy_httpdns_cache_entry(entry);
+        return NULL;
+    }
     return dict_entry->val;
 }
 
@@ -58,8 +65,8 @@ void httpdns_cache_clean_cache(httpdns_cache_table_t *cache_table) {
         if (NULL != di) {
             dictEntry *de = NULL;
             while ((de = dictNext(di)) != NULL) {
-                httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
-                httpdns_cache_delete_entry(cache_table, entry->host);
+                char *cache_key = (char *) de->key;
+                httpdns_cache_delete_entry(cache_table, cache_key);
             }
             dictReleaseIterator(di);
         }
@@ -103,7 +110,8 @@ void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
         printf("ttl=%d,", cache_entry->ttl);
         char buffer[256];
         httpdns_time_to_string(cache_entry->query_ts, buffer);
-        printf("query_timestamp=%s", buffer);
+        printf("query_timestamp=%s,", buffer);
+        printf("cache_key=%s", cache_entry->cache_key);
         printf(" }");
     }
 }

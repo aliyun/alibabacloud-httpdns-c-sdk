@@ -10,7 +10,14 @@
 #include "list.h"
 #include "dict.h"
 #include <time.h>
+#include <stdbool.h>
 
+#define DEFAULT_IP_RT        0
+
+typedef enum {
+    A = 1,
+    AAAA = 28
+} dns_type_t;
 
 typedef struct _httpdns_generic_result {
     void *result;  // 泛型结果，可以指向任何类型的数据
@@ -30,15 +37,63 @@ typedef struct {
     int origin_ttl;
     int ttl;
     struct timespec query_ts;
+    char *cache_key;
+    bool hit_cache;
 } httpdns_resolve_result_t;
 
 typedef struct {
+    struct list_head service_ip;
+    struct list_head service_ipv6;
+} httpdns_raw_schedule_result_t;
+
+typedef struct {
+    char *host;
+    struct list_head ips;
+    struct list_head ipsv6;
+    int32_t ttl;
+    int32_t origin_ttl;
+    char *extra;
+    char *client_ip;
+    dns_type_t type;
+} httpdns_raw_single_resolve_result_t;
+
+typedef struct {
+    struct list_head dns;
+} httpdns_raw_multi_resolve_result_t;
+
+typedef struct {
     char *ip;
-    int32_t connect_time_ms;
+    int32_t rt;
 } httpdns_ip_t;
 
-void destroy_httpdns_ip(httpdns_ip_t* ip);
+void print_httpdns_ip(httpdns_ip_t *httpdns_ip);
 
-void destroy_httpdns_resolve_result(httpdns_resolve_result_t * result);
+void print_httpdns_raw_schedule_result(httpdns_raw_schedule_result_t *result);
+
+void print_httpdns_raw_single_resolve_result(httpdns_raw_single_resolve_result_t *result);
+
+void print_httpdns_raw_multi_resolve_result(httpdns_raw_multi_resolve_result_t *result);
+
+httpdns_raw_schedule_result_t *create_httpdns_raw_schedule_result();
+
+void destroy_httpdns_raw_schedule_result(httpdns_raw_schedule_result_t *result);
+
+httpdns_raw_single_resolve_result_t *create_httpdns_raw_single_resolve_result();
+
+void destroy_httpdns_raw_single_resolve_result(httpdns_raw_single_resolve_result_t *result);
+
+httpdns_raw_multi_resolve_result_t *create_httpdns_raw_multi_resolve_result();
+
+void destroy_httpdns_raw_multi_resolve_result(httpdns_raw_multi_resolve_result_t *result);
+
+httpdns_ip_t *create_httpdns_ip(char *ip);
+
+void destroy_httpdns_ip(httpdns_ip_t *ip);
+
+httpdns_ip_t *clone_httpdns_ip(httpdns_ip_t *ip);
+
+void destroy_httpdns_resolve_result(httpdns_resolve_result_t *result);
+
+httpdns_resolve_result_t *clone_httpdns_resolve_result(httpdns_resolve_result_t *origin_result);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESULT_H

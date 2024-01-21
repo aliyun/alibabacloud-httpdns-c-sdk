@@ -7,8 +7,9 @@
 
 #include <time.h>
 #include <stdbool.h>
+#include <stdint.h>
 
-void httpdns_time_to_string(struct timespec ts, char *buffer);
+void httpdns_time_to_string(struct timespec ts, char *buffer, size_t size);
 
 struct timespec httpdns_time_now();
 

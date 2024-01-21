@@ -5,11 +5,10 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-void httpdns_time_to_string(struct timespec ts, char *buffer) {
+void httpdns_time_to_string(struct timespec ts, char *buffer, size_t size) {
     time_t sec = ts.tv_sec;
     struct tm *tm_local = localtime(&sec);
-    strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", tm_local);
-    printf("%s", buffer);
+    strftime(buffer, size, "%Y-%m-%d %H:%M:%S", tm_local);
 }
 
 struct timespec httpdns_time_now() {

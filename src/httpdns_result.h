@@ -33,7 +33,7 @@ typedef struct {
     char *client_ip;
     char *extra;
     struct list_head ips;
-    struct list_head ipv6s;
+    struct list_head ipsv6;
     int origin_ttl;
     int ttl;
     struct timespec query_ts;
@@ -93,6 +93,8 @@ void destroy_httpdns_ip(httpdns_ip_t *ip);
 httpdns_ip_t *clone_httpdns_ip(httpdns_ip_t *ip);
 
 void destroy_httpdns_resolve_result(httpdns_resolve_result_t *result);
+
+void print_httpdns_resolve_result(httpdns_resolve_result_t *result);
 
 httpdns_resolve_result_t *clone_httpdns_resolve_result(httpdns_resolve_result_t *origin_result);
 

@@ -5,7 +5,7 @@
 #include "sds.h"
 #include "httpdns_list.h"
 #include "httpdns_memory.h"
-
+#include "httpdns_time.h"
 
 void print_httpdns_ip(httpdns_ip_t *httpdns_ip) {
     if (NULL != httpdns_ip) {
@@ -93,9 +93,40 @@ void destroy_httpdns_resolve_result(httpdns_resolve_result_t *result) {
     if (IS_NOT_BLANK_SDS(result->extra)) {
         sdsfree(result->extra);
     }
+    if (IS_NOT_BLANK_SDS(result->cache_key)) {
+        sdsfree(result->cache_key);
+    }
     httpdns_list_free(&result->ips, DATA_FREE_FUNC(destroy_httpdns_ip));
-    httpdns_list_free(&result->ipv6s, DATA_FREE_FUNC(destroy_httpdns_ip));
+    httpdns_list_free(&result->ipsv6, DATA_FREE_FUNC(destroy_httpdns_ip));
     free(result);
+}
+
+
+//char *host;
+//char *client_ip;
+//char *extra;
+//struct list_head ips;
+//struct list_head ipsv6;
+//int origin_ttl;
+//int ttl;
+//struct timespec query_ts;
+//char *cache_key;
+//bool hit_cache;
+
+void print_httpdns_resolve_result(httpdns_resolve_result_t *result) {
+    if(NULL == result){
+        return;
+    }
+    char query_ts[32];
+    httpdns_time_to_string(result->query_ts, query_ts, 32);
+    printf("{\n");
+    printf("host=%s, client_ip=%s, extra=%s, origin_ttl=%d, ttl=%d, cache_key=%s, hit_cache=%d, query_ts=%s",
+    result->host, result->client_ip, result->extra, result->origin_ttl, result->ttl, result->cache_key, result->hit_cache, query_ts);
+    printf(",ips=");
+    httpdns_list_print(&result->ips, DATA_PRINT_FUNC(print_httpdns_ip));
+    printf(",ipsv6=");
+    httpdns_list_print(&result->ipsv6, DATA_PRINT_FUNC(print_httpdns_ip));
+    printf("\n}");
 }
 
 
@@ -122,9 +153,9 @@ httpdns_resolve_result_t *clone_httpdns_resolve_result(httpdns_resolve_result_t 
     result_copy->query_ts = origin_result->query_ts;
     result_copy->hit_cache = origin_result->hit_cache;
     httpdns_list_init(&result_copy->ips);
-    httpdns_list_init(&result_copy->ipv6s);
+    httpdns_list_init(&result_copy->ipsv6);
     httpdns_list_dup(&result_copy->ips, &origin_result->ips, DATA_CLONE_FUNC(clone_httpdns_ip));
-    httpdns_list_dup(&result_copy->ipv6s, &origin_result->ipv6s, DATA_CLONE_FUNC(clone_httpdns_ip));
+    httpdns_list_dup(&result_copy->ipsv6, &origin_result->ipsv6, DATA_CLONE_FUNC(clone_httpdns_ip));
     return result_copy;
 }
 

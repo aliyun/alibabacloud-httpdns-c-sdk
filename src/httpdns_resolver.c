@@ -5,6 +5,9 @@
 #include "httpdns_resolver.h"
 #include "httpdns_cache.h"
 #include "httpdns_sign.h"
+#include "response_parser.h"
+#include "httpdns_memory.h"
+#include "httpdns_time.h"
 
 
 httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config) {
@@ -18,6 +21,7 @@ httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config) {
     net_stack_detector_set_probe_domain(resolver->net_stack_detector, config->probe_domain);
     resolver->cache = create_httpdns_cache_table();
     resolver->scheduler = create_httpdns_scheduler(config);
+    httpdns_scheduler_refresh_resolve_servers(resolver->scheduler);
     return resolver;
 }
 
@@ -127,6 +131,7 @@ void destroy_httpdns_resolve_task(httpdns_resolve_task_t *task) {
     }
     httpdns_list_free(&task->requests, DATA_FREE_FUNC(destroy_httpdns_resolve_request));
     httpdns_list_free(&task->results, DATA_FREE_FUNC(destroy_httpdns_resolve_result));
+    free(task);
 }
 
 static httpdns_http_request_t *
@@ -167,6 +172,7 @@ resolve_request_to_http_request(httpdns_resolve_request_t *resolve_request, http
     url = sdscat(url, "&platform=linux&sdk_version=");
     url = sdscat(url, config->sdk_version);
     http_request->url = url;
+    sdsfree(resolve_server_ip);
     return http_request;
 }
 
@@ -192,18 +198,48 @@ static void resolve_requests_to_http_requests(struct list_head *http_requests, h
     }
 }
 
-static httpdns_resolve_result_t *http_response_to_resolve_result(httpdns_http_response_t *http_response) {
-    if(NULL == http_response) {
+static httpdns_resolve_result_t *
+raw_single_result_to_resolve_result(httpdns_raw_single_resolve_result_t *raw_single_resolve_result) {
+    if (NULL == raw_single_resolve_result) {
         return NULL;
     }
-    if(http_response->http_status == HTTP_STATUS_OK) {
-
+    HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_result, httpdns_resolve_result_t);
+    resolve_result->hit_cache = false;
+    resolve_result->query_ts = httpdns_time_now();
+    resolve_result->origin_ttl = raw_single_resolve_result->origin_ttl;
+    resolve_result->ttl = raw_single_resolve_result->ttl;
+    if (NULL != raw_single_resolve_result->extra) {
+        resolve_result->extra = sdsnew(raw_single_resolve_result->extra);
     }
+    if (NULL != raw_single_resolve_result->client_ip) {
+        resolve_result->client_ip = sdsnew(raw_single_resolve_result->client_ip);
+    }
+    if (NULL != raw_single_resolve_result->host) {
+        resolve_result->host = sdsnew(raw_single_resolve_result->host);
+    }
+    httpdns_list_dup(&resolve_result->ips, &raw_single_resolve_result->ips, DATA_CLONE_FUNC(clone_httpdns_ip));
+    httpdns_list_dup(&resolve_result->ipsv6, &raw_single_resolve_result->ipsv6, DATA_CLONE_FUNC(clone_httpdns_ip));
+    return resolve_result;
 }
 
-static void http_responses_to_resolve_results(struct list_head *http_responses, struct list_head *resolve_results) {
-
-
+static httpdns_resolve_result_t *http_response_to_resolve_result(httpdns_http_response_t *http_response) {
+    if (NULL == http_response) {
+        return NULL;
+    }
+    if (http_response->http_status == HTTP_STATUS_OK) {
+        httpdns_raw_single_resolve_result_t *raw_single_resolve_result = parse_single_resolve_result(
+                http_response->body);
+        if (NULL == raw_single_resolve_result) {
+            return NULL;
+        }
+        httpdns_resolve_result_t *resolve_result = raw_single_result_to_resolve_result(raw_single_resolve_result);
+        if (NULL != http_response->cache_key) {
+            resolve_result->cache_key = sdsnew(http_response->cache_key);
+        }
+        destroy_httpdns_raw_single_resolve_result(raw_single_resolve_result);
+        return resolve_result;
+    }
+    return NULL;
 }
 
 int32_t resolve(httpdns_resolve_task_t *task) {
@@ -224,18 +260,15 @@ int32_t resolve(httpdns_resolve_task_t *task) {
     if (ret != HTTPDNS_SUCCESS || IS_EMPTY_LIST(&http_responses)) {
         return HTTPDNS_CORRECT_RESPONSE_EMPTY;
     }
-
-
-    return 0;
+    httpdns_list_dup(&task->results, &http_responses, DATA_CLONE_FUNC(http_response_to_resolve_result));
+    httpdns_list_free(&http_responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
+    return HTTPDNS_SUCCESS;
 }
 
 
 void destroy_httpdns_resolver(httpdns_resolver_t *resolver) {
     if (NULL == resolver) {
         return;
-    }
-    if (NULL != resolver->config) {
-        destroy_httpdns_config(resolver->config);
     }
     if (NULL != resolver->cache) {
         destroy_httpdns_cache_table(resolver->cache);
@@ -246,4 +279,5 @@ void destroy_httpdns_resolver(httpdns_resolver_t *resolver) {
     if (NULL != resolver->net_stack_detector) {
         destroy_net_stack_detector(resolver->net_stack_detector);
     }
+    free(resolver);
 }

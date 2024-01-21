@@ -109,7 +109,7 @@ void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
         printf("origin_ttl=%d,", cache_entry->origin_ttl);
         printf("ttl=%d,", cache_entry->ttl);
         char buffer[256];
-        httpdns_time_to_string(cache_entry->query_ts, buffer);
+        httpdns_time_to_string(cache_entry->query_ts, buffer, 256);
         printf("query_timestamp=%s,", buffer);
         printf("cache_key=%s", cache_entry->cache_key);
         printf(" }");

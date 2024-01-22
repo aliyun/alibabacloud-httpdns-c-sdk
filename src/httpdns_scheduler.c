@@ -165,7 +165,7 @@ static int32_t update_server_response_time(int32_t old_rt_val, int32_t new_rt_va
 }
 
 void httpdns_scheduler_update_server_rt(httpdns_scheduler_t *scheduler, char *resolve_server_name, int32_t new_time_cost_ms) {
-    if (IS_BLANK_SDS(resolve_server_name) || NULL == scheduler || new_time_cost_ms <= 0) {
+    if (IS_BLANK_STRING(resolve_server_name) || NULL == scheduler || new_time_cost_ms <= 0) {
         return;
     }
     httpdns_resolve_server_t *resolve_server = search_resolve_server(&scheduler->ipv4_resolve_servers,
@@ -208,7 +208,7 @@ void destroy_httpdns_resolve_server(httpdns_resolve_server_t *resolve_server) {
     if (NULL == resolve_server) {
         return;
     }
-    if (IS_NOT_BLANK_SDS(resolve_server->server)) {
+    if (IS_NOT_BLANK_STRING(resolve_server->server)) {
         sdsfree(resolve_server->server);
     }
     free(resolve_server);

@@ -42,11 +42,11 @@
 #endif
 
 
-#define IS_NOT_BLANK_SDS(sds) \
-(NULL != sds && strlen(sds) >0)
+#define IS_NOT_BLANK_STRING(str) \
+(NULL != str && strlen(str) >0)
 
-#define IS_BLANK_SDS(sds) \
-((NULL == sds || strlen(sds) <=0))
+#define IS_BLANK_STRING(str) \
+((NULL == str || strlen(str) <=0))
 
 typedef char *sds;
 

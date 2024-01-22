@@ -181,16 +181,18 @@ void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func)
 
 void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func) {
     if (NULL == head || NULL == print_func) {
+        printf("[]");
         return;
     }
     printf("[");
     httpdns_list_node_t *cursor, *temp_node;
     list_for_each_entry_safe(cursor, temp_node, head, list) {
-        printf("\n\t");
+        if (cursor->list.prev != head) {
+            printf(",");
+        }
         print_func(cursor->data);
-        printf("\t");
     }
-    printf("\n]\n");
+    printf("]");
 }
 
 

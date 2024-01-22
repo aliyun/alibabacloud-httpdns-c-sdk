@@ -148,19 +148,19 @@ int32_t httpdns_config_is_valid(httpdns_config_t *config) {
     if (NULL == config) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (IS_BLANK_SDS(config->sdk_version)) {
+    if (IS_BLANK_STRING(config->sdk_version)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_SDS(config->account_id)) {
+    if (IS_BLANK_STRING(config->account_id)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (config->using_sign && IS_BLANK_SDS(config->secret_key)) {
+    if (config->using_sign && IS_BLANK_STRING(config->secret_key)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (IS_EMPTY_LIST(&config->ipv4_boot_servers) && IS_EMPTY_LIST(&config->ipv6_boot_servers)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_SDS(config->region)) {
+    if (IS_BLANK_STRING(config->region)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (config->timeout_ms <= 0) {

@@ -27,14 +27,14 @@ httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config) {
 
 
 httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, resolve_type_t dns_type, char *cache_key) {
-    if (IS_BLANK_SDS(host)) {
+    if (IS_BLANK_STRING(host)) {
         return NULL;
     }
     httpdns_resolve_request_t *request = (httpdns_resolve_request_t *) malloc(sizeof(httpdns_resolve_request_t));
     memset(request, 0, sizeof(httpdns_resolve_request_t));
     request->host = sdsnew(host);
     request->dns_type = dns_type;
-    if (IS_BLANK_SDS(cache_key)) {
+    if (IS_BLANK_STRING(cache_key)) {
         request->cache_key = sdsnew(host);
     } else {
         request->cache_key = sdsnew(cache_key);
@@ -44,7 +44,7 @@ httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, resolve_ty
 }
 
 void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, char *key, char *value) {
-    if (NULL == request || IS_BLANK_SDS(key) || IS_BLANK_SDS(value)) {
+    if (NULL == request || IS_BLANK_STRING(key) || IS_BLANK_STRING(value)) {
         return;
     }
     if (NULL == request->sdns_params) {
@@ -56,7 +56,7 @@ void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *reque
 }
 
 void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, char *cache_key) {
-    if (NULL == request || IS_BLANK_SDS(cache_key)) {
+    if (NULL == request || IS_BLANK_STRING(cache_key)) {
         return;
     }
     request->cache_key = sdsnew(cache_key);
@@ -66,13 +66,13 @@ void destroy_httpdns_resolve_request(httpdns_resolve_request_t *request) {
     if (NULL == request) {
         return;
     }
-    if (IS_NOT_BLANK_SDS(request->host)) {
+    if (IS_NOT_BLANK_STRING(request->host)) {
         sdsfree(request->host);
     }
-    if (IS_NOT_BLANK_SDS(request->sdns_params)) {
+    if (IS_NOT_BLANK_STRING(request->sdns_params)) {
         sdsfree(request->sdns_params);
     }
-    if (IS_NOT_BLANK_SDS(request->cache_key)) {
+    if (IS_NOT_BLANK_STRING(request->cache_key)) {
         sdsfree(request->cache_key);
     }
     free(request);
@@ -84,13 +84,13 @@ httpdns_resolve_request_t *clone_httpdns_resolve_request(httpdns_resolve_request
     }
     httpdns_resolve_request_t *request = (httpdns_resolve_request_t *) malloc(sizeof(httpdns_resolve_request_t));
     memset(request, 0, sizeof(httpdns_resolve_request_t));
-    if (IS_NOT_BLANK_SDS(origin_request->host)) {
+    if (IS_NOT_BLANK_STRING(origin_request->host)) {
         request->host = sdsnew(origin_request->host);
     }
-    if (IS_NOT_BLANK_SDS(origin_request->sdns_params)) {
+    if (IS_NOT_BLANK_STRING(origin_request->sdns_params)) {
         request->sdns_params = sdsnew(origin_request->sdns_params);
     }
-    if (IS_NOT_BLANK_SDS(origin_request->cache_key)) {
+    if (IS_NOT_BLANK_STRING(origin_request->cache_key)) {
         request->cache_key = sdsnew(origin_request->cache_key);
     }
     request->dns_type = origin_request->dns_type;
@@ -199,7 +199,7 @@ static void resolve_requests_to_http_requests(struct list_head *http_requests, h
 }
 
 static httpdns_resolve_result_t *
-raw_single_result_to_resolve_result(httpdns_raw_single_resolve_result_t *raw_single_resolve_result) {
+raw_single_result_to_resolve_result(httpdns_single_resolve_response_t *raw_single_resolve_result) {
     if (NULL == raw_single_resolve_result) {
         return NULL;
     }
@@ -227,7 +227,7 @@ static httpdns_resolve_result_t *http_response_to_resolve_result(httpdns_http_re
         return NULL;
     }
     if (http_response->http_status == HTTP_STATUS_OK) {
-        httpdns_raw_single_resolve_result_t *raw_single_resolve_result = parse_single_resolve_result(
+        httpdns_single_resolve_response_t *raw_single_resolve_result = parse_single_resolve_response(
                 http_response->body);
         if (NULL == raw_single_resolve_result) {
             return NULL;
@@ -236,7 +236,7 @@ static httpdns_resolve_result_t *http_response_to_resolve_result(httpdns_http_re
         if (NULL != http_response->cache_key) {
             resolve_result->cache_key = sdsnew(http_response->cache_key);
         }
-        destroy_httpdns_raw_single_resolve_result(raw_single_resolve_result);
+        httpdns_single_resolve_response_destroy(raw_single_resolve_result);
         return resolve_result;
     }
     return NULL;

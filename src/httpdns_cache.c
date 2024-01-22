@@ -11,7 +11,7 @@ httpdns_cache_table_t *create_httpdns_cache_table() {
 }
 
 int32_t httpdns_cache_add_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == entry || IS_BLANK_SDS(entry->cache_key)) {
+    if (NULL == entry || IS_BLANK_STRING(entry->cache_key)) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
     if (dictAdd(cache_table, entry->cache_key, entry) != DICT_OK) {
@@ -34,7 +34,7 @@ int32_t httpdns_cache_delete_entry(httpdns_cache_table_t *cache_table, char *key
 }
 
 int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == cache_table || NULL == entry || IS_BLANK_SDS(entry->cache_key)) {
+    if (NULL == cache_table || NULL == entry || IS_BLANK_STRING(entry->cache_key)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     httpdns_cache_delete_entry(cache_table, entry->cache_key);
@@ -103,7 +103,7 @@ void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
         printf("{ ");
         printf("host=%s,", cache_entry->host);
         printf("client_ip=%s,", cache_entry->client_ip);
-        if (IS_NOT_BLANK_SDS(cache_entry->extra)) {
+        if (IS_NOT_BLANK_STRING(cache_entry->extra)) {
             printf("extra=%s,", cache_entry->extra);
         }
         printf("origin_ttl=%d,", cache_entry->origin_ttl);

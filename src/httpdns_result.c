@@ -6,6 +6,7 @@
 #include "httpdns_list.h"
 #include "httpdns_memory.h"
 #include "httpdns_time.h"
+#include "response_parser.h"
 
 void print_httpdns_ip(httpdns_ip_t *httpdns_ip) {
     if (NULL != httpdns_ip) {
@@ -14,45 +15,16 @@ void print_httpdns_ip(httpdns_ip_t *httpdns_ip) {
     }
 }
 
-void print_httpdns_raw_schedule_result(httpdns_raw_schedule_result_t *result) {
-    if (NULL != result) {
-        printf("\n{");
-        printf("\nraw_schedule_result:");
-        printf("\nservice_ip:\n");
-        httpdns_list_print(&result->service_ip, DATA_PRINT_FUNC(print_httpdns_ip));
-        printf("service_ipv6:\n");
-        httpdns_list_print(&result->service_ipv6, DATA_PRINT_FUNC(print_httpdns_ip));
-        printf("}\n");
-    }
-}
 
-void print_httpdns_raw_single_resolve_result(httpdns_raw_single_resolve_result_t *result) {
-    if (NULL != result) {
-        printf("\nhost:%s", result->host);
-        printf("\nips:\n");
-        httpdns_list_print(&result->ips, DATA_FREE_FUNC(print_httpdns_ip));
-        printf("ipsv6:\n");
-        httpdns_list_print(&result->ipsv6, DATA_FREE_FUNC(print_httpdns_ip));
-        printf("ttl:%d", result->ttl);
-        printf("\norigin_ttl:%d", result->origin_ttl);
-        printf("\nextra:%s", result->extra);
-        printf("\nclient_ip:%s", result->client_ip);
-        printf("\ntype:%d", result->type);
-    }
-}
 
-void print_httpdns_raw_multi_resolve_result(httpdns_raw_multi_resolve_result_t *result) {
-    if (NULL != result) {
-        printf("\nraw_multi_resolve_result:");
-        httpdns_list_print(&result->dns, DATA_PRINT_FUNC(print_httpdns_raw_single_resolve_result));
-    }
-}
+
+
 
 void destroy_httpdns_ip(httpdns_ip_t *httpdns_ip) {
     if (NULL == httpdns_ip) {
         return;
     }
-    if (IS_NOT_BLANK_SDS(httpdns_ip->ip)) {
+    if (IS_NOT_BLANK_STRING(httpdns_ip->ip)) {
         sdsfree(httpdns_ip->ip);
     }
     free(httpdns_ip);
@@ -84,16 +56,16 @@ void destroy_httpdns_resolve_result(httpdns_resolve_result_t *result) {
     if (NULL == result) {
         return;
     }
-    if (IS_NOT_BLANK_SDS(result->host)) {
+    if (IS_NOT_BLANK_STRING(result->host)) {
         sdsfree(result->host);
     }
-    if (IS_NOT_BLANK_SDS(result->client_ip)) {
+    if (IS_NOT_BLANK_STRING(result->client_ip)) {
         sdsfree(result->client_ip);
     }
-    if (IS_NOT_BLANK_SDS(result->extra)) {
+    if (IS_NOT_BLANK_STRING(result->extra)) {
         sdsfree(result->extra);
     }
-    if (IS_NOT_BLANK_SDS(result->cache_key)) {
+    if (IS_NOT_BLANK_STRING(result->cache_key)) {
         sdsfree(result->cache_key);
     }
     httpdns_list_free(&result->ips, DATA_FREE_FUNC(destroy_httpdns_ip));
@@ -159,55 +131,14 @@ httpdns_resolve_result_t *clone_httpdns_resolve_result(httpdns_resolve_result_t 
     return result_copy;
 }
 
-httpdns_raw_schedule_result_t *create_httpdns_raw_schedule_result() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(schedule_result, httpdns_raw_schedule_result_t);
-    httpdns_list_init(&schedule_result->service_ip);
-    httpdns_list_init(&schedule_result->service_ipv6);
-    return schedule_result;
-}
 
 
-void destroy_httpdns_raw_schedule_result(httpdns_raw_schedule_result_t *result) {
-    if (NULL != result) {
-        httpdns_list_free(&result->service_ip, DATA_FREE_FUNC(destroy_httpdns_ip));
-        httpdns_list_free(&result->service_ipv6, DATA_FREE_FUNC(destroy_httpdns_ip));
-        free(result);
-    }
-}
 
-httpdns_raw_single_resolve_result_t *create_httpdns_raw_single_resolve_result() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(single_resolve_result, httpdns_raw_single_resolve_result_t);
-    httpdns_list_init(&single_resolve_result->ips);
-    httpdns_list_init(&single_resolve_result->ipsv6);
-    return single_resolve_result;
-}
 
-void destroy_httpdns_raw_single_resolve_result(httpdns_raw_single_resolve_result_t *result) {
-    if (NULL != result) {
-        if (NULL != result->host) {
-            sdsfree(result->host);
-        }
-        if (NULL != result->extra) {
-            sdsfree(result->extra);
-        }
-        if (NULL != result->client_ip) {
-            sdsfree(result->client_ip);
-        }
-        httpdns_list_free(&result->ips, DATA_FREE_FUNC(destroy_httpdns_ip));
-        httpdns_list_free(&result->ipsv6, DATA_FREE_FUNC(destroy_httpdns_ip));
-        free(result);
-    }
-}
 
-httpdns_raw_multi_resolve_result_t *create_httpdns_raw_multi_resolve_result() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(multi_resolve_result, httpdns_raw_multi_resolve_result_t);
-    httpdns_list_init(&multi_resolve_result->dns);
-    return multi_resolve_result;
-}
 
-void destroy_httpdns_raw_multi_resolve_result(httpdns_raw_multi_resolve_result_t *result) {
-    if (NULL != result) {
-        httpdns_list_free(&result->dns, DATA_FREE_FUNC(destroy_httpdns_raw_single_resolve_result));
-        free(result);
-    }
-}
+
+
+
+
+

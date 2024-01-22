@@ -28,9 +28,10 @@ static void test_parse_schedule_result() {
                  "\t\"service_ipv6\":[\"2401:b180:2000:20::1c\",\n"
                  "\t\"2401:b180:2000:20::10\"]\n"
                  "}";
-    httpdns_raw_schedule_result_t *result = parse_schedule_result(body);
-    print_httpdns_raw_schedule_result(result);
-    destroy_httpdns_raw_schedule_result(result);
+    httpdns_schedule_response_t *response = parse_schedule_response(body);
+    printf("\n");
+    httpdns_schedule_response_print(response);
+    httpdns_schedule_response_destroy(response);
 }
 
 void test_parse_single_resolve_result() {
@@ -42,9 +43,10 @@ void test_parse_single_resolve_result() {
                  "\"ttl\":60,\n"
                  "\"origin_ttl\":60\n"
                  "}";
-    httpdns_raw_single_resolve_result_t *result = parse_single_resolve_result(body);
-    print_httpdns_raw_single_resolve_result(result);
-    destroy_httpdns_raw_single_resolve_result(result);
+    httpdns_single_resolve_response_t *response = parse_single_resolve_response(body);
+    printf("\n");
+    httpdns_single_resolve_response_print(response);
+    httpdns_single_resolve_response_destroy(response);
 }
 
 void test_parse_multi_resolve_result() {
@@ -66,9 +68,10 @@ void test_parse_multi_resolve_result() {
                  "\t\t\"origin_ttl\":60\n"
                  "\t}]\n"
                  "}";
-    httpdns_raw_multi_resolve_result_t *result = parse_multi_resolve_result(body);
-    print_httpdns_raw_multi_resolve_result(result);
-    destroy_httpdns_raw_multi_resolve_result(result);
+    httpdns_multi_resolve_response_t *response = parse_multi_resolve_response(body);
+    printf("\n");
+    httpdns_multi_resolve_response_print(response);
+    httpdns_multi_resolve_response_destroy(response);
 }
 
 int main(void) {

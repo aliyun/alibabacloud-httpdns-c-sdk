@@ -114,7 +114,7 @@ net_stack_detector_t *create_net_stack_detector() {
 
 void destroy_net_stack_detector(net_stack_detector_t *detector) {
     if (NULL != detector) {
-        if (IS_NOT_BLANK_SDS(detector->probe_domain)) {
+        if (IS_NOT_BLANK_STRING(detector->probe_domain)) {
             sdsfree(detector->probe_domain);
         }
         free(detector);
@@ -139,7 +139,7 @@ void net_stack_detector_set_using_cache(net_stack_detector_t *detector, bool usi
 }
 
 void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const char *probe_domain) {
-    if (NULL != detector && IS_NOT_BLANK_SDS(probe_domain)) {
+    if (NULL != detector && IS_NOT_BLANK_STRING(probe_domain)) {
         detector->probe_domain = sdsnew(probe_domain);
     }
 }

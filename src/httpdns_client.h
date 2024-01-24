@@ -30,6 +30,8 @@ typedef struct {
 
 httpdns_client_t *httpdns_client_create(httpdns_config_t *config);
 
+void httpdns_client_destroy(httpdns_client_t * client);
+
 
 int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
                                       char *host,

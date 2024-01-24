@@ -25,3 +25,7 @@ _TARGET_TEST_LIBRARIES(response_parser response_parser_test.c)
 _TARGET_TEST_LIBRARIES(httpdns_resolver httpdns_resolver_test.c)
 
 _TARGET_TEST_LIBRARIES(httpdns_time httpdns_time_test.c)
+
+_TARGET_TEST_LIBRARIES(httpdns_client httpdns_client_test.c)
+
+_TARGET_TEST_LIBRARIES(httpdns_cache httpdns_cache_test.c)

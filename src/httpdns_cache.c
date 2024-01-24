@@ -50,7 +50,7 @@ int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_c
         old_cache_entry->origin_ttl = entry->origin_ttl;
     } else {
         httpdns_cache_entry_t *new_entry = httpdns_resolve_result_clone(entry);
-        httpdns_cache_add_entry(cache_table, entry);
+        httpdns_cache_add_entry(cache_table, new_entry);
     }
     return HTTPDNS_SUCCESS;
 }
@@ -104,10 +104,11 @@ void httpdns_cache_table_print(httpdns_cache_table_t *cache_table) {
             dictEntry *de = NULL;
             while ((de = dictNext(di)) != NULL) {
                 httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
+                printf("\n");
                 httpdns_cache_entry_print(entry);
             }
             dictReleaseIterator(di);
-            printf("]");
+            printf("\n]");
         } else {
             printf("\nCache=[]");
         }
@@ -117,26 +118,7 @@ void httpdns_cache_table_print(httpdns_cache_table_t *cache_table) {
 }
 
 void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
-    if (NULL == cache_entry) {
-        printf("{ null }");
-        return;
-    }
-    if (NULL != cache_entry) {
-        printf("\ncache entry:");
-        printf("{ ");
-        printf("host=%s,", cache_entry->host);
-        printf("client_ip=%s,", cache_entry->client_ip);
-        if (IS_NOT_BLANK_STRING(cache_entry->extra)) {
-            printf("extra=%s,", cache_entry->extra);
-        }
-        printf("origin_ttl=%d,", cache_entry->origin_ttl);
-        printf("ttl=%d,", cache_entry->ttl);
-        char buffer[256];
-        httpdns_time_to_string(cache_entry->query_ts, buffer, 256);
-        printf("query_timestamp=%s,", buffer);
-        printf("private_data=%s", cache_entry->cache_key);
-        printf(" }");
-    }
+    httpdns_resolve_result_print(cache_entry);
 }
 
 void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table) {
@@ -147,5 +129,7 @@ void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table) {
 }
 
 void httpdns_cache_entry_destroy(httpdns_cache_entry_t *entry) {
-
+    if (NULL != entry) {
+        httpdns_resolve_result_destroy(entry);
+    }
 }

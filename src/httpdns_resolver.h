@@ -74,6 +74,7 @@ typedef struct {
 typedef struct {
     httpdns_resolve_request_t *request;
     void *user_http_finish_callback_param;
+    data_free_function_ptr_t callback_param_free_func;
     http_finish_callback_func_t http_finish_callback_func;
 } httpdns_resolve_param_t;
 
@@ -131,6 +132,10 @@ void httpdns_resolve_result_destroy(httpdns_resolve_result_t *result);
 httpdns_resolve_result_t *httpdns_resolve_result_clone(httpdns_resolve_result_t *origin_result);
 
 void httpdns_resolve_result_print(httpdns_resolve_result_t *result);
+
+void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, char* cache_key);
+
+void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool hit_cache);
 
 void httpdns_resolve_param_destroy(httpdns_resolve_param_t *resolve_param);
 

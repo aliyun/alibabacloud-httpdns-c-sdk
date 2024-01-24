@@ -26,6 +26,7 @@ int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request) {
         return HTTPDNS_PARAMETER_ERROR;
     }
     // FIXME 如果是批量解析，则域名数不能超过5个
+    // FIXME 批量解析接口不能自定义cache_key
     if (request->timeout_ms <= 0) {
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -41,9 +42,9 @@ int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) 
         return HTTPDNS_PARAMETER_ERROR;
     }
     NEW_EMPTY_LIST_IN_STACK(resolve_params);
-    httpdns_list_add(&resolve_params, resolve_param, DATA_CLONE_FUNC(httpdns_resolve_param_clone));
+    httpdns_list_add(&resolve_params, resolve_param, NULL);
     int32_t ret = httpdns_resolver_multi_resolve(&resolve_params);
-    httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_destroy));
+    httpdns_list_free(&resolve_params, NULL);
     return ret;
 }
 
@@ -119,7 +120,8 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
     return HTTPDNS_SUCCESS;
 }
 
-httpdns_resolve_request_t *httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
+httpdns_resolve_request_t *
+httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
     if (HTTPDNS_SUCCESS != httpdns_config_is_valid(config) || NULL == host) {
         return NULL;
     }
@@ -212,6 +214,7 @@ httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request
     new_resolve_request->using_https = origin_resolve_request->using_https;
     new_resolve_request->using_sign = origin_resolve_request->using_sign;
     new_resolve_request->using_multi = origin_resolve_request->using_multi;
+    new_resolve_request->using_cache = origin_resolve_request->using_cache;
     new_resolve_request->timeout_ms = origin_resolve_request->timeout_ms;
     return new_resolve_request;
 }
@@ -261,9 +264,6 @@ void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, c
 }
 
 void httpdns_resolve_request_set_query_type(httpdns_resolve_request_t *request, char *query_type) {
-    if (NULL == request) {
-        return;
-    }
     HTTPDNS_SET_STRING_FIELD(request, query_type, query_type);
 }
 
@@ -301,7 +301,7 @@ httpdns_resolve_context_t *httpdns_resolve_context_create(httpdns_resolve_reques
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_context, httpdns_resolve_context_t);
-    resolve_context->request = request;
+    resolve_context->request = httpdns_resolve_request_clone(request);
     httpdns_list_init(&resolve_context->result);
     return resolve_context;
 }
@@ -386,6 +386,16 @@ void httpdns_resolve_result_destroy(httpdns_resolve_result_t *result) {
     free(result);
 }
 
+
+void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, char *cache_key) {
+    HTTPDNS_SET_STRING_FIELD(result, cache_key, cache_key);
+}
+
+void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool hit_cache) {
+    if (NULL != result) {
+        result->hit_cache = hit_cache;
+    }
+}
 //
 //httpdns_resolve_request_t *clone_httpdns_resolve_request(httpdns_resolve_request_t *origin_request) {
 //    if (NULL == origin_request) {
@@ -507,7 +517,7 @@ void httpdns_resolve_result_print(httpdns_resolve_result_t *result) {
     }
     char query_ts[32];
     httpdns_time_to_string(result->query_ts, query_ts, 32);
-    printf("{\n");
+    printf("httpdns_resolve_result_t(");
     printf("host=%s, client_ip=%s, extra=%s, origin_ttl=%d, ttl=%d, private_data=%s, hit_cache=%d, query_ts=%s",
            result->host, result->client_ip, result->extra, result->origin_ttl, result->ttl, result->cache_key,
            result->hit_cache, query_ts);
@@ -515,7 +525,7 @@ void httpdns_resolve_result_print(httpdns_resolve_result_t *result) {
     httpdns_list_print(&result->ips, DATA_PRINT_FUNC(httpdns_ip_print));
     printf(",ipsv6=");
     httpdns_list_print(&result->ipsv6, DATA_PRINT_FUNC(httpdns_ip_print));
-    printf("\n}");
+    printf(")");
 }
 
 
@@ -561,6 +571,9 @@ void httpdns_resolve_param_destroy(httpdns_resolve_param_t *resolve_param) {
     }
     if (NULL != resolve_param->request) {
         httpdns_resolve_request_destroy(resolve_param->request);
+    }
+    if (NULL != resolve_param->callback_param_free_func) {
+        resolve_param->callback_param_free_func(resolve_param->user_http_finish_callback_param);
     }
     free(resolve_param);
 }

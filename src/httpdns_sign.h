@@ -10,7 +10,8 @@
 #include  <stdio.h>
 #include <stdint.h>
 
-#define EXPIRATION_TIME 30 * 60
+#define MAX_RESOLVE_SIGNATURE_OFFSET_TIME 30 * 60
+#define MAX_SCHEDULE_SIGNATURE_OFFSET_TIME 0
 
 typedef struct {
     char *raw;
@@ -18,7 +19,7 @@ typedef struct {
     char *timestamp;
 } httpdns_signature_t;
 
-httpdns_signature_t *create_httpdns_signature(const char *host, const char *secret);
+httpdns_signature_t *httpdns_signature_create(const char *host, const char *secret, int32_t max_offset);
 
 void destroy_httpdns_signature(httpdns_signature_t *signature);
 

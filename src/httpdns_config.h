@@ -12,6 +12,7 @@
 #include <stdbool.h>
 
 #define SDK_VERSION        "1.0.0"
+#define USER_AGENT        " emas-httpdns-c-sdk"
 #define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
 #define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
 #define DEFAULT_TIMEOUT_MS     5000L
@@ -27,6 +28,7 @@ typedef struct {
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
     int32_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
     char *sdk_version;
+    char *user_agent;
     bool using_async;  // default true, false synchronously, true asynchronously
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https

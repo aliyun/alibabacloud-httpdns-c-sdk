@@ -5,134 +5,143 @@
 #include <arpa/inet.h>
 #include "openssl/ssl.h"
 #include "openssl/x509v3.h"
+#include "httpdns_memory.h"
+#include "httpdns_config.h"
 
-httpdns_http_request_t *create_httpdns_http_request(char *url, int32_t timeout_ms, char *cache_key) {
-    if (IS_BLANK_STRING(url) || timeout_ms <= 0) {
-        return NULL;
-    }
-    httpdns_http_request_t *request = (httpdns_http_request_t *) malloc(sizeof(httpdns_http_request_t));
-    memset(request, 0, sizeof(httpdns_http_request_t));
-    request->timeout_ms = timeout_ms;
-    if (IS_NOT_BLANK_STRING(url)) {
-        request->url = sdsnew(url);
-    }
-    if (IS_NOT_BLANK_STRING(cache_key)) {
-        request->cache_key = sdsnew(cache_key);
-    }
-    return request;
-}
-
-httpdns_http_request_t *clone_httpdns_http_request(const httpdns_http_request_t *request) {
-    if (NULL == request) {
-        return NULL;
-    }
-    return create_httpdns_http_request(request->url, request->timeout_ms, request->cache_key);
-}
-
-void destroy_httpdns_http_request(httpdns_http_request_t *request) {
-    if (NULL == request) {
-        return;
-    }
-    if (NULL != request->url) {
-        sdsfree(request->url);
-    }
-    if (NULL != request->cache_key) {
-        sdsfree(request->cache_key);
-    }
-    free(request);
-}
-
-void httpdns_http_print_response(httpdns_http_response_t *response) {
-    if (response) {
-        printf("{");
-        printf("url=%s,", response->url);
-        printf("status_code=%d,", response->http_status);
-        printf("body=%s,", response->body);
-        printf("cache_key=%s,", response->cache_key);
-        printf("time_cost=%d", response->total_time_ms);
-        printf("}");
-    }
-}
-
-httpdns_http_response_t *create_httpdns_http_response(char *url, char *cache_key) {
+httpdns_http_context_t *httpdns_http_context_create(char *url, int32_t timeout_ms) {
     if (IS_BLANK_STRING(url)) {
         return NULL;
     }
-    httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
-    memset(response, 0, sizeof(httpdns_http_response_t));
-    if (IS_BLANK_STRING(url)) {
-        response->url = sdsnew(url);
+    HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_http_ctx, httpdns_http_context_t);
+    httpdns_http_ctx->request_url = sdsnew(url);
+    if (timeout_ms <= 0) {
+        httpdns_http_ctx->request_timeout_ms = MAX_HTTP_REQUEST_TIMEOUT_MS;
     }
-    if (IS_BLANK_STRING(cache_key)) {
-        response->cache_key = sdsnew(cache_key);
-    }
-    return response;
+    httpdns_http_ctx->user_agent = sdsnew(USER_AGENT);
+    return httpdns_http_ctx;
 }
 
-httpdns_http_response_t *clone_httpdns_http_response(const httpdns_http_response_t *origin_response) {
-    if (NULL == origin_response) {
-        return NULL;
+int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_context,
+                                              void *private_data,
+                                              data_print_function_ptr_t private_data_print_func,
+                                              data_clone_function_ptr_t private_data_clone_func,
+                                              data_cmp_function_ptr_t private_data_cmp_func,
+                                              data_free_function_ptr_t private_data_free_func) {
+    if (NULL == http_context || NULL == private_data) {
+        return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_http_response_t *response = (httpdns_http_response_t *) malloc(sizeof(httpdns_http_response_t));
-    memset(response, 0, sizeof(httpdns_http_response_t));
-    if (IS_NOT_BLANK_STRING(origin_response->url)) {
-        response->url = sdsnew(origin_response->url);
-    }
-    if (IS_NOT_BLANK_STRING(origin_response->cache_key)) {
-        response->cache_key = sdsnew(origin_response->cache_key);
-    }
-    response->http_status = origin_response->http_status;
-    response->body = sdsnew(origin_response->body);
-    response->total_time_ms = origin_response->total_time_ms;
-    return response;
-}
-
-void destroy_httpdns_http_response(httpdns_http_response_t *response) {
-    if (NULL == response) {
-        return;
-    }
-    if (NULL != response->body) {
-        sdsfree(response->body);
-    }
-    if (NULL != response->url) {
-        sdsfree(response->url);
-    }
-    if (NULL != response->cache_key) {
-        sdsfree(response->cache_key);
-    }
-    free(response);
-}
-
-void destroy_httpdns_http_responses(struct list_head *responses) {
-    httpdns_list_free(responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
-}
-
-void destroy_httpdns_http_requests(struct list_head *requests) {
-    httpdns_list_free(requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
-}
-
-
-int32_t httpdns_http_single_request_exchange(httpdns_http_request_t *request, httpdns_http_response_t **response) {
-    struct list_head requests;
-    struct list_head responses;
-    httpdns_list_init(&requests);
-    httpdns_list_init(&responses);
-    httpdns_list_add(&requests, request, DATA_CLONE_FUNC(clone_httpdns_http_request));
-    int32_t ret = httpdns_http_multiple_request_exchange(&requests, &responses);
-    httpdns_list_free(&requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
-    if (ret != HTTPDNS_SUCCESS || IS_EMPTY_LIST(&responses)) {
-        return HTTPDNS_CORRECT_RESPONSE_EMPTY;
-    }
-    *response = clone_httpdns_http_response(httpdns_list_get(&responses, 0));
-    httpdns_list_free(&responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
+    http_context->private_data = private_data;
+    http_context->private_data_print_func = private_data_print_func;
+    http_context->private_data_clone_func = private_data_clone_func;
+    http_context->private_data_cmp_func = private_data_cmp_func;
     return HTTPDNS_SUCCESS;
+}
+
+int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context, const char *user_agent) {
+    HTTPDNS_SET_STRING_FIELD(http_context, user_agent, user_agent);
+}
+
+void httpdns_http_context_print(httpdns_http_context_t *http_context) {
+    if (NULL == http_context) {
+        printf("httpdns_http_context_t=NULL");
+        return;
+    }
+    printf("httpdns_http_context_t(request_url=%s", http_context->request_url);
+    printf(",request_timeout_ms=%d", http_context->request_timeout_ms);
+    printf(",user_agent=%s", http_context->user_agent);
+    printf(",response_body=%s", http_context->response_body);
+    printf(",response_status=%d", http_context->response_status);
+    printf(",response_rt_ms=%d", http_context->response_rt_ms);
+    if ((NULL != http_context->private_data) && (NULL != http_context->private_data_print_func)) {
+        http_context->private_data_print_func(http_context->private_data);
+    }
+    printf(")");
+}
+
+httpdns_http_context_t *httpdns_http_context_clone(httpdns_http_context_t *origin_http_context) {
+    if (NULL == origin_http_context) {
+        return NULL;
+    }
+    HTTPDNS_NEW_OBJECT_IN_HEAP(new_http_context, httpdns_http_context_t);
+    if (NULL != origin_http_context->request_url) {
+        new_http_context->request_url = sdsnew(origin_http_context->request_url);
+    }
+    if (NULL != origin_http_context->user_agent) {
+        new_http_context->user_agent = sdsnew(origin_http_context->user_agent);
+    }
+    if (NULL != origin_http_context->response_body) {
+        new_http_context->response_body = sdsnew(origin_http_context->response_body);
+    }
+    if ((NULL != origin_http_context->private_data) && (NULL != origin_http_context->private_data_clone_func)) {
+        new_http_context->private_data = origin_http_context->private_data_clone_func(
+                origin_http_context->private_data);
+    }
+    new_http_context->request_timeout_ms = origin_http_context->request_timeout_ms;
+    new_http_context->response_status = origin_http_context->response_status;
+    new_http_context->response_rt_ms = origin_http_context->response_rt_ms;
+    new_http_context->private_data_print_func = origin_http_context->private_data_print_func;
+    new_http_context->private_data_clone_func = origin_http_context->private_data_clone_func;
+    new_http_context->private_data_cmp_func = origin_http_context->private_data_cmp_func;
+    new_http_context->private_data_free_func = origin_http_context->private_data_free_func;
+    return new_http_context;
+}
+
+void httpdns_http_context_destroy(httpdns_http_context_t *http_context) {
+    if (NULL == http_context) {
+        return;
+    }
+    if (NULL != http_context->request_url) {
+        sdsfree(http_context->request_url);
+    }
+    if (NULL != http_context->user_agent) {
+        sdsfree(http_context->user_agent);
+    }
+    if (NULL != http_context->response_body) {
+        sdsfree(http_context->response_body);
+    }
+    if ((NULL != http_context->private_data) && (NULL != http_context->private_data_free_func)) {
+        http_context->private_data_free_func(http_context->private_data);
+    }
+    free(http_context);
+}
+
+int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context) {
+    NEW_EMPTY_LIST_IN_STACK(http_contexts);
+    httpdns_list_add(&http_contexts, http_context, NULL);
+    int32_t ret = httpdns_http_multiple_exchange(&http_contexts);
+    httpdns_list_free(&http_contexts, NULL);
+    return ret;
 }
 
 static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
     size_t real_size = size * nmemb;
-    httpdns_http_response_t *response_ptr = (httpdns_http_response_t *) write_data;
-    response_ptr->body = sdsnewlen(buffer, real_size);
+    httpdns_http_context_t *response_ptr = (httpdns_http_context_t *) write_data;
+    response_ptr->response_body = sdsnewlen(buffer, real_size);
     return real_size;
+}
+
+static int32_t httpdns_http_context_timeout_cmp(httpdns_http_context_t *ctx1, httpdns_http_context_t *ctx2) {
+    if (NULL == ctx1 && NULL == ctx2) {
+        return 0;
+    }
+    if (NULL == ctx1 && NULL != ctx2) {
+        return -1;
+    }
+    if (NULL != ctx1 && NULL == ctx2) {
+        return 1;
+    }
+    return ctx1->request_timeout_ms - ctx2->request_timeout_ms;
+}
+
+static int32_t calculate_max_request_timeout(struct list_head *http_contexts) {
+    httpdns_http_context_t *ctx = httpdns_list_max(http_contexts, DATA_CMP_FUNC(httpdns_http_context_timeout_cmp));
+    if (ctx->request_timeout_ms < MIN_HTTP_REQUEST_TIMEOUT_MS) {
+        return MIN_HTTP_REQUEST_TIMEOUT_MS;
+    }
+    if (ctx->request_timeout_ms > MAX_HTTP_REQUEST_TIMEOUT_MS) {
+        return MAX_HTTP_REQUEST_TIMEOUT_MS;
+    }
+    return ctx->request_timeout_ms;
 }
 
 /**
@@ -221,7 +230,6 @@ static int32_t ssl_cert_verify(CURL *curl) {
 static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     (void) curl;
     (void) user_param;
-    (void) ssl_ctx;
     X509_VERIFY_PARAM *param = SSL_CTX_get0_param(ssl_ctx);
     if (NULL == param) {
         X509_VERIFY_PARAM *new_param = X509_VERIFY_PARAM_new();
@@ -234,23 +242,24 @@ static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     return CURLE_OK;
 }
 
-int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struct list_head *responses) {
-    if (NULL == responses || NULL == requests) {
-        return HTTPDNS_PARAMETER_EMPTY;
-    }
-    size_t request_num = httpdns_list_size(requests);
-    if (request_num <= 0) {
+int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
+    if (IS_EMPTY_LIST(http_contexts)) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
     CURLM *multi_handle = curl_multi_init();
-    int32_t max_timeout_ms = MULTI_HANDLE_TIMEOUT_MS;
-    for (int i = 0; i < request_num; i++) {
-        httpdns_http_request_t *request = httpdns_list_get(requests, i);
-        httpdns_http_response_t *response = create_httpdns_http_response(request->url, request->cache_key);
+    size_t ctx_size = httpdns_list_size(http_contexts);
+    for (int i = 0; i < ctx_size; i++) {
+        httpdns_http_context_t *http_context = httpdns_list_get(http_contexts, i);
         CURL *handle = curl_easy_init();
-        curl_easy_setopt(handle, CURLOPT_URL, request->url);
-        curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, request->timeout_ms);
+        curl_easy_setopt(handle, CURLOPT_URL, http_context->request_url);
+        curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, http_context->request_timeout_ms);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
+        curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);
+        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
+        curl_easy_setopt(handle, CURLOPT_WRITEDATA, http_context);
+        curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
+        curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
+        curl_easy_setopt(handle, CURLOPT_USERAGENT, http_context->user_agent);
         /**
          * 这里curl本身的host name校验关闭，但并不关闭openssl的校验
          *
@@ -259,60 +268,50 @@ int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struc
          * 文件中的Curl_ossl_verifyhost方法不调用
          */
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
-        curl_easy_setopt(handle, CURLOPT_PRIVATE, response);
-        curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
 #ifdef __linux__
         //仅支持OpenSSL, wolfSSL, mbedTLS or BearSSL，对于mac环境的LibreSSL不支持
         //https://curl.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html
        curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
 #endif
-        curl_easy_setopt(handle, CURLOPT_WRITEDATA, response);
-        curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
-        curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
-        //FIXME 设置SDK的User Agent
-
         curl_multi_add_handle(multi_handle, handle);
-        if (max_timeout_ms < request->timeout_ms) {
-            max_timeout_ms = request->timeout_ms;
-        }
     }
-    int still_running;
+    int32_t max_timeout_ms = calculate_max_request_timeout(http_contexts);
+    int running_handles;
     do {
-        CURLMcode mc = curl_multi_perform(multi_handle, &still_running);
+        CURLMcode mc = curl_multi_perform(multi_handle, &running_handles);
         if (mc != CURLM_OK) {
             break;
         }
         curl_multi_wait(multi_handle, NULL, 0, max_timeout_ms, NULL);
-    } while (still_running);
+    } while (running_handles);
 
     int msgq = 0;
     CURLMsg *msg;
     while ((msg = curl_multi_info_read(multi_handle, &msgq)) != NULL) {
         if (msg->msg == CURLMSG_DONE) {
-            httpdns_http_response_t *resonse;
-            curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &resonse);
-            if (NULL != resonse) {
-                bool using_https = IS_HTTPS_SCHEME(resonse->url);
+            httpdns_http_context_t *http_context;
+            curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &http_context);
+            if (NULL != http_context) {
+                bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
 #ifdef __APPLE__
                 bool very_https_cert_success = (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
 #else
                 bool very_https_cert_success = true;
 #endif
                 if (!using_https || very_https_cert_success) {
-                    curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &resonse->http_status);
+                    curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &http_context->response_status);
                     double total_time_sec;
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_TOTAL_TIME, &total_time_sec);
-                    resonse->total_time_ms = (int32_t) (total_time_sec * 1000.0);
-                    httpdns_list_add(responses, resonse, DATA_CLONE_FUNC(clone_httpdns_http_response));
+                    http_context->response_rt_ms = (int32_t) (total_time_sec * 1000.0);
+                } else {
+                    curl_multi_cleanup(multi_handle);
+                    return HTTPDNS_CERT_VERIFY_FAILED;
                 }
-                destroy_httpdns_http_response(resonse);
             }
             curl_multi_remove_handle(multi_handle, msg->easy_handle);
             curl_easy_cleanup(msg->easy_handle);
         }
     }
-    if (NULL != multi_handle) {
-        curl_multi_cleanup(multi_handle);
-    }
-    return IS_EMPTY_LIST(responses) ? HTTPDNS_CORRECT_RESPONSE_EMPTY : HTTPDNS_SUCCESS;
+    curl_multi_cleanup(multi_handle);
+    return HTTPDNS_SUCCESS;
 }

@@ -5,8 +5,9 @@
 #include "sds.h"
 #include "httpdns_error_type.h"
 #include "httpdns_time.h"
+#include "httpdns_ip.h"
 
-httpdns_cache_table_t *create_httpdns_cache_table() {
+httpdns_cache_table_t *httpdns_cache_table_create() {
     return dictCreate(&dictTypeHeapStrings, NULL);
 }
 
@@ -24,10 +25,10 @@ int32_t httpdns_cache_delete_entry(httpdns_cache_table_t *cache_table, char *key
     if (NULL == cache_table || NULL == key) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_cache_entry_t *cache_entry = httpdns_cache_get_entry(cache_table, key);
+    httpdns_cache_entry_t *cache_entry = httpdns_cache_get_entry(cache_table, key, NULL);
     if (NULL != cache_entry) {
         dictDelete(cache_table, key);
-        destroy_httpdns_cache_entry(cache_entry);
+        httpdns_cache_entry_destroy(cache_entry);
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_FAILURE;
@@ -37,26 +38,48 @@ int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_c
     if (NULL == cache_table || NULL == entry || IS_BLANK_STRING(entry->cache_key)) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    httpdns_cache_delete_entry(cache_table, entry->cache_key);
-    return httpdns_cache_add_entry(cache_table, entry);
+    httpdns_cache_entry_t *old_cache_entry = httpdns_cache_get_entry(cache_table, entry->cache_key, NULL);
+    if (NULL != old_cache_entry) {
+        if (IS_EMPTY_LIST(&old_cache_entry->ips) && IS_NOT_EMPTY_LIST(&entry->ips)) {
+            httpdns_list_dup(&old_cache_entry->ips, &entry->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
+        }
+        if (IS_EMPTY_LIST(&old_cache_entry->ipsv6) && IS_NOT_EMPTY_LIST(&entry->ipsv6)) {
+            httpdns_list_dup(&old_cache_entry->ipsv6, &entry->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
+        }
+        old_cache_entry->ttl = entry->ttl;
+        old_cache_entry->origin_ttl = entry->origin_ttl;
+    } else {
+        httpdns_cache_entry_t *new_entry = httpdns_resolve_result_clone(entry);
+        httpdns_cache_add_entry(cache_table, entry);
+    }
+    return HTTPDNS_SUCCESS;
 }
 
-httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_table, char *key) {
+httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_table, char *key, char *dns_type) {
     if (NULL == cache_table || NULL == key) {
         return NULL;
     }
+    // 存在
     dictEntry *dict_entry = dictFind(cache_table, key);
     if (NULL == dict_entry) {
         return NULL;
     }
+    // 过期
     httpdns_cache_entry_t *entry = dict_entry->val;
     int ttl = entry->origin_ttl > 0 ? entry->origin_ttl : entry->ttl;
     if (httpdns_time_is_expired(entry->query_ts, ttl)) {
         dictDelete(cache_table, key);
-        destroy_httpdns_cache_entry(entry);
+        httpdns_cache_entry_destroy(entry);
         return NULL;
     }
-    return dict_entry->val;
+    // 类型
+    if (IS_TYPE_A(dns_type) && IS_EMPTY_LIST(&entry->ips)) {
+        return NULL;
+    }
+    if (IS_TYPE_AAAA(dns_type) && IS_EMPTY_LIST(&entry->ipsv6)) {
+        return NULL;
+    }
+    return entry;
 }
 
 void httpdns_cache_clean_cache(httpdns_cache_table_t *cache_table) {
@@ -111,18 +134,18 @@ void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
         char buffer[256];
         httpdns_time_to_string(cache_entry->query_ts, buffer, 256);
         printf("query_timestamp=%s,", buffer);
-        printf("cache_key=%s", cache_entry->cache_key);
+        printf("private_data=%s", cache_entry->cache_key);
         printf(" }");
     }
 }
 
-void destroy_httpdns_cache_table(httpdns_cache_table_t *cache) {
-    if (NULL != cache) {
-        httpdns_cache_clean_cache(cache);
-        dictRelease(cache);
+void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table) {
+    if (NULL != cache_table) {
+        httpdns_cache_clean_cache(cache_table);
+        dictRelease(cache_table);
     }
 }
 
-void destroy_httpdns_cache_entry(httpdns_cache_entry_t *entry) {
-    destroy_httpdns_resolve_result(entry);
+void httpdns_cache_entry_destroy(httpdns_cache_entry_t *entry) {
+
 }

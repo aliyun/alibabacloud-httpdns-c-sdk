@@ -2,8 +2,8 @@
 // Created by cagaoshuai on 2024/1/19.
 //
 
-#include "response_parser.h"
-#include "httpdns_result.h"
+#include "httpdns_response.h"
+#include <stdio.h>
 
 
 /*
@@ -28,7 +28,7 @@ static void test_parse_schedule_result() {
                  "\t\"service_ipv6\":[\"2401:b180:2000:20::1c\",\n"
                  "\t\"2401:b180:2000:20::10\"]\n"
                  "}";
-    httpdns_schedule_response_t *response = parse_schedule_response(body);
+    httpdns_schedule_response_t *response = httpdns_response_parse_schedule(body);
     printf("\n");
     httpdns_schedule_response_print(response);
     httpdns_schedule_response_destroy(response);
@@ -43,7 +43,7 @@ void test_parse_single_resolve_result() {
                  "\"ttl\":60,\n"
                  "\"origin_ttl\":60\n"
                  "}";
-    httpdns_single_resolve_response_t *response = parse_single_resolve_response(body);
+    httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(body);
     printf("\n");
     httpdns_single_resolve_response_print(response);
     httpdns_single_resolve_response_destroy(response);
@@ -51,7 +51,7 @@ void test_parse_single_resolve_result() {
 
 void test_parse_multi_resolve_result() {
     char* body = "{\n"
-                 "\t\"dns\":[{\n"
+                 "\t\"results\":[{\n"
                  "\t\t\"host\":\"www.aliyun.com\",\n"
                  "\t\t\"client_ip\":\"47.96.236.37\",\n"
                  "\t\t\"ips\":[\"47.118.227.116\"],\n"
@@ -68,7 +68,7 @@ void test_parse_multi_resolve_result() {
                  "\t\t\"origin_ttl\":60\n"
                  "\t}]\n"
                  "}";
-    httpdns_multi_resolve_response_t *response = parse_multi_resolve_response(body);
+    httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(body);
     printf("\n");
     httpdns_multi_resolve_response_print(response);
     httpdns_multi_resolve_response_destroy(response);

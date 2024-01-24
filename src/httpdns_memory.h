@@ -9,5 +9,11 @@
     type* var_name = (type*)malloc(sizeof(type)); \
     memset(var_name, 0, sizeof (type))
 
-
+#define HTTPDNS_SET_STRING_FIELD(object, field, value) \
+    if (NULL != object && NULL != value) {         \
+        if (NULL != object->field) {    \
+            sdsfree(object->field);     \
+        }                                \
+        object->field = sdsnew(value);    \
+    }
 #endif //HTTPDNS_C_SDK_HTTPDNS_MEMORY_H

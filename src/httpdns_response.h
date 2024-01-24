@@ -2,15 +2,15 @@
 // Created by cagaoshuai on 2024/1/19.
 //
 
-#ifndef HTTPDNS_C_SDK_HTTPDNS_RESPONSE_PARSER_H
-#define HTTPDNS_C_SDK_HTTPDNS_RESPONSE_PARSER_H
+#ifndef HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H
+#define HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H
 
-#include "httpdns_result.h"
 #include "cJSON.h"
 #include "sds.h"
 #include "httpdns_list.h"
 
-
+#define RESOLVE_TYPE_A 1
+#define RESOLVE_TYPE_AAAA 28
 
 typedef struct {
     struct list_head service_ip;
@@ -25,7 +25,6 @@ typedef struct {
     int32_t origin_ttl;
     char *extra;
     char *client_ip;
-    int32_t type;
 } httpdns_single_resolve_response_t;
 
 typedef struct {
@@ -62,7 +61,7 @@ void httpdns_multi_resolve_response_destroy(httpdns_multi_resolve_response_t *re
 	"2401:b180:2000:20::10"]
 }
  */
-httpdns_schedule_response_t *parse_schedule_response(char *body);
+httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body);
 
 /*
  * 报文示例：
@@ -76,12 +75,12 @@ httpdns_schedule_response_t *parse_schedule_response(char *body);
 }
  */
 
-httpdns_single_resolve_response_t *parse_single_resolve_response(char *body);
+httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *body);
 
 
 /*
 {
-	"dns":[{
+	"results":[{
 		"host":"www.aliyun.com",
 		"client_ip":"47.96.236.37",
 		"ips":["47.118.227.116"],
@@ -99,6 +98,6 @@ httpdns_single_resolve_response_t *parse_single_resolve_response(char *body);
 	}]
 }
 */
-httpdns_multi_resolve_response_t *parse_multi_resolve_response(char *body);
+httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body);
 
-#endif //HTTPDNS_C_SDK_HTTPDNS_RESPONSE_PARSER_H
+#endif //HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H

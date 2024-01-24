@@ -6,14 +6,10 @@
 #include "httpdns_global_config.h"
 
 static int32_t test_exchange_singel_request(char *url) {
-    httpdns_http_request_t *request = create_httpdns_http_request(url, 10000, NULL);
-    httpdns_http_response_t *response;
-    int32_t ret = httpdns_http_single_request_exchange(request, &response);
-    if (!ret) {
-        httpdns_http_print_response(response);
-        destroy_httpdns_http_response(response);
-    }
-    destroy_httpdns_http_request(request);
+    httpdns_http_context_t *http_context = httpdns_http_context_create(url, 10000);
+    int32_t ret = httpdns_http_single_exchange(http_context);
+    httpdns_http_context_print(http_context);
+    httpdns_http_context_destroy(http_context);
     return ret;
 }
 
@@ -29,52 +25,39 @@ static int32_t test_exchange_singel_request_with_schedule() {
 
 
 static int32_t test_exchange_multi_request_with_resolve() {
-    char *url1 = "https://203.107.1.34/139450/d?host=www.baidu.com";
-    httpdns_http_request_t *request1 = create_httpdns_http_request(url1, 10000, NULL);
-    char *url2 = "https://203.107.1.34/139450/resolve?host=www.aliyun.com,qq.com,www.taobao.com,help.aliyun.com";
-    httpdns_http_request_t *request2 = create_httpdns_http_request(url2, 10000, NULL);
-    char *url3 = "https://203.107.1.34/139450/d?host=www.163.com";
-    httpdns_http_request_t *request3 = create_httpdns_http_request(url3, 10000, NULL);
-    char *url4 = "https://203.107.1.34/139450/d?host=huaweicloud.com";
-    httpdns_http_request_t *request4 = create_httpdns_http_request(url4, 10000, NULL);
-    struct list_head requests;
-    httpdns_list_init(&requests);
-    struct list_head responses;
-    httpdns_list_init(&responses);
+    NEW_EMPTY_LIST_IN_STACK(http_contexts);
+    httpdns_http_context_t *http_context = httpdns_http_context_create(
+            "https://203.107.1.34/139450/d?host=www.baidu.com", 10000);
+    httpdns_list_add(&http_contexts, http_context, NULL);
 
-    httpdns_list_add(&requests, request1, DATA_CLONE_FUNC(clone_httpdns_http_request));
-    httpdns_list_add(&requests, request2, DATA_CLONE_FUNC(clone_httpdns_http_request));
-    httpdns_list_add(&requests, request3, DATA_CLONE_FUNC(clone_httpdns_http_request));
-    httpdns_list_add(&requests, request4, DATA_CLONE_FUNC(clone_httpdns_http_request));
-    int32_t ret = httpdns_http_multiple_request_exchange(&requests, &responses);
-    if (!ret) {
+    http_context = httpdns_http_context_create(
+            "https://203.107.1.34/139450/resolve?host=www.aliyun.com,qq.com,www.taobao.com,help.aliyun.com", 10000);
+    httpdns_list_add(&http_contexts, http_context, NULL);
+
+    http_context = httpdns_http_context_create(
+            "https://203.107.1.34/139450/d?host=www.163.com", 10000);
+    httpdns_list_add(&http_contexts, http_context, NULL);
+
+    http_context = httpdns_http_context_create(
+            "https://203.107.1.34/139450/d?host=huaweicloud.com", 10000);
+    httpdns_list_add(&http_contexts, http_context, NULL);
+
+    int32_t ret = httpdns_http_multiple_exchange(&http_contexts);
+    if (ret == HTTPDNS_SUCCESS) {
         printf("\n");
-        httpdns_list_print(&responses, DATA_PRINT_FUNC(httpdns_http_print_response));
+        httpdns_list_print(&http_contexts, DATA_PRINT_FUNC(httpdns_http_context_print));
     }
-    destroy_httpdns_http_request(request1);
-    destroy_httpdns_http_request(request2);
-    destroy_httpdns_http_request(request3);
-    destroy_httpdns_http_request(request4);
-    httpdns_list_free(&requests, DATA_FREE_FUNC(destroy_httpdns_http_request));
-    httpdns_list_free(&responses, DATA_FREE_FUNC(destroy_httpdns_http_response));
+    httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_destroy));
     return ret;
 }
 
 
 int main(void) {
     init_httpdns_sdk();
-    if (test_exchange_singel_request_with_resolve() != HTTPDNS_SUCCESS) {
-        cleanup_httpdns_sdk();
-        return -1;
-    }
-    if (test_exchange_singel_request_with_schedule() != HTTPDNS_SUCCESS) {
-        cleanup_httpdns_sdk();
-        return -1;
-    }
-    if (test_exchange_multi_request_with_resolve() != HTTPDNS_SUCCESS) {
-        cleanup_httpdns_sdk();
-        return -1;
-    }
+    int32_t success = HTTPDNS_SUCCESS;
+    success |= test_exchange_singel_request_with_resolve();
+    success |= test_exchange_singel_request_with_schedule();
+    success |= test_exchange_multi_request_with_resolve();
     cleanup_httpdns_sdk();
-    return 0;
+    return success;
 }

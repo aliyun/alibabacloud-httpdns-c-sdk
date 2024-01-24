@@ -8,7 +8,7 @@
 /**
  * @description Detect the type of network stack
 
- * @refer https://android.googlesource.com/platform/bionic/+/085543106/libc/dns/net/getaddrinfo.c
+ * @refer https://android.googlesource.com/platform/bionic/+/085543106/libc/results/net/getaddrinfo.c
  *
 }
  */

@@ -14,8 +14,15 @@
 #include <time.h>
 #include "sds.h"
 
+#define NEW_EMPTY_LIST_IN_STACK(var_name) \
+    struct list_head var_name;       \
+    httpdns_list_init(&var_name)
+
 #define IS_EMPTY_LIST(list) \
- (NULL == list || httpdns_list_size(list) <=0)
+    (NULL == list || httpdns_list_size(list) <=0)
+
+#define IS_NOT_EMPTY_LIST(list) \
+    (NULL != list || httpdns_list_size(list) >0)
 
 #define DATA_CLONE_FUNC(func) \
    (data_clone_function_ptr_t)func
@@ -28,6 +35,9 @@
 
 #define DATA_PRINT_FUNC(func) \
    (data_print_function_ptr_t)func
+
+#define DATA_SEARCH_FUNC(func) \
+   (data_search_function_ptr_t)func
 
 #define STRING_CLONE_FUNC \
    DATA_CLONE_FUNC(sdsnew)
@@ -51,6 +61,8 @@ typedef void (*data_free_function_ptr_t )(const void *data);
 typedef void *(*data_clone_function_ptr_t )(const void *data);
 
 typedef int32_t (*data_cmp_function_ptr_t)(const void *data1, const void *data2);
+
+typedef bool (*data_search_function_ptr_t)(const void *data, const void *target);
 
 typedef void (*data_print_function_ptr_t )(const void *data);
 
@@ -79,12 +91,14 @@ void httpdns_list_shuffle(struct list_head *head);
 
 bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func);
 
-void* httpdns_list_min(struct list_head* head, data_cmp_function_ptr_t cmp_func);
+void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
-void* httpdns_list_max(struct list_head* head, data_cmp_function_ptr_t cmp_func);
+void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
-void httpdns_list_sort(struct list_head* head, data_cmp_function_ptr_t cmp_func);
+void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
 void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func);
+
+void* httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

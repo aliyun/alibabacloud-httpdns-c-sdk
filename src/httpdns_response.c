@@ -1,8 +1,9 @@
 //
 // Created by cagaoshuai on 2024/1/19.
 //
-#include "response_parser.h"
+#include "httpdns_response.h"
 #include "httpdns_memory.h"
+#include <stdio.h>
 
 httpdns_schedule_response_t *httpdns_schedule_response_create() {
     HTTPDNS_NEW_OBJECT_IN_HEAP(schedule_response, httpdns_schedule_response_t);
@@ -49,7 +50,7 @@ void httpdns_single_resolve_response_print(httpdns_single_resolve_response_t *re
         printf(",origin_ttl=%d", response->origin_ttl);
         printf(",extra=%s", response->extra);
         printf(",client_ip=%s", response->client_ip);
-        printf(",type=%d)", response->type);
+        printf(")");
     }
 }
 
@@ -116,7 +117,7 @@ static void parse_ip_array(cJSON *c_json_array, struct list_head *ips) {
     }
 }
 
-httpdns_schedule_response_t *parse_schedule_response(char *body) {
+httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body) {
     if (IS_BLANK_STRING(body)) {
         return NULL;
     }
@@ -179,14 +180,19 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     if (NULL != origin_ttl_json) {
         single_resolve_result->origin_ttl = origin_ttl_json->valueint;
     }
+    // 多域名解析接口
     cJSON *type_json = cJSON_GetObjectItem(c_json_body, "type");
     if (NULL != type_json) {
-        single_resolve_result->type = type_json->valueint;
+        int32_t type = type_json->valueint;
+        if (type == RESOLVE_TYPE_AAAA) {
+            httpdns_list_dup(&single_resolve_result->ipsv6, &single_resolve_result->ips, STRING_CLONE_FUNC);
+            httpdns_list_free(&single_resolve_result->ips, STRING_FREE_FUNC);
+        }
     }
     return single_resolve_result;
 }
 
-httpdns_single_resolve_response_t *parse_single_resolve_response(char *body) {
+httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *body) {
     if (IS_BLANK_STRING(body)) {
         return NULL;
     }
@@ -201,7 +207,7 @@ httpdns_single_resolve_response_t *parse_single_resolve_response(char *body) {
 
 /*
 {
-	"dns":[{
+	"results":[{
 		"host":"www.aliyun.com",
 		"client_ip":"47.96.236.37",
 		"ips":["47.118.227.116"],
@@ -220,7 +226,7 @@ httpdns_single_resolve_response_t *parse_single_resolve_response(char *body) {
 }
 */
 
-httpdns_multi_resolve_response_t *parse_multi_resolve_response(char *body) {
+httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body) {
     if (IS_BLANK_STRING(body)) {
         return NULL;
     }
@@ -229,7 +235,7 @@ httpdns_multi_resolve_response_t *parse_multi_resolve_response(char *body) {
         return NULL;
     }
     httpdns_multi_resolve_response_t *mul_resolve_result = httpdns_multi_resolve_response_create();
-    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "dns");
+    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "results");
     if (NULL != dns_json) {
         int dns_size = cJSON_GetArraySize(dns_json);
         for (int i = 0; i < dns_size; i++) {

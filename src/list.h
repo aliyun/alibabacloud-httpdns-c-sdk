@@ -603,10 +603,10 @@ static inline void list_splice_tail_init(struct list_head *list,
  * @member:	the name of the list_struct within the struct.
  *
  * list_safe_reset_next is not safe to use in general if the list may be
- * modified concurrently (eg. the lock is dropped in the loop body). An
+ * modified concurrently (eg. the lock is dropped in the loop response_body). An
  * exception to this is if the cursor element (pos) is pinned in the list,
  * and list_safe_reset_next is called after re-taking the lock and before
- * completing the current iteration of the loop body.
+ * completing the current iteration of the loop response_body.
  */
 #define list_safe_reset_next(pos, n, member)				\
 	n = list_next_entry(pos, member)

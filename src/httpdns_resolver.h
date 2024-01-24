@@ -7,83 +7,137 @@
 
 #include "httpdns_scheduler.h"
 #include "httpdns_config.h"
-#include "httpdns_cache.h"
-#include "httpdns_result.h"
 
-#define  HTTPDNS_API_D        "/d"
-#define  HTTPDNS_API_SIGN_D   "/sign_d"
 
-typedef struct {
-    httpdns_scheduler_t *scheduler;
-    net_stack_detector_t *net_stack_detector;
-    httpdns_config_t *config;
-    httpdns_cache_table_t *cache;
-} httpdns_resolver_t;
+#define  HTTPDNS_API_D                   "/d"
+#define  HTTPDNS_API_SIGN_D              "/sign_d"
+#define  HTTPDNS_API_RESOLVE             "/resolve"
+#define  HTTPDNS_API_SIGN_RESOLVE        "/sign_resolve"
 
-typedef struct {
-    httpdns_resolver_t *resolver;
-    struct list_head requests;
-    struct list_head results;
-} httpdns_resolve_task_t;
+#define  HTTPDNS_QUERY_TYPE_A        "4"
+#define  HTTPDNS_QUERY_TYPE_AAAA     "6"
+#define  HTTPDNS_QUERY_TYPE_BOTH   "4,6"
+#define  HTTPDNS_QUERY_TYPE_AUTO   "AUTO"
 
-typedef enum {
-    TYPE_A,
-    TYPE_AAAA,
-    TYPE_BOTH,
-    TYPE_AUTO
-} resolve_type_t;
+#define IS_TYPE_A(type) \
+    (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_A, type) == 0)
+
+#define IS_TYPE_AAAA(type) \
+    (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AAAA, type) == 0)
+
+#define IS_TYPE_BOTH(type) \
+    (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_BOTH, type) == 0)
+
+#define IS_TYPE_AUTO(type) \
+    (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AUTO, type) == 0)
+
 
 typedef struct {
     char *host;
-    resolve_type_t dns_type;
-    char *sdns_params;
-    char *cache_key;
-    char *timeout_ms;
+    char *account_id;
+    char *secret_key;
+    char *resolver;
+    char *query_type;
     char *client_ip;
-    bool hit_cache;
+    char *sdk_version;
+    char *user_agent;
+    char *sdns_params;
+    bool using_https;
+    bool using_sign;
+    bool using_multi;
+    bool using_cache;
+    int32_t timeout_ms;
+    char *cache_key;
 } httpdns_resolve_request_t;
 
+typedef struct {
+    char *host;
+    char *client_ip;
+    char *extra;
+    struct list_head ips;
+    struct list_head ipsv6;
+    int origin_ttl;
+    int ttl;
+    struct timespec query_ts;
+    void *cache_key;
+    bool hit_cache;
+} httpdns_resolve_result_t;
 
-httpdns_resolve_request_t *create_httpdns_resolve_request(char *host, resolve_type_t dns_type, char *cache_key);
+typedef void (*http_finish_callback_func_t)(char *response_body, int32_t response_status, int32_t response_rt_ms,
+                                            void *user_callback_param);
+
+typedef struct {
+    httpdns_resolve_request_t *request;
+    struct list_head result;
+} httpdns_resolve_context_t;
+
+typedef struct {
+    httpdns_resolve_request_t *request;
+    void *user_http_finish_callback_param;
+    http_finish_callback_func_t http_finish_callback_func;
+} httpdns_resolve_param_t;
 
 void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, char *key, char *value);
 
+void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, char *host);
+
+void httpdns_resolve_request_set_account_id(httpdns_resolve_request_t *request, char *account_id);
+
+void httpdns_resolve_request_set_secret_key(httpdns_resolve_request_t *request, char *secret_key);
+
+void httpdns_resolve_request_set_resolver(httpdns_resolve_request_t *request, char *resolver);
+
+void httpdns_resolve_request_set_query_type(httpdns_resolve_request_t *request, char *query_type);
+
+void httpdns_resolve_request_set_client_ip(httpdns_resolve_request_t *request, char *client_ip);
+
+void httpdns_resolve_request_set_sdk_version(httpdns_resolve_request_t *request, char *sdk_version);
+
+void httpdns_resolve_request_set_user_agent(httpdns_resolve_request_t *request, char *user_agent);
+
 void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, char *cache_key);
 
-void destroy_httpdns_resolve_request(httpdns_resolve_request_t *request);
+void httpdns_resolve_request_set_timeout_ms(httpdns_resolve_request_t *request, int32_t timeout_ms);
 
-httpdns_resolve_request_t *clone_httpdns_resolve_request(httpdns_resolve_request_t *request);
+void httpdns_resolve_request_set_using_https(httpdns_resolve_request_t *request, bool using_https);
+
+void httpdns_resolve_request_set_using_sign(httpdns_resolve_request_t *request, bool using_sign);
+
+void httpdns_resolve_request_set_using_multi(httpdns_resolve_request_t *request, bool using_multi);
+
+httpdns_resolve_request_t *
+httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type);
+
+httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request_t *origin_resolve_request);
+
+void httpdns_resolve_request_print(httpdns_resolve_request_t *origin_resolve_request);
+
+int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request);
+
+int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param);
+
+int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params);
+
+httpdns_resolve_context_t *httpdns_resolve_context_create(httpdns_resolve_request_t *request);
+
+httpdns_resolve_context_t *httpdns_resolve_context_clone(httpdns_resolve_context_t *origin_context);
+
+void httpdns_resolve_context_destroy(httpdns_resolve_context_t *resolve_context);
+
+void httpdns_resolve_request_destroy(httpdns_resolve_request_t *request);
+
+void httpdns_resolve_result_destroy(httpdns_resolve_result_t *result);
+
+httpdns_resolve_result_t *httpdns_resolve_result_clone(httpdns_resolve_result_t *origin_result);
+
+void httpdns_resolve_result_print(httpdns_resolve_result_t *result);
+
+void httpdns_resolve_param_destroy(httpdns_resolve_param_t *resolve_param);
+
+httpdns_resolve_param_t *httpdns_resolve_param_create(httpdns_resolve_request_t *request);
+
+httpdns_resolve_param_t *httpdns_resolve_param_clone(httpdns_resolve_param_t *origin_resolve_param);
 
 
-httpdns_resolve_task_t *create_httpdns_resolve_task(httpdns_resolver_t *resolver);
-
-void httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_resolve_request_t *request);
-
-void httpdns_resolve_task_add_result(httpdns_resolve_task_t *task, httpdns_resolve_result_t *result);
-
-void destroy_httpdns_resolve_task(httpdns_resolve_task_t *task);
-
-/**
- * @description create httpdns resolver
- * @param config httpdns config
- * @return:  resolver
- */
-httpdns_resolver_t *create_httpdns_resolver(httpdns_config_t *config);
-
-/**
- * @description resolve domain
- * @param resolver resolver
- * @param host domain to be resolve
- * @param dns_type target DNS record type
- * @return:  httpdns_generic_result_t
- */
-int32_t resolve(httpdns_resolve_task_t *task);
-
-
-/**
- * destroy resolver, this will free all memory allocated by this config
- * @param config
- */
-void destroy_httpdns_resolver(httpdns_resolver_t *resolver);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESOLVER_H

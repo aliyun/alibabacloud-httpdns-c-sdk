@@ -43,10 +43,10 @@
 
 
 #define IS_NOT_BLANK_STRING(str) \
-(NULL != str && strlen(str) >0)
+    (NULL != str && strlen(str) >0)
 
 #define IS_BLANK_STRING(str) \
-((NULL == str || strlen(str) <=0))
+    ((NULL == str || strlen(str) <=0))
 
 typedef char *sds;
 

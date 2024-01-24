@@ -86,13 +86,15 @@ size_t httpdns_list_size(struct list_head *head) {
 }
 
 void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_func) {
-    if (NULL == head || NULL == free_func) {
+    if (NULL == head) {
         return;
     }
     httpdns_list_node_t *cursor, *temp_node;
     list_for_each_entry_safe(cursor, temp_node, head, list) {
         list_del(&cursor->list);
-        free_func(cursor->data);
+        if (NULL != free_func) {
+            free_func(cursor->data);
+        }
         free(cursor);
     }
 }
@@ -134,13 +136,13 @@ void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func)
         return NULL;
     }
     httpdns_list_node_t *cursor;
-    void *max_data = NULL;
+    void *min_data = NULL;
     list_for_each_entry(cursor, head, list) {
-        if (NULL == max_data || cmp_func(cursor->data, max_data) < 0) {
-            max_data = cursor->data;
+        if (NULL == min_data || cmp_func(cursor->data, min_data) < 0) {
+            min_data = cursor->data;
         }
     }
-    return max_data;
+    return min_data;
 }
 
 void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
@@ -196,6 +198,18 @@ void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_
 }
 
 
+void *httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func) {
+    if (NULL == head || NULL == target || NULL == search_func) {
+        return NULL;
+    }
+    httpdns_list_node_t *cursor;
+    list_for_each_entry(cursor, head, list) {
+        if (search_func(cursor->data, target) == 0) {
+            return cursor->data;
+        }
+    }
+    return NULL;
+}
 
 
 

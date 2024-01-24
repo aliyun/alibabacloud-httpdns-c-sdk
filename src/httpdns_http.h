@@ -5,17 +5,6 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H
 
-
-#define SSL_VERIFY_HOST    "203.107.1.1"
-#define MULTI_HANDLE_TIMEOUT_MS  10
-#define HTTP_SCHEME        "http://"
-#define HTTPS_SCHEME        "https://"
-#define CERT_PEM_NAME       "Cert:"
-#define HTTP_STATUS_OK 200
-#define IS_HTTPS_SCHEME(URL) \
-(strncmp(URL, HTTPS_SCHEME, strlen(HTTPS_SCHEME)) == 0)
-
-
 #include<stdint.h>
 #include <stdbool.h>
 #include <curl/curl.h>
@@ -23,45 +12,51 @@
 #include "httpdns_list.h"
 #include "sds.h"
 
-typedef struct {
-    char *url;
-    int32_t http_status;
-    char *body;
-    int32_t total_time_ms;
-    char *cache_key;
-} httpdns_http_response_t;
+#define SSL_VERIFY_HOST    "203.107.1.1"
+#define MIN_HTTP_REQUEST_TIMEOUT_MS  10
+#define MAX_HTTP_REQUEST_TIMEOUT_MS  5000
+#define HTTP_SCHEME        "http://"
+#define HTTPS_SCHEME        "https://"
+#define CERT_PEM_NAME       "Cert:"
+#define HTTP_STATUS_OK 200
+#define IS_HTTPS_SCHEME(URL) \
+(strncmp(URL, HTTPS_SCHEME, strlen(HTTPS_SCHEME)) == 0)
 
 typedef struct {
-    char *url;
-    int32_t timeout_ms;
-    char *cache_key;
-} httpdns_http_request_t;
+    char *request_url;
+    int32_t request_timeout_ms;
+    char *user_agent;
+    char *response_body;
+    int32_t response_status;
+    int32_t response_rt_ms;
+    void *private_data;
+    data_print_function_ptr_t private_data_print_func;
+    data_clone_function_ptr_t private_data_clone_func;
+    data_cmp_function_ptr_t private_data_cmp_func;
+    data_free_function_ptr_t private_data_free_func;
+} httpdns_http_context_t;
 
-httpdns_http_request_t *clone_httpdns_http_request(const httpdns_http_request_t *request);
 
-httpdns_http_request_t *create_httpdns_http_request(char *url, int32_t timeout_ms, char *cache_key);
+httpdns_http_context_t *httpdns_http_context_create(char *url, int32_t timeout_ms);
 
-void destroy_httpdns_http_request(httpdns_http_request_t *request);
+int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_context,
+                                              void *private_data,
+                                              data_print_function_ptr_t private_data_print_func,
+                                              data_clone_function_ptr_t private_data_clone_func,
+                                              data_cmp_function_ptr_t private_data_cmp_func,
+                                              data_free_function_ptr_t private_data_free_func
+);
 
-void destroy_httpdns_http_requests(struct list_head *requests);
+int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context, const char *user_agent);
 
-httpdns_http_response_t *create_httpdns_http_response(char *url, char *cache_key);
+void httpdns_http_context_print(httpdns_http_context_t *http_context);
 
-httpdns_http_response_t *clone_httpdns_http_response(const httpdns_http_response_t *origin_response);
+httpdns_http_context_t *httpdns_http_context_clone(httpdns_http_context_t *http_context);
 
-void
-httpdns_http_fill_response(httpdns_http_response_t *response, int32_t http_status, char *body, char *error_message,
-                           int64_t time_cost_ms,
-                           char *cache_key);
+void httpdns_http_context_destroy(httpdns_http_context_t *http_context);
 
-void destroy_httpdns_http_response(httpdns_http_response_t *response);
+int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context);
 
-void destroy_httpdns_http_responses(struct list_head *responses);
-
-int32_t httpdns_http_single_request_exchange(httpdns_http_request_t *request, httpdns_http_response_t **response);
-
-int32_t httpdns_http_multiple_request_exchange(struct list_head *requests, struct list_head *responses);
-
-void httpdns_http_print_response(httpdns_http_response_t *response);
+int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H

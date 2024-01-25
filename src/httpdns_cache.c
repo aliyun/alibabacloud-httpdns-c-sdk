@@ -28,7 +28,7 @@ int32_t httpdns_cache_delete_entry(httpdns_cache_table_t *cache_table, char *key
     httpdns_cache_entry_t *cache_entry = httpdns_cache_get_entry(cache_table, key, NULL);
     if (NULL != cache_entry) {
         dictDelete(cache_table, key);
-        httpdns_cache_entry_destroy(cache_entry);
+        httpdns_cache_destroy_entry(cache_entry);
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_FAILURE;
@@ -69,7 +69,7 @@ httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_tabl
     int ttl = entry->origin_ttl > 0 ? entry->origin_ttl : entry->ttl;
     if (httpdns_time_is_expired(entry->query_ts, ttl)) {
         dictDelete(cache_table, key);
-        httpdns_cache_entry_destroy(entry);
+        httpdns_cache_destroy_entry(entry);
         return NULL;
     }
     // 类型
@@ -105,7 +105,7 @@ void httpdns_cache_table_print(httpdns_cache_table_t *cache_table) {
             while ((de = dictNext(di)) != NULL) {
                 httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
                 printf("\n");
-                httpdns_cache_entry_print(entry);
+                httpdns_cache_print_entry(entry);
             }
             dictReleaseIterator(di);
             printf("\n]");
@@ -117,7 +117,7 @@ void httpdns_cache_table_print(httpdns_cache_table_t *cache_table) {
     }
 }
 
-void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry) {
+void httpdns_cache_print_entry(httpdns_cache_entry_t *cache_entry) {
     httpdns_resolve_result_print(cache_entry);
 }
 
@@ -128,13 +128,13 @@ void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table) {
     }
 }
 
-void httpdns_cache_entry_destroy(httpdns_cache_entry_t *entry) {
+void httpdns_cache_destroy_entry(httpdns_cache_entry_t *entry) {
     if (NULL != entry) {
         httpdns_resolve_result_destroy(entry);
     }
 }
 
-void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry) {
+void httpdns_cache_rotate_entry(httpdns_cache_entry_t *cache_entry) {
     if (NULL != cache_entry) {
         httpdns_list_rotate(&cache_entry->ips);
         httpdns_list_rotate(&cache_entry->ipsv6);

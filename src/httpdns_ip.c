@@ -63,7 +63,7 @@ int32_t httpdns_ip_cmp(httpdns_ip_t *ip1, httpdns_ip_t *ip2) {
 
 bool httpdns_ip_search(httpdns_ip_t *http_ip, char *ip) {
     if (NULL != http_ip && NULL != ip) {
-        return strcmp(http_ip->ip, ip);
+        return strcmp(http_ip->ip, ip) == 0;
     }
     return false;
 }

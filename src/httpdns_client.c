@@ -177,9 +177,9 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
         // 单解析且使用缓存则尝试缓存
         if (!request->using_multi && request->using_cache) {
             httpdns_resolve_result_t *cache_entry = httpdns_cache_get_entry(cache_table, request->cache_key,request->query_type);
-            httpdns_cache_entry_rotate(cache_entry);
             query_dns_type = determine_miss_query_type(cache_entry, request->query_type);
             if (NULL == query_dns_type) {
+                httpdns_cache_rotate_entry(cache_entry);
                 httpdns_resolve_result_t *result = httpdns_resolve_result_clone(cache_entry);
 
                 httpdns_resolve_result_set_hit_cache(result, true);

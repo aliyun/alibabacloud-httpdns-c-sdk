@@ -103,8 +103,6 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         httpdns_http_context_t *http_context = httpdns_http_context_create(url, config->timeout_ms);
         sdsfree(url);
         httpdns_http_single_exchange(http_context);
-        printf("\n");
-        httpdns_http_context_print(http_context);
         bool success = (http_context->response_status == HTTP_STATUS_OK);
         if (success) {
             httpdns_parse_body(http_context->response_body, scheduler);
@@ -141,8 +139,7 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int3
     httpdns_ip_t *resolve_server = httpdns_list_search(&scheduler->ipv4_resolve_servers, server,
                                                        DATA_SEARCH_FUNC(httpdns_ip_search));
     if (NULL == resolve_server) {
-        resolve_server = httpdns_list_search(&scheduler->ipv6_resolve_servers, server,
-                                             DATA_SEARCH_FUNC(httpdns_ip_search));
+        resolve_server = httpdns_list_search(&scheduler->ipv6_resolve_servers, server,DATA_SEARCH_FUNC(httpdns_ip_search));
     }
     if (NULL != resolve_server) {
         resolve_server->rt = update_server_rt(resolve_server->rt, rt);

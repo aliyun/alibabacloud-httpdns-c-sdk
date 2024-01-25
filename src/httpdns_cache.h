@@ -30,6 +30,8 @@ void httpdns_cache_table_print(httpdns_cache_table_t *cache_table);
 
 void httpdns_cache_entry_print(httpdns_cache_entry_t *cache_entry);
 
+void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry);
+
 void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H

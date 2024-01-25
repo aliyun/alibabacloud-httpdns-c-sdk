@@ -52,20 +52,20 @@ typedef struct {
     net_stack_type_t net_stack_type_cache;
     char *probe_domain;
     bool using_cache;
-} net_stack_detector_t;
+} httpdns_net_stack_detector_t;
 
 
-net_stack_detector_t *create_net_stack_detector();
+httpdns_net_stack_detector_t *httpdns_net_stack_detector_create();
 
-void destroy_net_stack_detector(net_stack_detector_t *detector);
+void httpdns_net_stack_detector_destroy(httpdns_net_stack_detector_t *detector);
 
-void net_stack_detector_update_cache(net_stack_detector_t *detector);
+void httpdns_net_stack_detector_update_cache(httpdns_net_stack_detector_t *detector);
 
-void net_stack_detector_set_using_cache(net_stack_detector_t *detector, bool using_cache);
+void httpdns_net_stack_detector_set_using_cache(httpdns_net_stack_detector_t *detector, bool using_cache);
 
-void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const char *probe_domain);
+void httpdns_net_stack_detector_set_probe_domain(httpdns_net_stack_detector_t *detector, const char *probe_domain);
 
-net_stack_type_t get_net_stack_type(net_stack_detector_t *detector);
+net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector);
 
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_NET_STACK_DETECTOR_H

@@ -20,13 +20,12 @@ static void uchar_to_hex_str(const unsigned char *in, size_t in_size, char *out)
     out[in_size * 2] = '\0';
 }
 
-httpdns_signature_t *httpdns_signature_create(const char *host, const char *secret, int32_t max_offset) {
+httpdns_signature_t *httpdns_signature_create(const char *host, const char *secret, int32_t max_offset, struct timeval tv) {
     if (NULL == host || NULL == secret) {
         return NULL;
     }
-    struct timespec ts = httpdns_time_now();
     char ts_str[32];
-    sprintf(ts_str, "%ld", ts.tv_sec + max_offset);
+    sprintf(ts_str, "%ld", tv.tv_sec + max_offset);
     sds raw_str = sdsnew(host);
     raw_str = sdscat(raw_str, "-");
     raw_str = sdscat(raw_str, secret);

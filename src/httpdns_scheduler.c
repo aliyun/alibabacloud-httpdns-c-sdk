@@ -63,7 +63,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler || NULL == scheduler->config) {
         return HTTPDNS_PARAMETER_ERROR;
     }
-    net_stack_type_t net_stack_type = get_net_stack_type(scheduler->net_stack_detector);
+    net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_config_t *config = scheduler->config;
     struct list_head *boot_servers;
     if (IPV6_ONLY == net_stack_type) {
@@ -88,7 +88,10 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         if (config->using_sign && NULL != config->secret_key) {
             char nonce[SCHEDULE_NONCE_SIZE + 1];
             generate_nonce(nonce, SCHEDULE_NONCE_SIZE);
-            httpdns_signature_t *signature = httpdns_signature_create(nonce, config->secret_key, MAX_SCHEDULE_SIGNATURE_OFFSET_TIME);
+            httpdns_signature_t *signature = httpdns_signature_create(nonce,
+                                                                      config->secret_key,
+                                                                      MAX_SCHEDULE_SIGNATURE_OFFSET_TIME,
+                                                                      httpdns_time_now());
             url = sdscat(url, "&s=");
             url = sdscat(url, signature->sign);
             url = sdscat(url, "&t=");
@@ -110,7 +113,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
                    http_context->response_body,
                    http_context->response_status,
                    http_context->response_rt_ms
-                   );
+            );
         }
         httpdns_http_context_destroy(http_context);
         if (success) {
@@ -135,9 +138,11 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int3
     if (IS_BLANK_STRING(server) || NULL == scheduler || rt <= 0) {
         return;
     }
-    httpdns_ip_t *resolve_server = httpdns_list_search(&scheduler->ipv4_resolve_servers, server,DATA_SEARCH_FUNC(httpdns_ip_search));
+    httpdns_ip_t *resolve_server = httpdns_list_search(&scheduler->ipv4_resolve_servers, server,
+                                                       DATA_SEARCH_FUNC(httpdns_ip_search));
     if (NULL == resolve_server) {
-        resolve_server = httpdns_list_search(&scheduler->ipv6_resolve_servers, server,DATA_SEARCH_FUNC(httpdns_ip_search));
+        resolve_server = httpdns_list_search(&scheduler->ipv6_resolve_servers, server,
+                                             DATA_SEARCH_FUNC(httpdns_ip_search));
     }
     if (NULL != resolve_server) {
         resolve_server->rt = update_server_rt(resolve_server->rt, rt);
@@ -149,7 +154,7 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler) {
         return NULL;
     }
-    net_stack_type_t net_stack_type = get_net_stack_type(scheduler->net_stack_detector);
+    net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     struct list_head *resolve_servers;
     if (IPV6_ONLY == net_stack_type) {
         resolve_servers = &scheduler->ipv6_resolve_servers;
@@ -163,7 +168,8 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     return NULL;
 }
 
-void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler, net_stack_detector_t *net_stack_detector) {
+void
+httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler, httpdns_net_stack_detector_t *net_stack_detector) {
     if (NULL != scheduler && NULL != net_stack_detector) {
         scheduler->net_stack_detector = net_stack_detector;
     }

@@ -17,7 +17,7 @@
 typedef struct {
     struct list_head ipv4_resolve_servers;
     struct list_head ipv6_resolve_servers;
-    net_stack_detector_t *net_stack_detector;
+    httpdns_net_stack_detector_t *net_stack_detector;
     httpdns_config_t *config;
 } httpdns_scheduler_t;
 
@@ -34,6 +34,6 @@ void httpdns_scheduler_print(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_destroy(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler, net_stack_detector_t *net_stack_detector);
+void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler, httpdns_net_stack_detector_t *net_stack_detector);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SCHEDULER_H

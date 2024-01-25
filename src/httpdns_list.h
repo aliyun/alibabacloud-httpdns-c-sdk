@@ -78,8 +78,7 @@ int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_fu
 
 int32_t httpdns_list_rotate(struct list_head *head);
 
-struct list_head *
-httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
+struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
 
 void *httpdns_list_get(struct list_head *head, int index);
 

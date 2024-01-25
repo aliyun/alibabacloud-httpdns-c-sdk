@@ -36,6 +36,20 @@ HTTPDNS C SDK使用curl进行网络操作，您需要确认这些库已经安装
 * 注意：
  - 执行./configure时默认是配置安装目录为/usr/local/，如果需要指定安装目录，请使用 ./configure --prefix=/your/install/path/
 
+#### check测试框架
+```shell
+
+git clone https://github.com/libcheck/check.git
+ 
+cd check/
+mkdir build
+cd build/
+cmake ..
+make
+CTEST_OUTPUT_ON_FAILURE=1 make test
+
+```
+
 #### HTTPDNS C SDK的安装
 
   安装时请在cmake命令中指定第三方库头文件以及库文件的路径，典型的编译命令如下：

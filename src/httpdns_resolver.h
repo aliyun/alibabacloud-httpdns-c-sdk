@@ -58,7 +58,7 @@ typedef struct {
     struct list_head ipsv6;
     int origin_ttl;
     int ttl;
-    struct timespec query_ts;
+    struct timeval query_ts;
     void *cache_key;
     bool hit_cache;
 } httpdns_resolve_result_t;

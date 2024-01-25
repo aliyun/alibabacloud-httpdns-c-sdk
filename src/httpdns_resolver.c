@@ -78,8 +78,10 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
         url = sdscat(url, "&query=");
         url = sdscat(url, request->query_type);
         if (using_sign) {
-            httpdns_signature_t *signature = httpdns_signature_create(request->host, request->secret_key,
-                                                                      MAX_RESOLVE_SIGNATURE_OFFSET_TIME);
+            httpdns_signature_t *signature = httpdns_signature_create(request->host,
+                                                                      request->secret_key,
+                                                                      MAX_RESOLVE_SIGNATURE_OFFSET_TIME,
+                                                                      httpdns_time_now());
             url = sdscat(url, "&s=");
             url = sdscat(url, signature->sign);
             url = sdscat(url, "&t=");

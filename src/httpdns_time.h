@@ -8,11 +8,12 @@
 #include <time.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <sys/time.h>
 
-void httpdns_time_to_string(struct timespec ts, char *buffer, size_t size);
+void httpdns_time_to_string(struct timeval ts, char *buffer, size_t size);
 
-struct timespec httpdns_time_now();
+struct timeval httpdns_time_now();
 
-bool httpdns_time_is_expired(struct timespec ts, int32_t ttl);
+bool httpdns_time_is_expired(struct timeval ts, int32_t ttl);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_TIME_H

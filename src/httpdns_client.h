@@ -11,7 +11,7 @@
 
 typedef struct {
     httpdns_scheduler_t *scheduler;
-    net_stack_detector_t *net_stack_detector;
+    httpdns_net_stack_detector_t *net_stack_detector;
     httpdns_config_t *config;
     httpdns_cache_table_t *cache;
 } httpdns_client_t;

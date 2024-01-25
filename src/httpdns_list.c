@@ -204,7 +204,7 @@ void *httpdns_list_search(struct list_head *head, const void *target, data_searc
     }
     httpdns_list_node_t *cursor;
     list_for_each_entry(cursor, head, list) {
-        if (search_func(cursor->data, target) == 0) {
+        if (search_func(cursor->data, target)) {
             return cursor->data;
         }
     }

@@ -2,7 +2,8 @@
 // Created by cagaoshuai on 2024/1/11.
 //
 
-#include "net_stack_detector.h"
+#include "httpdns_net_stack_detector.h"
+#include "httpdns_memory.h"
 
 
 static int32_t test_udp_connect(struct sockaddr *sock_addr, sa_family_t sa_family, size_t addr_len) {
@@ -103,16 +104,17 @@ net_stack_type_t test_net_stack(const char *probe_domain) {
     return IP_STACK_UNKNOWN;
 }
 
-net_stack_detector_t *create_net_stack_detector() {
-    net_stack_detector_t *detector_ptr = (net_stack_detector_t *) malloc(sizeof(net_stack_detector_t));
-    memset(detector_ptr, 0, sizeof(net_stack_detector_t));
+httpdns_net_stack_detector_t *httpdns_net_stack_detector_create() {
+    httpdns_net_stack_detector_t *detector_ptr = (httpdns_net_stack_detector_t *) malloc(
+            sizeof(httpdns_net_stack_detector_t));
+    memset(detector_ptr, 0, sizeof(httpdns_net_stack_detector_t));
     detector_ptr->net_stack_type_cache = IP_STACK_UNKNOWN;
     detector_ptr->using_cache = true;
     detector_ptr->probe_domain = sdsnew(PROBE_DOMAIN);
     return detector_ptr;
 }
 
-void destroy_net_stack_detector(net_stack_detector_t *detector) {
+void httpdns_net_stack_detector_destroy(httpdns_net_stack_detector_t *detector) {
     if (NULL != detector) {
         if (IS_NOT_BLANK_STRING(detector->probe_domain)) {
             sdsfree(detector->probe_domain);
@@ -121,7 +123,7 @@ void destroy_net_stack_detector(net_stack_detector_t *detector) {
     }
 }
 
-void net_stack_detector_update_cache(net_stack_detector_t *detector) {
+void httpdns_net_stack_detector_update_cache(httpdns_net_stack_detector_t *detector) {
     if (NULL == detector) {
         return;
     }
@@ -131,21 +133,19 @@ void net_stack_detector_update_cache(net_stack_detector_t *detector) {
     }
 }
 
-void net_stack_detector_set_using_cache(net_stack_detector_t *detector, bool using_cache) {
+void httpdns_net_stack_detector_set_using_cache(httpdns_net_stack_detector_t *detector, bool using_cache) {
     if (NULL == detector) {
         return;
     }
     detector->using_cache = using_cache;
 }
 
-void net_stack_detector_set_probe_domain(net_stack_detector_t *detector, const char *probe_domain) {
-    if (NULL != detector && IS_NOT_BLANK_STRING(probe_domain)) {
-        detector->probe_domain = sdsnew(probe_domain);
-    }
+void httpdns_net_stack_detector_set_probe_domain(httpdns_net_stack_detector_t *detector, const char *probe_domain) {
+    HTTPDNS_SET_STRING_FIELD(detector, probe_domain, probe_domain);
 }
 
 
-net_stack_type_t get_net_stack_type(net_stack_detector_t *detector) {
+net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector) {
     if (NULL == detector) {
         return IP_STACK_UNKNOWN;
     }

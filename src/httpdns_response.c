@@ -129,10 +129,12 @@ httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body) {
     cJSON *ipv4_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ip");
     if (NULL != ipv4_resolvers_json) {
         parse_ip_array(ipv4_resolvers_json, &schedule_result->service_ip);
+        httpdns_list_shuffle(&schedule_result->service_ip);
     }
     cJSON *ipv6_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ipv6");
     if (NULL != ipv6_resolvers_json) {
         parse_ip_array(ipv6_resolvers_json, &schedule_result->service_ipv6);
+        httpdns_list_shuffle(&schedule_result->service_ipv6);
     }
     cJSON_Delete(c_json_body);
     return schedule_result;
@@ -159,10 +161,12 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     cJSON *ips_json = cJSON_GetObjectItem(c_json_body, "ips");
     if (NULL != ips_json) {
         parse_ip_array(ips_json, &single_resolve_result->ips);
+        httpdns_list_shuffle(&single_resolve_result->ips);
     }
     cJSON *ipsv6_json = cJSON_GetObjectItem(c_json_body, "ipsv6");
     if (NULL != ipsv6_json) {
         parse_ip_array(ipsv6_json, &single_resolve_result->ipsv6);
+        httpdns_list_shuffle(&single_resolve_result->ipsv6);
     }
     cJSON *host_json = cJSON_GetObjectItem(c_json_body, "host");
     if (NULL != host_json) {
@@ -246,6 +250,7 @@ httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *bod
                 httpdns_list_add(&mul_resolve_result->dns, single_resolve_result, NULL);
             }
         }
+        httpdns_list_shuffle(&mul_resolve_result->dns);
     }
     cJSON_Delete(c_json_body);
     return mul_resolve_result;

@@ -133,3 +133,10 @@ void httpdns_cache_entry_destroy(httpdns_cache_entry_t *entry) {
         httpdns_resolve_result_destroy(entry);
     }
 }
+
+void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry) {
+    if (NULL != cache_entry) {
+        httpdns_list_rotate(&cache_entry->ips);
+        httpdns_list_rotate(&cache_entry->ipsv6);
+    }
+}

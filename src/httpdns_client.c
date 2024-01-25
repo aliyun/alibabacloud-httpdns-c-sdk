@@ -15,8 +15,8 @@ httpdns_client_t *httpdns_client_create(httpdns_config_t *config) {
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_client, httpdns_client_t);
     httpdns_client->config = config;
-    httpdns_client->net_stack_detector = create_net_stack_detector();
-    net_stack_detector_set_probe_domain(httpdns_client->net_stack_detector, config->probe_domain);
+    httpdns_client->net_stack_detector = httpdns_net_stack_detector_create();
+    httpdns_net_stack_detector_set_probe_domain(httpdns_client->net_stack_detector, config->probe_domain);
     httpdns_client->scheduler = httpdns_scheduler_create(config);
     httpdns_scheduler_set_net_stack_detector(httpdns_client->scheduler, httpdns_client->net_stack_detector);
     httpdns_client->cache = httpdns_cache_table_create();
@@ -29,7 +29,7 @@ void httpdns_client_destroy(httpdns_client_t *client) {
         return;
     }
     if (NULL != client->net_stack_detector) {
-        destroy_net_stack_detector(client->net_stack_detector);
+        httpdns_net_stack_detector_destroy(client->net_stack_detector);
     }
     if (NULL != client->scheduler) {
         httpdns_scheduler_destroy(client->scheduler);
@@ -176,11 +176,12 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
         char *query_dns_type = request->query_type;
         // 单解析且使用缓存则尝试缓存
         if (!request->using_multi && request->using_cache) {
-            httpdns_resolve_result_t *cache_entry = httpdns_cache_get_entry(cache_table, request->cache_key,
-                                                                            request->query_type);
+            httpdns_resolve_result_t *cache_entry = httpdns_cache_get_entry(cache_table, request->cache_key,request->query_type);
+            httpdns_cache_entry_rotate(cache_entry);
             query_dns_type = determine_miss_query_type(cache_entry, request->query_type);
             if (NULL == query_dns_type) {
                 httpdns_resolve_result_t *result = httpdns_resolve_result_clone(cache_entry);
+
                 httpdns_resolve_result_set_hit_cache(result, true);
                 httpdns_list_add(&resolve_context->result, result, NULL);
                 continue;
@@ -204,8 +205,8 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     return HTTPDNS_SUCCESS;
 }
 
-static char *unwrap_auto_query_type(net_stack_detector_t *detector) {
-    net_stack_type_t type = get_net_stack_type(detector);
+static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
+    net_stack_type_t type = httpdns_net_stack_type_get(detector);
     switch (type) {
         case IPV4_ONLY:
             return HTTPDNS_QUERY_TYPE_A;

@@ -44,7 +44,7 @@ typedef struct {
  * @description create a empty httpdns client config, should set config params manually
  * @return empty httpdns clent config
  */
-httpdns_config_t *create_httpdns_config();
+httpdns_config_t *httpdns_config_create();
 
 
 /**
@@ -149,14 +149,14 @@ int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char
  * @param config
  * @return 1 valid, 0 invalid
  */
-int32_t httpdns_config_is_valid(httpdns_config_t *config);
+int32_t httpdns_config_valid(httpdns_config_t *config);
 
 
 /**
  * destroy config, this will free all memory allocated by this config
  * @param config
  */
-void destroy_httpdns_config(httpdns_config_t *config);
+void httpdns_config_destroy(httpdns_config_t *config);
 
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H

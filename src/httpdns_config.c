@@ -30,7 +30,7 @@ static void set_default_httpdns_config(httpdns_config_t *config_ptr) {
 
 }
 
-httpdns_config_t *create_httpdns_config() {
+httpdns_config_t *httpdns_config_create() {
     httpdns_config_t *config_ptr = (httpdns_config_t *) malloc(sizeof(httpdns_config_t));
     memset(config_ptr, 0, sizeof(httpdns_config_t));
     set_default_httpdns_config(config_ptr);
@@ -139,7 +139,7 @@ int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char
     return HTTPDNS_LIST_NODE_DUPLICATED;
 }
 
-int32_t httpdns_config_is_valid(httpdns_config_t *config) {
+int32_t httpdns_config_valid(httpdns_config_t *config) {
     if (NULL == config) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
@@ -167,7 +167,7 @@ int32_t httpdns_config_is_valid(httpdns_config_t *config) {
     return HTTPDNS_SUCCESS;
 }
 
-void destroy_httpdns_config(httpdns_config_t *config) {
+void httpdns_config_destroy(httpdns_config_t *config) {
     if (NULL == config) {
         return;
     }

@@ -124,7 +124,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
 
 httpdns_resolve_request_t *
 httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
-    if (HTTPDNS_SUCCESS != httpdns_config_is_valid(config) || NULL == host) {
+    if (HTTPDNS_SUCCESS != httpdns_config_valid(config) || NULL == host) {
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_request, httpdns_resolve_request_t);

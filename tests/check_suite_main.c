@@ -25,18 +25,21 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-int main(int argc, char *argv[]) {
+int main(void) {
     init_httpdns_sdk();
     int number_failed;
     SRunner *suite_runner = srunner_create(make_httpdns_time_suite());
     srunner_add_suite(suite_runner, make_httpdns_sign_suite());
     srunner_add_suite(suite_runner, make_httpdns_net_suite());
     srunner_add_suite(suite_runner, make_httpdns_list_suite());
+    srunner_add_suite(suite_runner, make_httpdns_response_suite());
+    srunner_add_suite(suite_runner, make_httpdns_config_suite());
+    srunner_add_suite(suite_runner, make_httpdns_http_suite());
     // Uncomment the following if you want to debug.
-//  srunner_set_fork_status(suite_runner, CK_NOFORK);
+    srunner_set_fork_status(suite_runner, CK_NOFORK);
     srunner_run_all(suite_runner, CK_VERBOSE);
     number_failed = srunner_ntests_failed(suite_runner);
     srunner_free(suite_runner);
-    init_httpdns_sdk();
+    cleanup_httpdns_sdk();
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

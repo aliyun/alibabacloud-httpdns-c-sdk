@@ -8,7 +8,7 @@
 #include "httpdns_sign.h"
 
 httpdns_scheduler_t *httpdns_scheduler_create(httpdns_config_t *config) {
-    if (httpdns_config_is_valid(config) != HTTPDNS_SUCCESS) {
+    if (httpdns_config_valid(config) != HTTPDNS_SUCCESS) {
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(scheduler, httpdns_scheduler_t);

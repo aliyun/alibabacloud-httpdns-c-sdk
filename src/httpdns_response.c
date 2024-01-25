@@ -92,20 +92,6 @@ void httpdns_multi_resolve_response_destroy(httpdns_multi_resolve_response_t *re
     }
 }
 
-
-/*
- 报文示例：
-{
-	"service_ip":["203.107.1.65",
-	"203.107.1.34",
-	"203.107.1.66",
-	"203.107.1.33",
-	"203.107.1.1"],
-	"service_ipv6":["2401:b180:2000:20::1c",
-	"2401:b180:2000:20::10"]
-}
- */
-
 static void parse_ip_array(cJSON *c_json_array, struct list_head *ips) {
     size_t array_size = cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
@@ -139,19 +125,6 @@ httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body) {
     cJSON_Delete(c_json_body);
     return schedule_result;
 }
-
-
-/*
- * 报文示例：
-{
-"ipsv6":["240e:960:c00:e:3:0:0:3ef","240e:960:c00:e:3:0:0:3f0"],
-"host":"www.aliyun.com",
-"client_ip":"47.96.236.37",
-"ips":["47.118.227.108","47.118.227.111","47.118.227.112"],
-"ttl":60,
-"origin_ttl":60
-}
- */
 
 static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(cJSON *c_json_body) {
     if (NULL == c_json_body) {
@@ -208,27 +181,6 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *b
     cJSON_Delete(c_json_body);
     return single_resolve_result;
 }
-
-/*
-{
-	"results":[{
-		"host":"www.aliyun.com",
-		"client_ip":"47.96.236.37",
-		"ips":["47.118.227.116"],
-		"type":1,
-		"ttl":26,
-		"origin_ttl":60
-	},
-	{
-		"host":"www.taobao.com",
-		"client_ip":"47.96.236.37",
-		"ips":["240e:f7:a093:101:3:0:0:3e8"],
-		"type":28,
-		"ttl":60,
-		"origin_ttl":60
-	}]
-}
-*/
 
 httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body) {
     if (IS_BLANK_STRING(body)) {

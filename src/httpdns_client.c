@@ -10,7 +10,7 @@
 
 
 httpdns_client_t *httpdns_client_create(httpdns_config_t *config) {
-    if (httpdns_config_is_valid(config) != HTTPDNS_SUCCESS) {
+    if (httpdns_config_valid(config) != HTTPDNS_SUCCESS) {
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_client, httpdns_client_t);

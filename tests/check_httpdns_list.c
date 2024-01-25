@@ -2,7 +2,6 @@
 // Created by cagaoshuai on 2024/1/14.
 //
 
-#include<stdio.h>
 #include "httpdns_list.h"
 #include "sds.h"
 #include "check_suit_list.h"

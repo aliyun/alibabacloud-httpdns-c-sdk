@@ -123,14 +123,13 @@ static void on_http_finish_callback_func(char *response_body, int32_t response_s
         httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(response_body);
         httpdns_resolve_result_t *result = single_resolve_response_to_result(response);
         httpdns_resolve_result_set_cache_key(result, resolve_request->cache_key);
-        httpdns_list_add(&httpdns_resolve_results, response, DATA_CLONE_FUNC(single_resolve_response_to_result));
+        httpdns_list_add(&httpdns_resolve_results, result, NULL);
         httpdns_single_resolve_response_destroy(response);
     }
     size_t resolve_result_size = httpdns_list_size(&httpdns_resolve_results);
     for (int i = 0; i < resolve_result_size; i++) {
         httpdns_resolve_result_t *resolve_result = httpdns_list_get(&httpdns_resolve_results, i);
-        httpdns_list_add(&param->resolve_context->result, resolve_result,
-                         DATA_CLONE_FUNC(httpdns_resolve_result_clone));
+        httpdns_list_add(&param->resolve_context->result, resolve_result,DATA_CLONE_FUNC(httpdns_resolve_result_clone));
         if (NULL != param->cache_table) {
             httpdns_cache_update_entry(param->cache_table, resolve_result);
         }
@@ -176,7 +175,8 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
         char *query_dns_type = request->query_type;
         // 单解析且使用缓存则尝试缓存
         if (!request->using_multi && request->using_cache) {
-            httpdns_resolve_result_t *cache_entry = httpdns_cache_get_entry(cache_table, request->cache_key,request->query_type);
+            httpdns_resolve_result_t *cache_entry = httpdns_cache_get_entry(cache_table, request->cache_key,
+                                                                            request->query_type);
             query_dns_type = determine_miss_query_type(cache_entry, request->query_type);
             if (NULL == query_dns_type) {
                 httpdns_cache_rotate_entry(cache_entry);

@@ -8,6 +8,7 @@
 #include "httpdns_list.h"
 #include "httpdns_http.h"
 #include "httpdns_config.h"
+#include "httpdns_memory.h"
 #include <stdint.h>
 
 
@@ -28,12 +29,13 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int32_t rt);
 
-char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
+MUST_FREE char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_print(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_destroy(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler, httpdns_net_stack_detector_t *net_stack_detector);
+void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
+                                              httpdns_net_stack_detector_t *net_stack_detector);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SCHEDULER_H

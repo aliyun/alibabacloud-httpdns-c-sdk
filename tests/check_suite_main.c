@@ -37,6 +37,8 @@ int main(void) {
     srunner_add_suite(suite_runner, make_httpdns_http_suite());
     srunner_add_suite(suite_runner, make_httpdns_scheduler_suite());
     srunner_add_suite(suite_runner, make_httpdns_cache_suite());
+    srunner_add_suite(suite_runner, make_httpdns_resolver_suite());
+    srunner_add_suite(suite_runner, make_httpdns_client_suite());
     // Uncomment the following if you want to debug.
     srunner_set_fork_status(suite_runner, CK_NOFORK);
     srunner_run_all(suite_runner, CK_VERBOSE);

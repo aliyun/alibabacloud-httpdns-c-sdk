@@ -64,6 +64,7 @@ START_TEST(test_update_cache_entry) {
     httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
     bool is_expected = (NULL != entry && entry->ttl == 80 && entry->origin_ttl == 120);
     httpdns_cache_table_destroy(cache_table);
+    httpdns_resolve_result_destroy(update_entry);
     ck_assert_msg(is_expected, "更新缓存失败");
 }
 

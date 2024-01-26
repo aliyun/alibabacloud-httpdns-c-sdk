@@ -1,0 +1,10 @@
+//
+// Created by cagaoshuai on 2024/1/26.
+//
+
+#ifndef HTTPDNS_C_SDK_HTTPDNS_ATTRIBUTE_H
+#define HTTPDNS_C_SDK_HTTPDNS_ATTRIBUTE_H
+
+
+
+#endif //HTTPDNS_C_SDK_HTTPDNS_ATTRIBUTE_H

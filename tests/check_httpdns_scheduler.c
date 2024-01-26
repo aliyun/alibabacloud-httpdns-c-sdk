@@ -43,6 +43,8 @@ START_TEST(test_get_resolve_server) {
     char *schedule_ip = httpdns_scheduler_get(&scheduler);
     bool is_success = strcmp("2.2.2.2", schedule_ip) == 0;
     httpdns_net_stack_detector_destroy(scheduler.net_stack_detector);
+    sdsfree(schedule_ip);
+    httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     ck_assert_msg(is_success, "未按照响应时间最小进行调度");
 }
 
@@ -68,7 +70,9 @@ START_TEST(test_scheduler_update) {
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip2, NULL);
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip3, NULL);
     httpdns_scheduler_update(&scheduler, "3.3.3.3", 100);
-    ck_assert_msg(ip3.rt = DELTA_WEIGHT_UPDATE_RATION * 100 + 35, "更新reslover响应时间失败");
+    bool is_success = ip3.rt = DELTA_WEIGHT_UPDATE_RATION * 100 + 35;
+    httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
+    ck_assert_msg(is_success, "更新reslover响应时间失败");
 }
 
 END_TEST

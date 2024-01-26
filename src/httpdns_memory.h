@@ -16,4 +16,6 @@
         }                                \
         object->field = sdsnew(value);    \
     }
+
+#define MUST_FREE __attribute__((warn_unused_result))
 #endif //HTTPDNS_C_SDK_HTTPDNS_MEMORY_H

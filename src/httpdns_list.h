@@ -7,6 +7,7 @@
 
 #include "list.h"
 #include "httpdns_error_type.h"
+#include "httpdns_memory.h"
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>

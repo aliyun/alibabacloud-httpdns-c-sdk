@@ -7,7 +7,7 @@
 
 static httpdns_config_t *get_httpdns_config() {
     httpdns_config_t *config = httpdns_config_create();
-    httpdns_config_set_account_id(config, "100000");
+    httpdns_config_set_account_id(config, "139450");
     httpdns_config_set_using_https(config, true);
     return config;
 }
@@ -65,10 +65,19 @@ START_TEST(test_multi_resolve_task) {
     httpdns_resolve_task_add_request(task, request);
     httpdns_resolve_request_destroy(request);
 
+
+    request = httpdns_resolve_request_create(
+            config,
+            "www.google.com",
+            NULL,
+            HTTPDNS_QUERY_TYPE_A);
+    httpdns_resolve_task_add_request(task, request);
+    httpdns_resolve_request_destroy(request);
+
     httpdns_resolve_task_execute(task);
 
     size_t ctx_size = httpdns_list_size(&task->resolve_contexts);
-    bool is_success = (ctx_size == 2);
+    bool is_success = (ctx_size == 3);
     for (int i = 0; i < ctx_size; i++) {
         httpdns_resolve_context_t  * resolve_context = httpdns_list_get(&task->resolve_contexts, i);
         if (NULL == resolve_context || IS_EMPTY_LIST(&resolve_context->result)) {

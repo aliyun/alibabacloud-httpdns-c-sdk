@@ -43,11 +43,52 @@ START_TEST(test_simple_resolve_with_cache) {
 
 END_TEST
 
+START_TEST(test_multi_resolve_task) {
+    httpdns_config_t *config = get_httpdns_config();
+    httpdns_client_t *client = httpdns_client_create(config);
+    httpdns_resolve_task_t *task = httpdns_resolve_task_create(client);
+
+    httpdns_resolve_request_t *request = httpdns_resolve_request_create(
+            config,
+            "www.aliyun.com",
+            NULL,
+            HTTPDNS_QUERY_TYPE_BOTH);
+    httpdns_resolve_task_add_request(task, request);
+    httpdns_resolve_request_destroy(request);
+
+
+    request = httpdns_resolve_request_create(
+            config,
+            "www.taobao.com",
+            NULL,
+            HTTPDNS_QUERY_TYPE_AUTO);
+    httpdns_resolve_task_add_request(task, request);
+    httpdns_resolve_request_destroy(request);
+
+    httpdns_resolve_task_execute(task);
+
+    size_t ctx_size = httpdns_list_size(&task->resolve_contexts);
+    bool is_success = (ctx_size == 2);
+    for (int i = 0; i < ctx_size; i++) {
+        httpdns_resolve_context_t  * resolve_context = httpdns_list_get(&task->resolve_contexts, i);
+        if (NULL == resolve_context || IS_EMPTY_LIST(&resolve_context->result)) {
+            is_success = false;
+        }
+    }
+    httpdns_resolve_task_destroy(task);
+    httpdns_config_destroy(config);
+    httpdns_client_destroy(client);
+    ck_assert_msg(is_success, "校验多请求解析失败");
+}
+
+END_TEST
+
 Suite *make_httpdns_client_suite(void) {
     Suite *suite = suite_create("HTTPDNS Client Test");
     TCase *httpdns_client = tcase_create("httpdns_client");
     suite_add_tcase(suite, httpdns_client);
     tcase_add_test(httpdns_client, test_simple_resolve_without_cache);
     tcase_add_test(httpdns_client, test_simple_resolve_with_cache);
+    tcase_add_test(httpdns_client, test_multi_resolve_task);
     return suite;
 }

@@ -56,9 +56,8 @@ int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_r
     if (NULL == task || NULL == request) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    int32_t valid_ret = httpdns_resolve_request_valid(request);
-    if (HTTPDNS_SUCCESS != valid_ret) {
-        return valid_ret;
+    if (IS_BLANK_STRING(request->account_id)){
+        return HTTPDNS_PARAMETER_ERROR;
     }
     httpdns_resolve_context_t *resolve_context = httpdns_resolve_context_create(request);
     httpdns_list_add(&task->resolve_contexts, resolve_context, NULL);
@@ -161,17 +160,36 @@ static void on_http_finish_callback_param_free(on_http_finish_callback_param_t *
     }
 }
 
+static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
+    net_stack_type_t type = httpdns_net_stack_type_get(detector);
+    switch (type) {
+        case IPV4_ONLY:
+            return HTTPDNS_QUERY_TYPE_A;
+        case IPV6_ONLY:
+            return HTTPDNS_QUERY_TYPE_AAAA;
+        default:
+            return HTTPDNS_QUERY_TYPE_BOTH;
+    }
+}
+
 int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     if (NULL == task || NULL == task->httpdns_client || IS_EMPTY_LIST(&task->resolve_contexts)) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
     httpdns_cache_table_t *cache_table = task->httpdns_client->cache;
     httpdns_scheduler_t *scheduler = task->httpdns_client->scheduler;
+    httpdns_net_stack_detector_t *net_stack_detector = task->httpdns_client->net_stack_detector;
     size_t resolve_context_size = httpdns_list_size(&task->resolve_contexts);
     NEW_EMPTY_LIST_IN_STACK(resolve_params);
     for (int i = 0; i < resolve_context_size; i++) {
         httpdns_resolve_context_t *resolve_context = httpdns_list_get(&task->resolve_contexts, i);
         httpdns_resolve_request_t *request = resolve_context->request;
+        if (NULL == request->resolver) {
+            request->resolver = httpdns_scheduler_get(scheduler);
+        }
+        if (IS_TYPE_AUTO(request->query_type)) {
+            httpdns_resolve_request_set_query_type(request, unwrap_auto_query_type(net_stack_detector));
+        }
         char *query_dns_type = request->query_type;
         // 单解析且使用缓存则尝试缓存
         if (!request->using_multi && request->using_cache) {
@@ -205,18 +223,6 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     return HTTPDNS_SUCCESS;
 }
 
-static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
-    net_stack_type_t type = httpdns_net_stack_type_get(detector);
-    switch (type) {
-        case IPV4_ONLY:
-            return HTTPDNS_QUERY_TYPE_A;
-        case IPV6_ONLY:
-            return HTTPDNS_QUERY_TYPE_AAAA;
-        default:
-            return HTTPDNS_QUERY_TYPE_BOTH;
-    }
-}
-
 int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
                                       char *host,
                                       char *query_type,
@@ -225,11 +231,7 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
     if (NULL == httpdns_client || NULL == httpdns_client->config || IS_BLANK_STRING(host)) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (IS_TYPE_AUTO(query_type)) {
-        query_type = unwrap_auto_query_type(httpdns_client->net_stack_detector);
-    }
-    char *resolver = httpdns_scheduler_get(httpdns_client->scheduler);
-    httpdns_resolve_request_t *request = httpdns_resolve_request_create(httpdns_client->config, host, resolver,
+    httpdns_resolve_request_t *request = httpdns_resolve_request_create(httpdns_client->config, host, NULL,
                                                                         query_type);
     if (IS_NOT_BLANK_STRING(client_ip)) {
         httpdns_resolve_request_set_client_ip(request, client_ip);
@@ -243,7 +245,6 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
             *result = httpdns_resolve_result_clone(httpdns_list_get(&resolve_context->result, 0));
         }
     }
-    sdsfree(resolver);
     httpdns_resolve_request_destroy(request);
     httpdns_resolve_task_destroy(resolve_task);
     if (NULL != *result) {

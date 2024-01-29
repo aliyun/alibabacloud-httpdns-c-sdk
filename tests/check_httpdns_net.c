@@ -8,12 +8,12 @@
 static httpdns_net_stack_detector_t *net_detector = NULL;
 
 static void setup(void) {
-    net_detector = httpdns_net_stack_detector_create();
+    net_detector = httpdns_net_stack_detector_new();
 }
 
 static void teardown(void) {
     if (NULL != net_detector) {
-        httpdns_net_stack_detector_destroy(net_detector);
+        httpdns_net_stack_detector_free(net_detector);
     }
 }
 

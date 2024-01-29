@@ -7,7 +7,7 @@
 
 #include "httpdns_list.h"
 #include "httpdns_http.h"
-#include "httpdns_config.h"
+#include "httpdns_client_config.h"
 #include "httpdns_memory.h"
 #include <stdint.h>
 
@@ -23,7 +23,7 @@ typedef struct {
 } httpdns_scheduler_t;
 
 
-httpdns_scheduler_t *httpdns_scheduler_create(httpdns_config_t *config);
+httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config);
 
 int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler);
 
@@ -31,9 +31,9 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int3
 
 MUST_FREE char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_print(httpdns_scheduler_t *scheduler);
+sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_destroy(httpdns_scheduler_t *scheduler);
+void httpdns_scheduler_free(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
                                               httpdns_net_stack_detector_t *net_stack_detector);

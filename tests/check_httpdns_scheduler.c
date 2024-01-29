@@ -7,21 +7,21 @@
 #include "httpdns_ip.h"
 
 START_TEST(test_refresh_resolve_servers) {
-    httpdns_config_t *config = httpdns_config_create();
+    httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "100000");
     httpdns_config_set_using_https(config, true);
-    httpdns_scheduler_t *scheduler = httpdns_scheduler_create(config);
+    httpdns_scheduler_t *scheduler = httpdns_scheduler_new(config);
     httpdns_scheduler_refresh(scheduler);
     bool is_success = httpdns_list_size(&scheduler->ipv4_resolve_servers) > 1
                       && httpdns_list_size(&scheduler->ipv6_resolve_servers) > 1;
-    httpdns_config_destroy(config);
-    httpdns_scheduler_destroy(scheduler);
+    httpdns_config_free(config);
+    httpdns_scheduler_free(scheduler);
     ck_assert_msg(is_success, "更新解析服务列表失败");
 }
 
 START_TEST(test_get_resolve_server) {
     httpdns_scheduler_t scheduler = {
-            .net_stack_detector = httpdns_net_stack_detector_create()
+            .net_stack_detector = httpdns_net_stack_detector_new()
     };
     httpdns_list_init(&scheduler.ipv4_resolve_servers);
     httpdns_list_init(&scheduler.ipv6_resolve_servers);
@@ -42,7 +42,7 @@ START_TEST(test_get_resolve_server) {
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip3, NULL);
     char *schedule_ip = httpdns_scheduler_get(&scheduler);
     bool is_success = strcmp("2.2.2.2", schedule_ip) == 0;
-    httpdns_net_stack_detector_destroy(scheduler.net_stack_detector);
+    httpdns_net_stack_detector_free(scheduler.net_stack_detector);
     sdsfree(schedule_ip);
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     ck_assert_msg(is_success, "未按照响应时间最小进行调度");

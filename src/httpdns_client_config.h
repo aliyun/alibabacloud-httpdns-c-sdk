@@ -11,14 +11,14 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SDK_VERSION        "1.0.0"
-#define USER_AGENT        " emas-httpdns-c-sdk"
+#define SDK_VERSION                "1.0.0"
+#define USER_AGENT                 "emas-httpdns-c-sdk"
 #define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
 #define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
-#define DEFAULT_TIMEOUT_MS     5000L
-#define REGION_CHINA_MAINLAND  "cn"
-#define REGION_HONG_KONG       "hk"
-#define REGION_SINGAPORE       "sg"
+#define DEFAULT_TIMEOUT_MS         5000L
+#define REGION_CHINA_MAINLAND      "cn"
+#define REGION_HONG_KONG           "hk"
+#define REGION_SINGAPORE           "sg"
 
 
 typedef struct {
@@ -44,7 +44,7 @@ typedef struct {
  * @description create a empty httpdns client config, should set config params manually
  * @return empty httpdns clent config
  */
-httpdns_config_t *httpdns_config_create();
+httpdns_config_t *httpdns_config_new();
 
 
 /**
@@ -156,7 +156,7 @@ int32_t httpdns_config_valid(httpdns_config_t *config);
  * destroy config, this will free all memory allocated by this config
  * @param config
  */
-void httpdns_config_destroy(httpdns_config_t *config);
+void httpdns_config_free(httpdns_config_t *config);
 
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H

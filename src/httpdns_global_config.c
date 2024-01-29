@@ -3,6 +3,9 @@
 //
 #include "httpdns_global_config.h"
 #include <curl/curl.h>
+#include "configuration.h"
+#include "log.h"
+
 
 void init_httpdns_sdk() {
     srand(time(NULL));
@@ -12,6 +15,7 @@ void init_httpdns_sdk() {
     if (info) {
         printf("SSL INFO: %s\n", info->ssl_version);
     }
+    log_set_level(HTTPDNS_LOG_LEVEL);
 }
 
 void cleanup_httpdns_sdk() {

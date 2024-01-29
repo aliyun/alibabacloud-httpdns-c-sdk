@@ -16,14 +16,14 @@ static void on_http_finish_callback(char *response_body,
 }
 
 static httpdns_resolve_param_t *build_resolve_param(httpdns_resolve_request_t *request, bool *is_success) {
-    httpdns_resolve_param_t *resolve_param = httpdns_resolve_param_create(request);
+    httpdns_resolve_param_t *resolve_param = httpdns_resolve_param_new(request);
     resolve_param->http_finish_callback_func = on_http_finish_callback;
     resolve_param->user_http_finish_callback_param = is_success;
     return resolve_param;
 }
 
 static httpdns_config_t *get_httpdns_config() {
-    httpdns_config_t *config = httpdns_config_create();
+    httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "100000");
     httpdns_config_set_using_https(config, true);
     return config;
@@ -42,7 +42,7 @@ static void append_resolve_params(
             HTTPDNS_QUERY_TYPE_BOTH);
     httpdns_resolve_request_set_using_multi(request, true);
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, is_success);
-    httpdns_resolve_request_destroy(request);
+    httpdns_resolve_request_free(request);
     httpdns_list_add(resolve_params, resolve_param, NULL);
 }
 
@@ -58,9 +58,9 @@ START_TEST(test_single_resolve_task) {
 
     httpdns_resolver_single_resolve(resolve_param);
 
-    httpdns_resolve_request_destroy(request);
-    httpdns_resolve_param_destroy(resolve_param);
-    httpdns_config_destroy(config);
+    httpdns_resolve_request_free(request);
+    httpdns_resolve_param_free(resolve_param);
+    httpdns_config_free(config);
     ck_assert_msg(is_success, "单个解析请求执行失败");
 }
 
@@ -74,8 +74,8 @@ START_TEST(test_multi_resolve_task) {
     append_resolve_params(&resolve_params, config, "www.taobao.com", "203.107.1.1", &is_success);
     append_resolve_params(&resolve_params, config, "www.aliyun.com", "203.107.1.65", &is_success);
     httpdns_resolver_multi_resolve(&resolve_params);
-    httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_destroy));
-    httpdns_config_destroy(config);
+    httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+    httpdns_config_free(config);
     ck_assert_msg(is_success, "批量解析请求执行失败");
 }
 

@@ -9,13 +9,16 @@
 #include "httpdns_memory.h"
 
 
-void httpdns_ip_print(httpdns_ip_t *httpdns_ip) {
-    if (NULL != httpdns_ip) {
-        printf("httpdns_ip_t(ip=%s, rt=%d)", httpdns_ip->ip, httpdns_ip->rt);
+sds httpdns_ip_to_string(httpdns_ip_t *httpdns_ip) {
+    if (NULL == httpdns_ip) {
+        return sdsnew("httpdns_ip_t()");
     }
+    char buffer[64];
+    sprintf(buffer, "httpdns_ip_t(ip=%s, rt=%d)", httpdns_ip->ip, httpdns_ip->rt);
+    return sdsnew(buffer);
 }
 
-void httpdns_ip_destroy(httpdns_ip_t *ip) {
+void httpdns_ip_free(httpdns_ip_t *ip) {
     if (NULL == ip) {
         return;
     }
@@ -25,7 +28,7 @@ void httpdns_ip_destroy(httpdns_ip_t *ip) {
     free(ip);
 }
 
-httpdns_ip_t *httpdns_ip_create(char *ip) {
+httpdns_ip_t *httpdns_ip_new(char *ip) {
     if (NULL == ip) {
         return NULL;
     }

@@ -7,10 +7,10 @@
 
 
 static bool test_exchange_single_request(char *url) {
-    httpdns_http_context_t *http_context = httpdns_http_context_create(url, 10000);
+    httpdns_http_context_t *http_context = httpdns_http_context_new(url, 10000);
     httpdns_http_single_exchange(http_context);
     bool is_success = (NULL != http_context) && (http_context->response_status == HTTP_STATUS_OK);
-    httpdns_http_context_destroy(http_context);
+    httpdns_http_context_free(http_context);
     return is_success;
 }
 
@@ -33,19 +33,19 @@ END_TEST
 
 START_TEST(test_exchange_multi_request_with_resolve) {
     NEW_EMPTY_LIST_IN_STACK(http_contexts);
-    httpdns_http_context_t *http_context = httpdns_http_context_create(
+    httpdns_http_context_t *http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/d?host=www.baidu.com", 10000);
     httpdns_list_add(&http_contexts, http_context, NULL);
 
-    http_context = httpdns_http_context_create(
+    http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/resolve?host=www.aliyun.com,qq.com,www.taobao.com,help.aliyun.com", 10000);
     httpdns_list_add(&http_contexts, http_context, NULL);
 
-    http_context = httpdns_http_context_create(
+    http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/d?host=www.163.com", 10000);
     httpdns_list_add(&http_contexts, http_context, NULL);
 
-    http_context = httpdns_http_context_create(
+    http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/d?host=huaweicloud.com", 10000);
     httpdns_list_add(&http_contexts, http_context, NULL);
     httpdns_http_multiple_exchange(&http_contexts);
@@ -58,7 +58,7 @@ START_TEST(test_exchange_multi_request_with_resolve) {
             break;
         }
     }
-    httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_destroy));
+    httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_free));
     ck_assert_msg(is_all_success, "批量HTTP接口访问存在失败");
 }
 

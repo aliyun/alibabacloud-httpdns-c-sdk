@@ -55,9 +55,9 @@ typedef struct {
 } httpdns_net_stack_detector_t;
 
 
-httpdns_net_stack_detector_t *httpdns_net_stack_detector_create();
+httpdns_net_stack_detector_t *httpdns_net_stack_detector_new();
 
-void httpdns_net_stack_detector_destroy(httpdns_net_stack_detector_t *detector);
+void httpdns_net_stack_detector_free(httpdns_net_stack_detector_t *detector);
 
 void httpdns_net_stack_detector_update_cache(httpdns_net_stack_detector_t *detector);
 

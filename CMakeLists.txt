@@ -34,6 +34,17 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 
+# 配置文件
+if (CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(HTTPDNS_LOG_LEVEL LOG_DEBUG)
+else ()
+    set(HTTPDNS_LOG_LEVEL LOG_INFO)
+endif ()
+configure_file(
+        "${CMAKE_SOURCE_DIR}/configuration.h.in"
+        "${CMAKE_SOURCE_DIR}/src/configuration.h"
+)
+
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 
@@ -52,7 +63,7 @@ IF (APPLE)
 ELSE ()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC BUILD_SHARED_LIB)
-    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION}  SOVERSION ${CMAKE_VERSION})
+    set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION} SOVERSION ${CMAKE_VERSION})
     INSTALL(TARGETS ${CMAKE_PROJECT_NAME} LIBRARY DESTINATION lib)
 ENDIF ()
 

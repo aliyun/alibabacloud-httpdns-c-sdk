@@ -19,7 +19,7 @@ START_TEST(test_parse_schedule_response) {
     httpdns_schedule_response_t *response = httpdns_response_parse_schedule(body);
     bool is_expected = (NULL != response) && IS_NOT_EMPTY_LIST(&response->service_ip) &&
                        IS_NOT_EMPTY_LIST(&response->service_ipv6);
-    httpdns_schedule_response_destroy(response);
+    httpdns_schedule_response_free(response);
     ck_assert_msg(is_expected, "解析调度报文错误");
 }
 
@@ -42,7 +42,7 @@ START_TEST(test_parse_single_resolve_response) {
                        && (response->ttl == 60)
                        && (response->origin_ttl == 60)
                        && (strcmp("47.96.236.37", response->client_ip) == 0);
-    httpdns_single_resolve_response_destroy(response);
+    httpdns_single_resolve_response_free(response);
     ck_assert_msg(is_expected, "单解析响应报文错误");
 }
 
@@ -70,7 +70,7 @@ START_TEST(test_parse_multi_resolve_response) {
                  "}";
     httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(body);
     bool is_expected = (NULL != response) && (httpdns_list_size(&response->dns) == 2);
-    httpdns_multi_resolve_response_destroy(response);
+    httpdns_multi_resolve_response_free(response);
     ck_assert_msg(is_expected, "批量解析响应报文错误");
 }
 

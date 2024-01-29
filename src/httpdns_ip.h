@@ -8,6 +8,7 @@
 #include <stdint.h>
 #include<stdlib.h>
 #include<stdbool.h>
+#include "sds.h"
 
 
 #define DEFAULT_IP_RT         0
@@ -18,13 +19,13 @@ typedef struct {
 } httpdns_ip_t;
 
 
-httpdns_ip_t *httpdns_ip_create(char *ip);
+httpdns_ip_t *httpdns_ip_new(char *ip);
 
-void httpdns_ip_print(httpdns_ip_t *httpdns_ip);
+sds httpdns_ip_to_string(httpdns_ip_t *httpdns_ip);
 
 httpdns_ip_t *httpdns_ip_clone(httpdns_ip_t *ip);
 
-void httpdns_ip_destroy(httpdns_ip_t *ip);
+void httpdns_ip_free(httpdns_ip_t *ip);
 
 int32_t httpdns_ip_cmp(httpdns_ip_t *ip1, httpdns_ip_t *ip2);
 

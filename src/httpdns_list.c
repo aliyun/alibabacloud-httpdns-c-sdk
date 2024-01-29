@@ -105,7 +105,7 @@ void httpdns_list_shuffle(struct list_head *head) {
     }
     size_t list_size = httpdns_list_size(head);
     for (int outer_loop_i = 0; outer_loop_i < 2 * list_size; outer_loop_i++) {
-        int swap_index = rand() % list_size;
+        int swap_index = rand() % (int) list_size;
         httpdns_list_node_t *cursor;
         int inner_loop_i = 0;
         list_for_each_entry(cursor, head, list) {
@@ -181,20 +181,26 @@ void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func)
     }
 }
 
-void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func) {
-    if (NULL == head || NULL == print_func) {
-        printf("[]");
-        return;
+sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t to_string_func) {
+    if (NULL == head) {
+        return sdsnew("[]");
     }
-    printf("[");
+    sds dst_str = sdsnew("[");
     httpdns_list_node_t *cursor, *temp_node;
     list_for_each_entry_safe(cursor, temp_node, head, list) {
         if (cursor->list.prev != head) {
-            printf(",");
+            SDS_CAT(dst_str, ",");
         }
-        print_func(cursor->data);
+        if (NULL == to_string_func) {
+            SDS_CAT(dst_str, cursor->data);
+        } else {
+            sds node_data_str = to_string_func(cursor->data);
+            SDS_CAT(dst_str, node_data_str);
+            sdsfree(node_data_str);
+        }
     }
-    printf("]");
+    SDS_CAT(dst_str, "]");
+    return dst_str;
 }
 
 

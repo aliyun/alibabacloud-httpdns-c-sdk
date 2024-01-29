@@ -12,26 +12,24 @@ typedef dict httpdns_cache_table_t;
 
 typedef httpdns_resolve_result_t httpdns_cache_entry_t;
 
-void httpdns_cache_destroy_entry(httpdns_cache_entry_t* entry);
+void httpdns_cache_entry_free(httpdns_cache_entry_t* entry);
 
 httpdns_cache_table_t *httpdns_cache_table_create();
 
-int32_t httpdns_cache_add_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
+int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
 
-int32_t httpdns_cache_delete_entry(httpdns_cache_table_t *cache_table, char *key);
+int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, char *key);
 
-int32_t httpdns_cache_update_entry(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
+int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
 
-httpdns_cache_entry_t *httpdns_cache_get_entry(httpdns_cache_table_t *cache_table, char *key, char* dns_type);
+httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, char *key, char* dns_type);
 
-void httpdns_cache_clean_cache(httpdns_cache_table_t *cache_table);
+void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table);
 
-void httpdns_cache_table_print(httpdns_cache_table_t *cache_table);
+sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table);
 
-void httpdns_cache_print_entry(httpdns_cache_entry_t *cache_entry);
+void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry);
 
-void httpdns_cache_rotate_entry(httpdns_cache_entry_t *cache_entry);
-
-void httpdns_cache_table_destroy(httpdns_cache_table_t *cache_table);
+void httpdns_cache_table_free(httpdns_cache_table_t *cache_table);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H

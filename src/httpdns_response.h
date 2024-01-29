@@ -31,73 +31,28 @@ typedef struct {
     struct list_head dns;
 } httpdns_multi_resolve_response_t;
 
-httpdns_schedule_response_t *httpdns_schedule_response_create();
+httpdns_schedule_response_t *httpdns_schedule_response_new();
 
-void httpdns_schedule_response_print(httpdns_schedule_response_t *response);
+sds httpdns_schedule_response_to_string(httpdns_schedule_response_t *response);
 
-void httpdns_schedule_response_destroy(httpdns_schedule_response_t *response);
+void httpdns_schedule_response_free(httpdns_schedule_response_t *response);
 
-httpdns_single_resolve_response_t *httpdns_single_resolve_response_create();
+httpdns_single_resolve_response_t *httpdns_single_resolve_response_new();
 
-void httpdns_single_resolve_response_print(httpdns_single_resolve_response_t *response);
+sds httpdns_single_resolve_response_to_string(httpdns_single_resolve_response_t *response);
 
-void httpdns_single_resolve_response_destroy(httpdns_single_resolve_response_t *response);
+void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *response);
 
-httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_create();
+httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new();
 
-void httpdns_multi_resolve_response_print(httpdns_multi_resolve_response_t *response);
+sds httpdns_multi_resolve_response_to_string(httpdns_multi_resolve_response_t *response);
 
-void httpdns_multi_resolve_response_destroy(httpdns_multi_resolve_response_t *response);
+void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *response);
 
-/*
- 报文示例：
-{
-	"service_ip":["203.107.1.65",
-	"203.107.1.34",
-	"203.107.1.66",
-	"203.107.1.33",
-	"203.107.1.1"],
-	"service_ipv6":["2401:b180:2000:20::1c",
-	"2401:b180:2000:20::10"]
-}
- */
 httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body);
-
-/*
- * 报文示例：
-{
-"ipsv6":["240e:960:c00:e:3:0:0:3ef","240e:960:c00:e:3:0:0:3f0"],
-"host":"www.aliyun.com",
-"client_ip":"47.96.236.37",
-"ips":["47.118.227.108","47.118.227.111","47.118.227.112"],
-"ttl":60,
-"origin_ttl":60
-}
- */
 
 httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *body);
 
-
-/*
-{
-	"results":[{
-		"host":"www.aliyun.com",
-		"client_ip":"47.96.236.37",
-		"ips":["47.118.227.116"],
-		"type":1,
-		"ttl":26,
-		"origin_ttl":60
-	},
-	{
-		"host":"www.taobao.com",
-		"client_ip":"47.96.236.37",
-		"ips":["240e:f7:a093:101:3:0:0:3e8"],
-		"type":28,
-		"ttl":60,
-		"origin_ttl":60
-	}]
-}
-*/
 httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H

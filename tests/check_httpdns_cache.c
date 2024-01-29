@@ -19,62 +19,62 @@ static httpdns_cache_entry_t *create_test_cache_entry(char *cache_key, int ttl) 
 
 START_TEST(test_miss_cache) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 60));
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k2.com", NULL);
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k2.com", NULL);
     bool is_miss_cache = (entry == NULL);
-    httpdns_cache_table_destroy(cache_table);
+    httpdns_cache_table_free(cache_table);
     ck_assert_msg(is_miss_cache, "非预期命中到缓存");
 }
 
 START_TEST(test_hit_cache) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 60));
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_hit_cache = (entry != NULL);
-    httpdns_cache_table_destroy(cache_table);
+    httpdns_cache_table_free(cache_table);
     ck_assert_msg(is_hit_cache, "非预期缓存缺失");
 }
 
 START_TEST(test_cache_expired) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 1));
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 1));
     sleep(2);
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_miss_cache = (entry == NULL);
-    httpdns_cache_table_destroy(cache_table);
+    httpdns_cache_table_free(cache_table);
     ck_assert_msg(is_miss_cache, "非预期命中过期缓存");
 }
 
 START_TEST(test_delete_cache_entry) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 60));
-    httpdns_cache_delete_entry(cache_table, "k1.com");
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
+    httpdns_cache_table_delete(cache_table, "k1.com");
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_miss_cache = (entry == NULL);
-    httpdns_cache_table_destroy(cache_table);
+    httpdns_cache_table_free(cache_table);
     ck_assert_msg(is_miss_cache, "非预期命中过期缓存");
 }
 
 START_TEST(test_update_cache_entry) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 60));
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_cache_entry_t *update_entry = create_test_cache_entry("k1.com", 80);
     update_entry->origin_ttl = 120;
-    httpdns_cache_update_entry(cache_table, update_entry);
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
+    httpdns_cache_table_update(cache_table, update_entry);
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_expected = (NULL != entry && entry->ttl == 80 && entry->origin_ttl == 120);
-    httpdns_cache_table_destroy(cache_table);
-    httpdns_resolve_result_destroy(update_entry);
+    httpdns_cache_table_free(cache_table);
+    httpdns_resolve_result_free(update_entry);
     ck_assert_msg(is_expected, "更新缓存失败");
 }
 
 START_TEST(test_clean_cache) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
-    httpdns_cache_add_entry(cache_table, create_test_cache_entry("k1.com", 60));
-    httpdns_cache_clean_cache(cache_table);
-    httpdns_cache_entry_t *entry = httpdns_cache_get_entry(cache_table, "k1.com", NULL);
+    httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
+    httpdns_cache_table_clean(cache_table);
+    httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_expected = (NULL == entry);
-    httpdns_cache_table_destroy(cache_table);
+    httpdns_cache_table_free(cache_table);
     ck_assert_msg(is_expected, "清理缓存失败");
 }
 

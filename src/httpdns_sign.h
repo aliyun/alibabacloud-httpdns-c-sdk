@@ -11,7 +11,7 @@
 #include <stdint.h>
 #include "httpdns_time.h"
 
-#define MAX_RESOLVE_SIGNATURE_OFFSET_TIME 30 * 60
+#define MAX_RESOLVE_SIGNATURE_OFFSET_TIME (30 * 60)
 #define MAX_SCHEDULE_SIGNATURE_OFFSET_TIME 0
 
 typedef struct {
@@ -20,8 +20,8 @@ typedef struct {
     char *timestamp;
 } httpdns_signature_t;
 
-httpdns_signature_t *httpdns_signature_create(const char *host, const char *secret, int32_t max_offset, struct timeval tv);
+httpdns_signature_t *httpdns_signature_new(const char *host, const char *secret, int32_t max_offset, struct timeval tv);
 
-void destroy_httpdns_signature(httpdns_signature_t *signature);
+void destroy_httpdns_free(httpdns_signature_t *signature);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_SIGN_H

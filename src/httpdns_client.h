@@ -28,9 +28,9 @@ typedef struct {
 } on_http_finish_callback_param_t;
 
 
-httpdns_client_t *httpdns_client_create(httpdns_config_t *config);
+httpdns_client_t *httpdns_client_new(httpdns_config_t *config);
 
-void httpdns_client_destroy(httpdns_client_t * client);
+void httpdns_client_free(httpdns_client_t * client);
 
 
 int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
@@ -40,7 +40,7 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
                                       httpdns_resolve_result_t **result);
 
 
-httpdns_resolve_task_t *httpdns_resolve_task_create(httpdns_client_t *httpdns_client);
+httpdns_resolve_task_t *httpdns_resolve_task_new(httpdns_client_t *httpdns_client);
 
 
 int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_resolve_request_t *request);
@@ -49,6 +49,6 @@ int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_r
 int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task);
 
 
-void httpdns_resolve_task_destroy(httpdns_resolve_task_t *task);
+void httpdns_resolve_task_free(httpdns_resolve_task_t *resolve_task);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_H

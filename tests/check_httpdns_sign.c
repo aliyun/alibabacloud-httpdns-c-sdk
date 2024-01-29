@@ -11,12 +11,12 @@ static void setup(void) {
             .tv_sec = 1706149424,
             .tv_usec = 0
     };
-    signature = httpdns_signature_create("www.aliyun.com", "abcdef", 0, tv);
+    signature = httpdns_signature_new("www.aliyun.com", "abcdef", 0, tv);
 }
 
 static void teardown(void) {
     if (NULL != signature) {
-        destroy_httpdns_signature(signature);
+        destroy_httpdns_free(signature);
     }
 }
 

@@ -34,8 +34,8 @@
 #define DATA_FREE_FUNC(func) \
    (data_free_function_ptr_t)func
 
-#define DATA_PRINT_FUNC(func) \
-   (data_print_function_ptr_t)func
+#define DATA_TO_STRING_FUNC(func) \
+   (data_to_string_function_ptr_t)func
 
 #define DATA_SEARCH_FUNC(func) \
    (data_search_function_ptr_t)func
@@ -49,8 +49,11 @@
 #define STRING_FREE_FUNC \
   DATA_FREE_FUNC(sdsfree)
 
-#define STRING_PRINT_FUNC \
-  DATA_FREE_FUNC(sdsprint)
+
+#define httpdns_list_for_each_entry(cursor, head) \
+            httpdns_list_node_t *cursor;      \
+            list_for_each_entry(cursor, head, list)
+
 
 typedef struct {
     struct list_head list;
@@ -65,7 +68,7 @@ typedef int32_t (*data_cmp_function_ptr_t)(const void *data1, const void *data2)
 
 typedef bool (*data_search_function_ptr_t)(const void *data, const void *target);
 
-typedef void (*data_print_function_ptr_t )(const void *data);
+typedef sds (*data_to_string_function_ptr_t )(const void *data);
 
 void httpdns_list_init(struct list_head *head);
 
@@ -79,7 +82,8 @@ int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_fu
 
 int32_t httpdns_list_rotate(struct list_head *head);
 
-struct list_head *httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
+struct list_head *
+httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
 
 void *httpdns_list_get(struct list_head *head, int index);
 
@@ -97,8 +101,8 @@ void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func)
 
 void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
-void httpdns_list_print(struct list_head *head, data_print_function_ptr_t print_func);
+sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t to_string_func);
 
-void* httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func);
+void *httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

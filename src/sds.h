@@ -48,6 +48,18 @@
 #define IS_BLANK_STRING(str) \
     ((NULL == str || strlen(str) <=0))
 
+#define SDS_CAT(dst_str, slice) \
+    dst_str = sdscat(dst_str, slice)
+
+
+#define SDS_CAT_INT(dst_str, int_val) \
+    {                                 \
+        char tmp_buffer[26];                  \
+        sprintf(tmp_buffer, "%d", int_val); \
+        SDS_CAT(dst_str, tmp_buffer); \
+    }
+
+
 typedef char *sds;
 
 struct sdshdr {
@@ -55,6 +67,7 @@ struct sdshdr {
     unsigned int free;
     char buf[];
 };
+
 
 size_t sdslen(const sds s);
 
@@ -92,7 +105,7 @@ sds sdscpy(sds s, const char *t);
 
 sds sdscatvprintf(sds s, const char *fmt, va_list ap);
 
-void sdsprint(char * s);
+void sdsprint(char *s);
 
 #ifdef __GNUC__
 

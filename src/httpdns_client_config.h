@@ -6,7 +6,7 @@
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H
 
 #include "list.h"
-#include "httpdns_net_stack_detector.h"
+#include "net_stack_detector.h"
 #include "httpdns_error_type.h"
 #include <stdint.h>
 #include <stdbool.h>

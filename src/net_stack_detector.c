@@ -2,7 +2,7 @@
 // Created by cagaoshuai on 2024/1/11.
 //
 
-#include "httpdns_net_stack_detector.h"
+#include "net_stack_detector.h"
 #include "httpdns_memory.h"
 #include "log.h"
 

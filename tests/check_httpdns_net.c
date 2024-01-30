@@ -2,7 +2,7 @@
 // Created by cagaoshuai on 2024/1/14.
 //
 
-#include "httpdns_net_stack_detector.h"
+#include "net_stack_detector.h"
 #include "check_suit_list.h"
 
 static httpdns_net_stack_detector_t *net_detector = NULL;

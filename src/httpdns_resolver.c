@@ -124,18 +124,6 @@ httpdns_resolve_context_t *httpdns_resolve_context_new(httpdns_resolve_request_t
     return resolve_context;
 }
 
-httpdns_resolve_context_t *httpdns_resolve_context_clone(httpdns_resolve_context_t *origin_context) {
-    if (NULL == origin_context) {
-        return NULL;
-    }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_context, httpdns_resolve_context_t);
-    resolve_context->request = httpdns_resolve_request_clone(origin_context->request);
-    httpdns_list_init(&resolve_context->result);
-    httpdns_list_dup(&resolve_context->result, &origin_context->result,
-                     DATA_CLONE_FUNC(httpdns_resolve_result_clone));
-    return resolve_context;
-}
-
 void httpdns_resolve_context_free(httpdns_resolve_context_t *resolve_context) {
     if (NULL == resolve_context) {
         return;
@@ -168,18 +156,4 @@ void httpdns_resolve_param_free(httpdns_resolve_param_t *resolve_param) {
         resolve_param->callback_param_free_func(resolve_param->user_http_finish_callback_param);
     }
     free(resolve_param);
-}
-
-httpdns_resolve_param_t *httpdns_resolve_param_clone(httpdns_resolve_param_t *origin_resolve_param) {
-    if (NULL == origin_resolve_param) {
-        log_info("resolve param clone failed, origin reoslve param is NULL");
-        return NULL;
-    }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(new_resolve_param, httpdns_resolve_param_t);
-    if (NULL != origin_resolve_param->request) {
-        new_resolve_param->request = httpdns_resolve_request_clone(origin_resolve_param->request);
-    }
-    new_resolve_param->user_http_finish_callback_param = origin_resolve_param->user_http_finish_callback_param;
-    new_resolve_param->http_finish_callback_func = origin_resolve_param->http_finish_callback_func;
-    return new_resolve_param;
 }

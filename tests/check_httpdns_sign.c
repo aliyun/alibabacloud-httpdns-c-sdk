@@ -16,13 +16,22 @@ static void setup(void) {
 
 static void teardown(void) {
     if (NULL != signature) {
-        destroy_httpdns_free(signature);
+        httpdns_signature_free(signature);
     }
 }
 
-START_TEST(test_signature) {
+START_TEST(test_signature_sign) {
     ck_assert_str_eq(signature->sign, "05a9283c8cfa35615bcd653cff3fac0f");
+}
+
+END_TEST
+START_TEST(test_signature_raw) {
     ck_assert_str_eq(signature->raw, "www.aliyun.com-abcdef-1706149424");
+}
+
+END_TEST
+
+START_TEST(test_signature_timestamp) {
     ck_assert_str_eq(signature->timestamp, "1706149424");
 }
 
@@ -34,7 +43,9 @@ Suite *make_httpdns_sign_suite(void) {
     TCase *httpdns_sign = tcase_create("httpdns_sign");
     tcase_add_unchecked_fixture(httpdns_sign, setup, teardown);
     suite_add_tcase(suite, httpdns_sign);
-    tcase_add_test(httpdns_sign, test_signature);
+    tcase_add_test(httpdns_sign, test_signature_raw);
+    tcase_add_test(httpdns_sign, test_signature_timestamp);
+    tcase_add_test(httpdns_sign, test_signature_sign);
     return suite;
 }
 

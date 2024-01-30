@@ -44,7 +44,7 @@ httpdns_signature_t *httpdns_signature_new(const char *host, const char *secret,
     return signature;
 }
 
-void destroy_httpdns_free(httpdns_signature_t *signature) {
+void httpdns_signature_free(httpdns_signature_t *signature) {
     if (NULL == signature) {
         return;
     }

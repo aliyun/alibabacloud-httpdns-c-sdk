@@ -123,7 +123,7 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
     sds dst_str = sdsnew("cache_table(");
     dictEntry *de = NULL;
     while ((de = dictNext(di)) != NULL) {
-        SDS_CAT(dst_str, "\n");
+        SDS_CAT(dst_str, "\t");
         httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
         sds entry_str = httpdns_resolve_result_to_string(entry);
         SDS_CAT(dst_str, entry_str);

@@ -7,6 +7,7 @@
 
 #include<check.h>
 #include<stdbool.h>
+#include "log.h"
 
 Suite *make_httpdns_time_suite(void);
 Suite *make_httpdns_sign_suite(void);

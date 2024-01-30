@@ -4,15 +4,19 @@
 
 #include "httpdns_time.h"
 #include "check_suit_list.h"
+#include "sds.h"
 
 START_TEST(test_to_string) {
     struct timeval tv = {
             .tv_sec = 1706149424,
             .tv_usec = 0
     };
-    char time_str[100];
-    httpdns_time_to_string(tv, time_str, 100);
-    ck_assert_str_eq(time_str, "2024-01-25 10:23:44");
+
+    sds ts_str = httpdns_time_to_string(tv);
+    log_trace("test_to_string, time:%s", ts_str);
+    bool is_matched = strcmp(ts_str, "2024-01-25 10:23:44") == 0;
+    sdsfree(ts_str);
+    ck_assert_msg(is_matched, "日期格式化结果不符合预期");
 }
 
 END_TEST
@@ -20,6 +24,11 @@ END_TEST
 START_TEST(test_now) {
     struct timeval now1 = httpdns_time_now();
     struct timeval now2 = httpdns_time_now();
+    sds now1_str = httpdns_time_to_string(now1);
+    sds now2_str = httpdns_time_to_string(now1);
+    log_trace("test_now, now1_str=%s, now2_str=%s", now1_str, now2_str);
+    sdsfree(now1_str);
+    sdsfree(now2_str);
     ck_assert_msg(now2.tv_sec - now1.tv_sec < 1, "时间差异过大");
 }
 

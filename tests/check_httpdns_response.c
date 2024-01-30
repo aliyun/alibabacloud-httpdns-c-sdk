@@ -7,18 +7,23 @@
 
 
 START_TEST(test_parse_schedule_response) {
-    char *body = "{\n"
-                 "\t\"service_ip\":[\"203.107.1.a\",\n"
-                 "\t\"203.107.1.b\",\n"
-                 "\t\"203.107.1.c\",\n"
-                 "\t\"203.107.1.d\",\n"
-                 "\t\"203.107.1.e\"],\n"
-                 "\t\"service_ipv6\":[\"2401:b180:2000:20::hh\",\n"
-                 "\t\"2401:b180:2000:20::gg\"]\n"
+    char *body = "{"
+                 "\"service_ip\":[\"203.107.1.a\","
+                 "\"203.107.1.b\","
+                 "\"203.107.1.c\","
+                 "\"203.107.1.d\","
+                 "\"203.107.1.e\"],"
+                 "\"service_ipv6\":[\"2401:b180:2000:20::hh\","
+                 "\"2401:b180:2000:20::gg\"]"
                  "}";
     httpdns_schedule_response_t *response = httpdns_response_parse_schedule(body);
     bool is_expected = (NULL != response) && IS_NOT_EMPTY_LIST(&response->service_ip) &&
                        IS_NOT_EMPTY_LIST(&response->service_ipv6);
+
+    sds parsed_body = httpdns_schedule_response_to_string(response);
+    log_trace("test_parse_schedule_response, raw body=%s, parse result=%s", body, parsed_body);
+    sdsfree(parsed_body);
+
     httpdns_schedule_response_free(response);
     ck_assert_msg(is_expected, "解析调度报文错误");
 }
@@ -26,15 +31,20 @@ START_TEST(test_parse_schedule_response) {
 END_TEST
 
 START_TEST(test_parse_single_resolve_response) {
-    char *body = "{\n"
-                 "\"ipsv6\":[\"240e:960:c00:e:3:0:0:3ef\",\"240e:960:c00:e:3:0:0:3f0\"],\n"
-                 "\"host\":\"www.aliyun.com\",\n"
-                 "\"client_ip\":\"47.96.236.37\",\n"
-                 "\"ips\":[\"47.118.227.108\",\"47.118.227.111\",\"47.118.227.112\"],\n"
-                 "\"ttl\":60,\n"
-                 "\"origin_ttl\":60\n"
+    char *body = "{"
+                 "\"ipsv6\":[\"240e:960:c00:e:3:0:0:3ef\",\"240e:960:c00:e:3:0:0:3f0\"],"
+                 "\"host\":\"www.aliyun.com\","
+                 "\"client_ip\":\"47.96.236.37\","
+                 "\"ips\":[\"47.118.227.108\",\"47.118.227.111\",\"47.118.227.112\"],"
+                 "\"ttl\":60,"
+                 "\"origin_ttl\":60"
                  "}";
     httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(body);
+
+    sds parsed_body = httpdns_single_resolve_response_to_string(response);
+    log_trace("test_parse_single_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
+    sdsfree(parsed_body);
+
     bool is_expected = (NULL != response)
                        && IS_NOT_EMPTY_LIST(&response->ips)
                        && IS_NOT_EMPTY_LIST(&response->ipsv6)
@@ -50,25 +60,30 @@ END_TEST
 
 
 START_TEST(test_parse_multi_resolve_response) {
-    char *body = "{\n"
-                 "\t\"results\":[{\n"
-                 "\t\t\"host\":\"www.aliyun.com\",\n"
-                 "\t\t\"client_ip\":\"47.96.236.37\",\n"
-                 "\t\t\"ips\":[\"47.118.227.116\"],\n"
-                 "\t\t\"type\":1,\n"
-                 "\t\t\"ttl\":26,\n"
-                 "\t\t\"origin_ttl\":60\n"
-                 "\t},\n"
-                 "\t{\n"
-                 "\t\t\"host\":\"www.taobao.com\",\n"
-                 "\t\t\"client_ip\":\"47.96.236.37\",\n"
-                 "\t\t\"ips\":[\"240e:f7:a093:101:3:0:0:3e8\"],\n"
-                 "\t\t\"type\":28,\n"
-                 "\t\t\"ttl\":60,\n"
-                 "\t\t\"origin_ttl\":60\n"
-                 "\t}]\n"
+    char *body = "{"
+                 "\"results\":[{"
+                 "\"host\":\"www.aliyun.com\","
+                 "\"client_ip\":\"47.96.236.37\","
+                 "\"ips\":[\"47.118.227.116\"],"
+                 "\"type\":1,"
+                 "\"ttl\":26,"
+                 "\"origin_ttl\":60"
+                 "},"
+                 "{"
+                 "\"host\":\"www.taobao.com\","
+                 "\"client_ip\":\"47.96.236.37\","
+                 "\"ips\":[\"240e:f7:a093:101:3:0:0:3e8\"],"
+                 "\"type\":28,"
+                 "\"ttl\":60,"
+                 "\"origin_ttl\":60"
+                 "}]"
                  "}";
     httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(body);
+
+    sds parsed_body = httpdns_multi_resolve_response_to_string(response);
+    log_trace("test_parse_multi_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
+    sdsfree(parsed_body);
+
     bool is_expected = (NULL != response) && (httpdns_list_size(&response->dns) == 2);
     httpdns_multi_resolve_response_free(response);
     ck_assert_msg(is_expected, "批量解析响应报文错误");

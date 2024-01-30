@@ -72,7 +72,7 @@ sds httpdns_single_resolve_response_to_string(httpdns_single_resolve_response_t 
     SDS_CAT(dst_str, ",extra=");
     SDS_CAT(dst_str, response->extra);
 
-    SDS_CAT(dst_str, ",client_ip=%s");
+    SDS_CAT(dst_str, ",client_ip=");
     SDS_CAT(dst_str, response->client_ip);
 
     SDS_CAT(dst_str, ")");
@@ -111,6 +111,7 @@ sds httpdns_multi_resolve_response_to_string(httpdns_multi_resolve_response_t *r
     sds list = httpdns_list_to_string(&response->dns, DATA_TO_STRING_FUNC(httpdns_single_resolve_response_to_string));
     SDS_CAT(dst_str, list);
     SDS_CAT(dst_str, ")");
+    sdsfree(list);
     return dst_str;
 }
 

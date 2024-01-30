@@ -35,11 +35,19 @@ set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 
 # 配置文件
-if (CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set(HTTPDNS_LOG_LEVEL LOG_DEBUG)
+if (DEFINED HTTPDNS_LOG_LEVEL)
+    set(HTTPDNS_LOG_LEVEL ${HTTPDNS_LOG_LEVEL})
 else ()
     set(HTTPDNS_LOG_LEVEL LOG_INFO)
 endif ()
+
+#if (DEFINED LOG_FILE_PATH)
+#    set(LOG_FILE_PATH ${LOG_FILE_PATH})
+#else ()
+#    set(LOG_FILE_PATH "/tmp/httpdns.log")
+#endif ()
+
+
 configure_file(
         "${CMAKE_SOURCE_DIR}/configuration.h.in"
         "${CMAKE_SOURCE_DIR}/src/configuration.h"

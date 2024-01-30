@@ -48,6 +48,9 @@ START_TEST(test_cache_expired) {
 START_TEST(test_delete_cache_entry) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
+    sds cache_str = httpdns_cache_table_to_string(cache_table);
+    log_trace("test_delete_cache_entry, cache table=%s", cache_str);
+    sdsfree(cache_str);
     httpdns_cache_table_delete(cache_table, "k1.com");
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_miss_cache = (entry == NULL);

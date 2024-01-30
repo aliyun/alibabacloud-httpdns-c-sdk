@@ -112,7 +112,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
             url = sdscat(url, signature->timestamp);
             url = sdscat(url, "&n=");
             url = sdscat(url, nonce);
-            destroy_httpdns_free(signature);
+            httpdns_signature_free(signature);
         }
         httpdns_http_context_t *http_context = httpdns_http_context_new(url, config->timeout_ms);
         log_debug("exchange http request url %s", url);

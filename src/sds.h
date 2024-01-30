@@ -59,6 +59,8 @@
         SDS_CAT(dst_str, tmp_buffer); \
     }
 
+#define MICRO_STRINGIFY(x) #x
+#define MICRO_TO_STRING(x) MICRO_STRINGIFY(x)
 
 typedef char *sds;
 

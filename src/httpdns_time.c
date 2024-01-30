@@ -8,13 +8,16 @@
 #include "log.h"
 
 
-void httpdns_time_to_string(struct timeval ts, char *buffer, size_t size) {
+
+sds httpdns_time_to_string(struct timeval ts) {
+    char ts_str[32];
     time_t sec = ts.tv_sec;
     setenv("TZ", "GMT-8", 1);
     tzset();
     struct tm *tm_local = localtime(&sec);
-    strftime(buffer, size, "%Y-%m-%d %H:%M:%S", tm_local);
-    log_debug("timeval(tv_sec=%d,tv_usec=%d) to string is %s", ts.tv_sec, ts.tv_usec, buffer);
+    strftime(ts_str, 32, "%Y-%m-%d %H:%M:%S", tm_local);
+    log_debug("timeval(tv_sec=%d,tv_usec=%d) to string is %s", ts.tv_sec, ts.tv_usec, ts_str);
+    return sdsnew(ts_str);
 }
 
 struct timeval httpdns_time_now() {

@@ -48,6 +48,11 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
             log_info("httpdns resolve request is invalid, skip");
             continue;
         }
+
+        sds request_str = httpdns_resolve_request_to_string(request);
+        log_debug("multi resolve request %s", request_str);
+        sdsfree(request_str);
+
         const char *http_scheme = request->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
         const bool using_sign = (request->using_sign && NULL != request->secret_key);
         const char *http_api = request->using_multi ? (using_sign ? HTTPDNS_API_SIGN_RESOLVE : HTTPDNS_API_RESOLVE)
@@ -70,7 +75,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
             SDS_CAT(url, signature->sign);
             SDS_CAT(url, "&t=");
             SDS_CAT(url, signature->timestamp);
-            destroy_httpdns_free(signature);
+            httpdns_signature_free(signature);
         }
         if (IS_NOT_BLANK_STRING(request->client_ip)) {
             SDS_CAT(url, "&ip=");
@@ -84,6 +89,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
         httpdns_http_context_set_private_data(http_context, resolve_param);
         httpdns_list_add(&http_contexts, http_context, NULL);
 
+        log_debug("multi resolve url %s", url);
         sdsfree(url);
 
         http_context_size++;

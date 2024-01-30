@@ -9,8 +9,9 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/time.h>
+#include "sds.h"
 
-void httpdns_time_to_string(struct timeval ts, char *buffer, size_t size);
+sds httpdns_time_to_string(struct timeval ts);
 
 struct timeval httpdns_time_now();
 

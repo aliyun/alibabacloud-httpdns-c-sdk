@@ -1,0 +1,85 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"INSTALL"
+		],
+		"files" : 
+		[
+			"CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 66,
+				"parent" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 81,
+				"parent" : 0
+			}
+		]
+	},
+	"installers" : 
+	[
+		{
+			"backtrace" : 1,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"build/Release/lib/libhttpdns_c_sdk_static.a"
+			],
+			"targetId" : "httpdns_c_sdk_static::@6890427a1f51a3e7e1df",
+			"targetIndex" : 0,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 2,
+			"component" : "Unspecified",
+			"destination" : "include/httpdns_c_sdk",
+			"paths" : 
+			[
+				"src/cJSON.h",
+				"src/cJSON_Utils.h",
+				"src/configuration.h",
+				"src/dict.h",
+				"src/http_response_parser.h",
+				"src/httpdns_cache.h",
+				"src/httpdns_client.h",
+				"src/httpdns_client_config.h",
+				"src/httpdns_error_type.h",
+				"src/httpdns_global_config.h",
+				"src/httpdns_http.h",
+				"src/httpdns_ip.h",
+				"src/httpdns_list.h",
+				"src/httpdns_memory.h",
+				"src/httpdns_multi_thread.h",
+				"src/httpdns_resolve_request.h",
+				"src/httpdns_resolve_result.h",
+				"src/httpdns_resolver.h",
+				"src/httpdns_scheduler.h",
+				"src/httpdns_sign.h",
+				"src/httpdns_time.h",
+				"src/list.h",
+				"src/log.h",
+				"src/net_stack_detector.h",
+				"src/sds.h"
+			],
+			"type" : "file"
+		}
+	],
+	"paths" : 
+	{
+		"build" : ".",
+		"source" : "."
+	}
+}

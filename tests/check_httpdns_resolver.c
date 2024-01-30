@@ -9,6 +9,8 @@ static void on_http_finish_callback(char *response_body,
                                     int32_t response_status,
                                     int32_t response_rt_ms,
                                     void *user_callback_param) {
+    log_trace("on_http_finish_callback, body=%s, response_status=%d, response_rt_ms=%d", response_body, response_status,
+              response_rt_ms);
     (void) response_body;
     (void) response_rt_ms;
     bool *is_success = (bool *) (user_callback_param);
@@ -42,6 +44,9 @@ static void append_resolve_params(
             HTTPDNS_QUERY_TYPE_BOTH);
     httpdns_resolve_request_set_using_multi(request, true);
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, is_success);
+    sds request_str = httpdns_resolve_request_to_string(request);
+    log_trace("test_multi_resolve_task, request=%s", request_str);
+    sdsfree(request_str);
     httpdns_resolve_request_free(request);
     httpdns_list_add(resolve_params, resolve_param, NULL);
 }
@@ -55,6 +60,10 @@ START_TEST(test_single_resolve_task) {
                                                                         HTTPDNS_QUERY_TYPE_BOTH);
     httpdns_resolve_request_set_using_multi(request, true);
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, &is_success);
+
+    sds request_str = httpdns_resolve_request_to_string(request);
+    log_trace("test_single_resolve_task, request=%s", request_str);
+    sdsfree(request_str);
 
     httpdns_resolver_single_resolve(resolve_param);
 

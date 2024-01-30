@@ -41,8 +41,8 @@ sds httpdns_resolve_result_to_string(httpdns_resolve_result_t *result) {
     if (NULL == result) {
         return sdsnew("httpdns_resolve_result_t()");
     }
-    char query_ts[32];
-    httpdns_time_to_string(result->query_ts, query_ts, 32);
+
+
     sds dst_str = sdsnew("httpdns_resolve_result_t(");
     SDS_CAT(dst_str, "host=");
     SDS_CAT(dst_str, result->host);
@@ -59,7 +59,9 @@ sds httpdns_resolve_result_to_string(httpdns_resolve_result_t *result) {
     SDS_CAT(dst_str, ",hit_cache=");
     SDS_CAT_INT(dst_str, result->hit_cache);
     SDS_CAT(dst_str, ",query_ts=");
+    sds query_ts = httpdns_time_to_string(result->query_ts);
     SDS_CAT(dst_str, query_ts);
+    sdsfree(query_ts);
     SDS_CAT(dst_str, ",ips=");
 
     sds list = httpdns_list_to_string(&result->ips, DATA_TO_STRING_FUNC(httpdns_ip_to_string));

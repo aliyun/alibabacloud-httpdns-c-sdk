@@ -169,6 +169,7 @@ void httpdns_cache_table_free(httpdns_cache_table_t *cache_table) {
         dictRelease(cache_table->cache);
     }
     pthread_mutex_unlock(&cache_table->lock);
+    pthread_mutex_destroy(&cache_table->lock);
 }
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry) {

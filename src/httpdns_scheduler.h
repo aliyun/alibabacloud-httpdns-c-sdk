@@ -20,6 +20,8 @@ typedef struct {
     struct list_head ipv6_resolve_servers;
     httpdns_net_stack_detector_t *net_stack_detector;
     httpdns_config_t *config;
+    pthread_mutex_t lock;
+    pthread_mutexattr_t lock_attr;
 } httpdns_scheduler_t;
 
 

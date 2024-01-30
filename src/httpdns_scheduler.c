@@ -7,6 +7,7 @@
 #include "httpdns_ip.h"
 #include "httpdns_sign.h"
 #include "log.h"
+#include <pthread.h>
 
 httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config) {
     if (httpdns_config_valid(config) != HTTPDNS_SUCCESS) {
@@ -17,6 +18,9 @@ httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config) {
     httpdns_list_init(&scheduler->ipv4_resolve_servers);
     httpdns_list_init(&scheduler->ipv6_resolve_servers);
     scheduler->config = config;
+    pthread_mutexattr_init(&scheduler->lock_attr);
+    pthread_mutexattr_settype(&scheduler->lock_attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&scheduler->lock, &scheduler->lock_attr);
     return scheduler;
 }
 
@@ -24,6 +28,7 @@ sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler) {
         return sdsnew("httpdns_scheduler_t()");
     }
+    pthread_mutex_lock(&scheduler->lock);
     sds dst_str = sdsnew("httpdns_scheduler_t(ipv4_resolve_servers=");
     sds list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, DATA_TO_STRING_FUNC(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
@@ -33,6 +38,7 @@ sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
     SDS_CAT(dst_str, list);
     sdsfree(list);
     SDS_CAT(dst_str, ")");
+    pthread_mutex_unlock(&scheduler->lock);
     return dst_str;
 }
 
@@ -42,6 +48,7 @@ void httpdns_scheduler_free(httpdns_scheduler_t *scheduler) {
     }
     httpdns_list_free(&scheduler->ipv4_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
     httpdns_list_free(&scheduler->ipv6_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
+    pthread_mutex_destroy(&scheduler->lock);
     free(scheduler);
 }
 
@@ -61,10 +68,12 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
     }
     httpdns_schedule_response_t *schedule_response = httpdns_response_parse_schedule(response_body);
     if (NULL != schedule_response) {
+        pthread_mutex_lock(&scheduler->lock);
         httpdns_list_dup(&scheduler->ipv4_resolve_servers, &schedule_response->service_ip,
                          DATA_CLONE_FUNC(httpdns_ip_new));
         httpdns_list_dup(&scheduler->ipv6_resolve_servers, &schedule_response->service_ipv6,
                          DATA_CLONE_FUNC(httpdns_ip_new));
+        pthread_mutex_unlock(&scheduler->lock);
         httpdns_schedule_response_free(schedule_response);
         return;
     }
@@ -153,6 +162,7 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int3
         log_info("httpdns scheduler upate failed, server or scheduler or rt is invalid");
         return;
     }
+    pthread_mutex_lock(&scheduler->lock);
     httpdns_ip_t *resolve_server = httpdns_list_search(&scheduler->ipv4_resolve_servers, server,
                                                        DATA_SEARCH_FUNC(httpdns_ip_search));
     if (NULL == resolve_server) {
@@ -170,6 +180,7 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int3
     } else {
         log_info("update resolve server failed, can't find server %s", server);
     }
+    pthread_mutex_unlock(&scheduler->lock);
 }
 
 char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
@@ -179,6 +190,7 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     }
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     struct list_head *resolve_servers;
+    pthread_mutex_lock(&scheduler->lock);
     if (IPV6_ONLY == net_stack_type) {
         resolve_servers = &scheduler->ipv6_resolve_servers;
     } else {
@@ -189,8 +201,11 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
         sds httpdns_ip_str = httpdns_ip_to_string(resolve_server);
         log_debug("get resolve server %s", httpdns_ip_str);
         sdsfree(httpdns_ip_str);
-        return sdsnew(resolve_server->ip);
+        sds resolve_server_ip = sdsnew(resolve_server->ip);
+        pthread_mutex_unlock(&scheduler->lock);
+        return resolve_server_ip;
     }
+    pthread_mutex_unlock(&scheduler->lock);
     log_info("get resolve server from scheduler failed");
     return NULL;
 }
@@ -201,5 +216,8 @@ void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
         log_info("scheduler or net stack detector is NULL");
         return;
     }
+    pthread_mutex_lock(&scheduler->lock);
     scheduler->net_stack_detector = net_stack_detector;
+    pthread_mutex_unlock(&scheduler->lock);
+
 }

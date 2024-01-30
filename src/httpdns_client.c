@@ -254,7 +254,10 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
     }
     httpdns_resolve_task_t *resolve_task = httpdns_resolve_task_new(httpdns_client);
     httpdns_resolve_task_add_request(resolve_task, request);
-    httpdns_resolve_task_execute(resolve_task);
+    int32_t ret = httpdns_resolve_task_execute(resolve_task);
+    if (HTTPDNS_SUCCESS != ret) {
+        return ret;
+    }
     if (httpdns_list_size(&resolve_task->resolve_contexts) > 0) {
         httpdns_resolve_context_t *resolve_context = httpdns_list_get(&resolve_task->resolve_contexts, 0);
         if (httpdns_list_size(&resolve_context->result) > 0) {

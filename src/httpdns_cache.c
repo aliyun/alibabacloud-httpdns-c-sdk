@@ -7,9 +7,17 @@
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
 #include "log.h"
+#include <pthread.h>
+
 
 httpdns_cache_table_t *httpdns_cache_table_create() {
-    return dictCreate(&dictTypeHeapStrings, NULL);
+    HTTPDNS_NEW_OBJECT_IN_HEAP(cache_table, httpdns_cache_table_t);
+    cache_table->cache = dictCreate(&dictTypeHeapStrings, NULL);
+    // 使用递归锁
+    pthread_mutexattr_init(&cache_table->lock_attr);
+    pthread_mutexattr_settype(&cache_table->lock_attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&cache_table->lock, &cache_table->lock_attr);
+    return cache_table;
 }
 
 int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
@@ -17,7 +25,10 @@ int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cach
         log_info("cache table add entry failed, table or entry or cache_key is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (dictAdd(cache_table, entry->cache_key, entry) != DICT_OK) {
+    pthread_mutex_lock(&cache_table->lock);
+    int ret = dictAdd(cache_table->cache, entry->cache_key, entry);
+    pthread_mutex_unlock(&cache_table->lock);
+    if (ret != DICT_OK) {
         log_info("cache table add entry failed");
         return HTTPDNS_FAILURE;
     }
@@ -29,13 +40,16 @@ int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, char *key
         log_info("cache table delete entry failed, table or cache_key is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
+    pthread_mutex_lock(&cache_table->lock);
     httpdns_cache_entry_t *cache_entry = httpdns_cache_table_get(cache_table, key, NULL);
     if (NULL == cache_entry) {
+        pthread_mutex_unlock(&cache_table->lock);
         log_info("cache table delete entry failed, entry doesn't exist");
         return HTTPDNS_FAILURE;
     }
-    dictDelete(cache_table, key);
+    dictDelete(cache_table->cache, key);
     httpdns_cache_entry_free(cache_entry);
+    pthread_mutex_unlock(&cache_table->lock);
     return HTTPDNS_SUCCESS;
 }
 
@@ -44,6 +58,7 @@ int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_c
         log_info("cache table update entry failed, table or entry or cache_key is NULL");
         return HTTPDNS_PARAMETER_ERROR;
     }
+    pthread_mutex_lock(&cache_table->lock);
     httpdns_cache_entry_t *old_cache_entry = httpdns_cache_table_get(cache_table, entry->cache_key, NULL);
     if (NULL != old_cache_entry) {
         log_debug("old entry exist, update entry");
@@ -60,6 +75,7 @@ int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_c
         httpdns_cache_entry_t *new_entry = httpdns_resolve_result_clone(entry);
         httpdns_cache_table_add(cache_table, new_entry);
     }
+    pthread_mutex_unlock(&cache_table->lock);
     return HTTPDNS_SUCCESS;
 }
 
@@ -68,30 +84,36 @@ httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_tabl
         log_info("cache table get entry failed, table or cache_key is NULL");
         return NULL;
     }
+    pthread_mutex_lock(&cache_table->lock);
     // 存在
-    dictEntry *dict_entry = dictFind(cache_table, key);
+    dictEntry *dict_entry = dictFind(cache_table->cache, key);
     if (NULL == dict_entry) {
         log_debug("cache table get entry failed, entry doesn't exists");
+        pthread_mutex_unlock(&cache_table->lock);
         return NULL;
     }
     // 过期
     httpdns_cache_entry_t *entry = dict_entry->val;
     int ttl = entry->origin_ttl > 0 ? entry->origin_ttl : entry->ttl;
     if (httpdns_time_is_expired(entry->query_ts, ttl)) {
-        dictDelete(cache_table, key);
+        dictDelete(cache_table->cache, key);
         httpdns_cache_entry_free(entry);
         log_debug("cache table get entry failed, entry is expired");
+        pthread_mutex_unlock(&cache_table->lock);
         return NULL;
     }
     // 类型
     if (IS_TYPE_A(dns_type) && IS_EMPTY_LIST(&entry->ips)) {
         log_debug("cache table get entry failed, ips is empty");
+        pthread_mutex_unlock(&cache_table->lock);
         return NULL;
     }
     if (IS_TYPE_AAAA(dns_type) && IS_EMPTY_LIST(&entry->ipsv6)) {
         log_debug("cache table get entry failed, ipsv6 is empty");
+        pthread_mutex_unlock(&cache_table->lock);
         return NULL;
     }
+    pthread_mutex_unlock(&cache_table->lock);
     return entry;
 }
 
@@ -99,8 +121,10 @@ void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table) {
     if (NULL == cache_table) {
         return;
     }
-    dictIterator *di = dictGetSafeIterator(cache_table);
+    pthread_mutex_lock(&cache_table->lock);
+    dictIterator *di = dictGetSafeIterator(cache_table->cache);
     if (NULL == di) {
+        pthread_mutex_unlock(&cache_table->lock);
         return;
     }
     dictEntry *de = NULL;
@@ -110,14 +134,17 @@ void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table) {
         log_debug("delete cache entry %s", cache_key);
     }
     dictReleaseIterator(di);
+    pthread_mutex_unlock(&cache_table->lock);
 }
 
 sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
     if (NULL == cache_table) {
         return sdsnew("cache_table()");
     }
-    dictIterator *di = dictGetSafeIterator(cache_table);
+    pthread_mutex_lock(&cache_table->lock);
+    dictIterator *di = dictGetSafeIterator(cache_table->cache);
     if (NULL == di) {
+        pthread_mutex_unlock(&cache_table->lock);
         return sdsnew("cache_table()");
     }
     sds dst_str = sdsnew("cache_table(");
@@ -131,14 +158,17 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
     }
     dictReleaseIterator(di);
     SDS_CAT(dst_str, ")");
+    pthread_mutex_unlock(&cache_table->lock);
     return dst_str;
 }
 
 void httpdns_cache_table_free(httpdns_cache_table_t *cache_table) {
+    pthread_mutex_lock(&cache_table->lock);
     if (NULL != cache_table) {
         httpdns_cache_table_clean(cache_table);
-        dictRelease(cache_table);
+        dictRelease(cache_table->cache);
     }
+    pthread_mutex_unlock(&cache_table->lock);
 }
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry) {

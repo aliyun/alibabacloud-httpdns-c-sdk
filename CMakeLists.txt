@@ -55,6 +55,7 @@ configure_file(
 
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})

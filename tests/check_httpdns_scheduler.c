@@ -82,7 +82,7 @@ START_TEST(test_scheduler_update) {
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
     sdsfree(scheduler_str);
-    bool is_success = ip3.rt == DELTA_WEIGHT_UPDATE_RATION * 100 + 35;
+    bool is_success = (ip3.rt == (int32_t)(DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     ck_assert_msg(is_success, "更新reslover响应时间失败");
 }

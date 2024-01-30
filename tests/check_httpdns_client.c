@@ -78,8 +78,8 @@ START_TEST(test_multi_resolve_task) {
 
     size_t ctx_size = httpdns_list_size(&task->resolve_contexts);
     bool is_success = (ctx_size == 3);
-    for (int i = 0; i < ctx_size; i++) {
-        httpdns_resolve_context_t  * resolve_context = httpdns_list_get(&task->resolve_contexts, i);
+    httpdns_list_for_each_entry(resolve_context_cursor, &task->resolve_contexts) {
+        httpdns_resolve_context_t *resolve_context = resolve_context_cursor->data;
         if (NULL == resolve_context || IS_EMPTY_LIST(&resolve_context->result)) {
             is_success = false;
         }

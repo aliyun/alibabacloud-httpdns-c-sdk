@@ -90,9 +90,9 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         return HTTPDNS_BOOT_SERVER_EMPTY;
     }
     const char *http_scheme = config->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
-    for (int i = 0; i < boot_server_num; i++) {
+    httpdns_list_for_each_entry(boot_server_cursor, boot_servers) {
         sds url = sdsnew(http_scheme);
-        url = sdscat(url, httpdns_list_get(boot_servers, i));
+        url = sdscat(url, boot_server_cursor->data);
         url = sdscat(url, "/");
         url = sdscat(url, config->account_id);
         url = sdscat(url, "/ss?platform=linux&sdkVersion=");

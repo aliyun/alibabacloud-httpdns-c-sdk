@@ -230,10 +230,8 @@ int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
     CURLM *multi_handle = curl_multi_init();
-    size_t ctx_size = httpdns_list_size(http_contexts);
-    log_debug("http contexts size is %d", ctx_size);
-    for (int i = 0; i < ctx_size; i++) {
-        httpdns_http_context_t *http_context = httpdns_list_get(http_contexts, i);
+    httpdns_list_for_each_entry(http_context_cursor, http_contexts) {
+        httpdns_http_context_t *http_context = http_context_cursor->data;
         CURL *handle = curl_easy_init();
         curl_easy_setopt(handle, CURLOPT_URL, http_context->request_url);
         curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, http_context->request_timeout_ms);

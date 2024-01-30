@@ -4,7 +4,7 @@
 #include "httpdns_client.h"
 #include "httpdns_memory.h"
 #include "httpdns_http.h"
-#include "httpdns_response.h"
+#include "httpdns_http_response_parser.h"
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
 #include "log.h"

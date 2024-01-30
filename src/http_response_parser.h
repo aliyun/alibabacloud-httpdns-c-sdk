@@ -2,8 +2,8 @@
 // Created by cagaoshuai on 2024/1/19.
 //
 
-#ifndef HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H
-#define HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H
+#ifndef HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H
+#define HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H
 
 #include "cJSON.h"
 #include "sds.h"
@@ -55,4 +55,4 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *b
 
 httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body);
 
-#endif //HTTPDNS_C_SDK_HTTPDNS_RESPONSE_H
+#endif //HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H

@@ -7,6 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "httpdns_client_config.h"
 
 typedef struct {
     char *host;
@@ -64,5 +65,6 @@ sds httpdns_resolve_request_to_string(httpdns_resolve_request_t *request);
 
 int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request);
 
+void httpdns_resolve_request_free(httpdns_resolve_request_t *request);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_RESOLVE_REQUEST_H

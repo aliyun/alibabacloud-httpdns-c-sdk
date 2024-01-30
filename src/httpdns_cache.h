@@ -7,6 +7,7 @@
 
 #include "dict.h"
 #include "httpdns_resolver.h"
+#include "httpdns_resolve_result.h"
 
 typedef dict httpdns_cache_table_t;
 

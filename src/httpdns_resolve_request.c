@@ -5,7 +5,7 @@
 #include "httpdns_error_type.h"
 #include "log.h"
 #include "sds.h"
-#include "httpdns_client.h"
+#include "httpdns_memory.h"
 
 
 

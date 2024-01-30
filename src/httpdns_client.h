@@ -8,6 +8,10 @@
 #include "httpdns_scheduler.h"
 #include "httpdns_cache.h"
 #include "httpdns_resolver.h"
+#include "httpdns_resolve_result.h"
+#include "httpdns_resolve_request.h"
+#include "httpdns_resolver.h"
+#include "httpdns_cache.h"
 
 typedef struct {
     httpdns_scheduler_t *scheduler;

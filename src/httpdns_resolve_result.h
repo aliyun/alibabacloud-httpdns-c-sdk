@@ -6,7 +6,7 @@
 #define HTTPDNS_C_SDK_HTTPDNS_RESOLVE_RESULT_H
 
 #include <stdbool.h>
-#include<stdint.h>
+#include <stdint.h>
 #include <time.h>
 #include <sys/time.h>
 #include "list.h"

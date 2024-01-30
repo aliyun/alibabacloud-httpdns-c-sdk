@@ -48,7 +48,7 @@ START_TEST(test_multi_resolve_task) {
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_task_t *task = httpdns_resolve_task_new(client);
 
-    httpdns_resolve_request_t *request = httpdns_resolve_request_create(
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(
             config,
             "www.aliyun.com",
             NULL,
@@ -57,7 +57,7 @@ START_TEST(test_multi_resolve_task) {
     httpdns_resolve_request_free(request);
 
 
-    request = httpdns_resolve_request_create(
+    request = httpdns_resolve_request_new(
             config,
             "www.taobao.com",
             NULL,
@@ -66,7 +66,7 @@ START_TEST(test_multi_resolve_task) {
     httpdns_resolve_request_free(request);
 
 
-    request = httpdns_resolve_request_create(
+    request = httpdns_resolve_request_new(
             config,
             "www.google.com",
             NULL,

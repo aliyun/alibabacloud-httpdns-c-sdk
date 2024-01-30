@@ -53,7 +53,7 @@ int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request) {
 
 
 httpdns_resolve_request_t *
-httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
+httpdns_resolve_request_new(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
     if (HTTPDNS_SUCCESS != httpdns_config_valid(config) || NULL == host) {
         return NULL;
     }

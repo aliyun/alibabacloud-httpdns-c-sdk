@@ -126,6 +126,10 @@ static void on_http_finish_callback_func(char *response_body, int32_t response_s
         httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(response_body);
         httpdns_list_dup(&httpdns_resolve_results, &response->dns, DATA_CLONE_FUNC(single_resolve_response_to_result));
         httpdns_multi_resolve_response_free(response);
+        httpdns_list_for_each_entry(resolve_result_cursor, &httpdns_resolve_results) {
+            httpdns_resolve_result_t *result = resolve_result_cursor->data;
+            httpdns_resolve_result_set_cache_key(result, result->host);
+        }
     } else {
         httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(response_body);
         httpdns_resolve_result_t *result = single_resolve_response_to_result(response);
@@ -241,10 +245,10 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
         log_debug("simple resolve failed, client or config or host is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_resolve_request_t *request = httpdns_resolve_request_create(httpdns_client->config,
-                                                                        host,
-                                                                        NULL,
-                                                                        query_type);
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_client->config,
+                                                                     host,
+                                                                     NULL,
+                                                                     query_type);
     if (IS_NOT_BLANK_STRING(client_ip)) {
         httpdns_resolve_request_set_client_ip(request, client_ip);
     }

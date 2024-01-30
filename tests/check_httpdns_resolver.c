@@ -37,7 +37,7 @@ static void append_resolve_params(
         char *host,
         char *resolver,
         bool *is_success) {
-    httpdns_resolve_request_t *request = httpdns_resolve_request_create(
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(
             config,
             host,
             resolver,
@@ -54,10 +54,10 @@ static void append_resolve_params(
 START_TEST(test_single_resolve_task) {
     httpdns_config_t *config = get_httpdns_config();
     bool is_success = false;
-    httpdns_resolve_request_t *request = httpdns_resolve_request_create(config,
-                                                                        "www.aliyun.com,www.taobao.com",
-                                                                        "203.107.1.1",
-                                                                        HTTPDNS_QUERY_TYPE_BOTH);
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(config,
+                                                                     "www.aliyun.com,www.taobao.com",
+                                                                     "203.107.1.1",
+                                                                     HTTPDNS_QUERY_TYPE_BOTH);
     httpdns_resolve_request_set_using_multi(request, true);
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, &is_success);
 

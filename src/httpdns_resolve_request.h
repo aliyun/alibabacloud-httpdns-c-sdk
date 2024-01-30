@@ -57,7 +57,7 @@ void httpdns_resolve_request_set_using_sign(httpdns_resolve_request_t *request, 
 void httpdns_resolve_request_set_using_multi(httpdns_resolve_request_t *request, bool using_multi);
 
 httpdns_resolve_request_t *
-httpdns_resolve_request_create(httpdns_config_t *config, char *host, char *resolver, char *query_type);
+httpdns_resolve_request_new(httpdns_config_t *config, char *host, char *resolver, char *query_type);
 
 httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request_t *origin_resolve_request);
 

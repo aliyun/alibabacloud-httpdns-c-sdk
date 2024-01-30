@@ -49,9 +49,9 @@ net_stack_type & (1<<1)
 typedef u_int32_t net_stack_type_t;
 
 typedef struct {
-    net_stack_type_t net_stack_type_cache;
+    volatile net_stack_type_t net_stack_type_cache;
     char *probe_domain;
-    bool using_cache;
+    volatile bool using_cache;
 } httpdns_net_stack_detector_t;
 
 

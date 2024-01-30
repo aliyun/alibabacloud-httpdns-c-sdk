@@ -163,13 +163,12 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
 }
 
 void httpdns_cache_table_free(httpdns_cache_table_t *cache_table) {
-    pthread_mutex_lock(&cache_table->lock);
     if (NULL != cache_table) {
         httpdns_cache_table_clean(cache_table);
         dictRelease(cache_table->cache);
     }
-    pthread_mutex_unlock(&cache_table->lock);
     pthread_mutex_destroy(&cache_table->lock);
+    pthread_mutexattr_destroy(&cache_table->lock_attr);
 }
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry) {

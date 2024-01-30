@@ -49,6 +49,7 @@ void httpdns_scheduler_free(httpdns_scheduler_t *scheduler) {
     httpdns_list_free(&scheduler->ipv4_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
     httpdns_list_free(&scheduler->ipv6_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
     pthread_mutex_destroy(&scheduler->lock);
+    pthread_mutexattr_destroy(&scheduler->lock_attr);
     free(scheduler);
 }
 

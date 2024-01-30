@@ -11,7 +11,7 @@
 static FILE *log_file = NULL;
 
 
-void init_log() {
+static void init_log() {
     log_set_level(HTTPDNS_LOG_LEVEL);
     log_set_quiet(true);
     char log_file_path[1024] = MICRO_TO_STRING(LOG_FILE_PATH);

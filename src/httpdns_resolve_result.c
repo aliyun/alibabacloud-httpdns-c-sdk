@@ -100,7 +100,7 @@ void httpdns_resolve_result_free(httpdns_resolve_result_t *result) {
 }
 
 
-void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, char *cache_key) {
+void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, const char *cache_key) {
     HTTPDNS_SET_STRING_FIELD(result, cache_key, cache_key);
 }
 

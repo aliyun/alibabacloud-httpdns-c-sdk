@@ -49,10 +49,10 @@ sds httpdns_multi_resolve_response_to_string(httpdns_multi_resolve_response_t *r
 
 void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *response);
 
-httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body);
+httpdns_schedule_response_t *httpdns_response_parse_schedule(const char *body);
 
-httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *body);
+httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const char *body);
 
-httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body);
+httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const char *body);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H

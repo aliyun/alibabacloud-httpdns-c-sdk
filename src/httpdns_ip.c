@@ -28,7 +28,7 @@ void httpdns_ip_free(httpdns_ip_t *ip) {
     free(ip);
 }
 
-httpdns_ip_t *httpdns_ip_new(char *ip) {
+httpdns_ip_t *httpdns_ip_new(const char *ip) {
     if (NULL == ip) {
         return NULL;
     }

@@ -19,7 +19,7 @@ typedef struct {
 } httpdns_ip_t;
 
 
-httpdns_ip_t *httpdns_ip_new(char *ip);
+httpdns_ip_t *httpdns_ip_new(const char *ip);
 
 sds httpdns_ip_to_string(httpdns_ip_t *httpdns_ip);
 

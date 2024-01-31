@@ -9,7 +9,6 @@
 #include "httpdns_string.h"
 
 
-
 int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request) {
     if (NULL == request) {
         log_info("resolve request valid failed, request is NULL");
@@ -52,9 +51,8 @@ int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request) {
 }
 
 
-
 httpdns_resolve_request_t *
-httpdns_resolve_request_new(httpdns_config_t *config, char *host, char *resolver, char *query_type) {
+httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const char *resolver, const char *query_type) {
     if (HTTPDNS_SUCCESS != httpdns_config_valid(config) || NULL == host) {
         return NULL;
     }
@@ -168,10 +166,13 @@ httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request
     new_resolve_request->using_multi = origin_resolve_request->using_multi;
     new_resolve_request->using_cache = origin_resolve_request->using_cache;
     new_resolve_request->timeout_ms = origin_resolve_request->timeout_ms;
+    new_resolve_request->user_callback_param = origin_resolve_request->user_callback_param;
+    new_resolve_request->complete_callback_func = origin_resolve_request->complete_callback_func;
     return new_resolve_request;
 }
 
-void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, char *key, char *value) {
+void
+httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, const char *key, const char *value) {
     if (NULL == request || IS_BLANK_STRING(key) || IS_BLANK_STRING(value)) {
         log_info("append sdns param failed, request or key or value is NULL");
         return;
@@ -184,39 +185,39 @@ void httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *reque
     request->sdns_params = sdscat(request->sdns_params, value);
 }
 
-void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, char *host) {
+void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, const char *host) {
     HTTPDNS_SET_STRING_FIELD(request, host, host);
 }
 
-void httpdns_resolve_request_set_account_id(httpdns_resolve_request_t *request, char *account_id) {
+void httpdns_resolve_request_set_account_id(httpdns_resolve_request_t *request, const char *account_id) {
     HTTPDNS_SET_STRING_FIELD(request, account_id, account_id);
 }
 
-void httpdns_resolve_request_set_secret_key(httpdns_resolve_request_t *request, char *secret_key) {
+void httpdns_resolve_request_set_secret_key(httpdns_resolve_request_t *request, const char *secret_key) {
     HTTPDNS_SET_STRING_FIELD(request, secret_key, secret_key);
 }
 
-void httpdns_resolve_request_set_resolver(httpdns_resolve_request_t *request, char *resolver) {
+void httpdns_resolve_request_set_resolver(httpdns_resolve_request_t *request, const char *resolver) {
     HTTPDNS_SET_STRING_FIELD(request, resolver, resolver);
 }
 
-void httpdns_resolve_request_set_client_ip(httpdns_resolve_request_t *request, char *client_ip) {
+void httpdns_resolve_request_set_client_ip(httpdns_resolve_request_t *request, const char *client_ip) {
     HTTPDNS_SET_STRING_FIELD(request, client_ip, client_ip);
 }
 
-void httpdns_resolve_request_set_sdk_version(httpdns_resolve_request_t *request, char *sdk_version) {
+void httpdns_resolve_request_set_sdk_version(httpdns_resolve_request_t *request, const char *sdk_version) {
     HTTPDNS_SET_STRING_FIELD(request, sdk_version, sdk_version);
 }
 
-void httpdns_resolve_request_set_user_agent(httpdns_resolve_request_t *request, char *user_agent) {
+void httpdns_resolve_request_set_user_agent(httpdns_resolve_request_t *request, const char *user_agent) {
     HTTPDNS_SET_STRING_FIELD(request, user_agent, user_agent);
 }
 
-void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, char *cache_key) {
+void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, const char *cache_key) {
     HTTPDNS_SET_STRING_FIELD(request, cache_key, cache_key);
 }
 
-void httpdns_resolve_request_set_query_type(httpdns_resolve_request_t *request, char *query_type) {
+void httpdns_resolve_request_set_query_type(httpdns_resolve_request_t *request, const char *query_type) {
     HTTPDNS_SET_STRING_FIELD(request, query_type, query_type);
 }
 
@@ -247,6 +248,23 @@ void httpdns_resolve_request_set_using_multi(httpdns_resolve_request_t *request,
         sdsfree(request->cache_key);
         request->cache_key = NULL;
     }
+}
+
+void httpdns_resolve_request_set_using_cache(httpdns_resolve_request_t *request, bool using_cache) {
+    if (NULL == request) {
+        return;
+    }
+    request->using_cache = using_cache;
+}
+
+void httpdns_resolve_request_set_callback(httpdns_resolve_request_t *request,
+                                          httpdns_complete_callback_func_t callback,
+                                          void *user_callback_param) {
+    if (NULL == request) {
+        return;
+    }
+    request->complete_callback_func = callback;
+    request->user_callback_param = user_callback_param;
 }
 
 

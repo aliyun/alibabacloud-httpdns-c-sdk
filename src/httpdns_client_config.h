@@ -15,7 +15,7 @@
 #define USER_AGENT                 "emas-httpdns-c-sdk"
 #define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
 #define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
-#define DEFAULT_TIMEOUT_MS         5000L
+#define DEFAULT_TIMEOUT_MS         1000L
 #define REGION_CHINA_MAINLAND      "cn"
 #define REGION_HONG_KONG           "hk"
 #define REGION_SINGAPORE           "sg"

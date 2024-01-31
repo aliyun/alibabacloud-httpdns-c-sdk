@@ -11,7 +11,7 @@
 #include <pthread.h>
 
 
-httpdns_cache_table_t *httpdns_cache_table_create() {
+httpdns_cache_table_t *httpdns_cache_table_new() {
     HTTPDNS_NEW_OBJECT_IN_HEAP(cache_table, httpdns_cache_table_t);
     cache_table->cache = dictCreate(&dictTypeHeapStrings, NULL);
     // 使用递归锁
@@ -36,7 +36,7 @@ int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cach
     return HTTPDNS_SUCCESS;
 }
 
-int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, char *key) {
+int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, const char *key) {
     if (NULL == cache_table || NULL == key) {
         log_info("cache table delete entry failed, table or cache_key is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
@@ -80,7 +80,7 @@ int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_c
     return HTTPDNS_SUCCESS;
 }
 
-httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, char *key, char *dns_type) {
+httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, const char *dns_type) {
     if (NULL == cache_table || NULL == key) {
         log_info("cache table get entry failed, table or cache_key is NULL");
         return NULL;
@@ -131,8 +131,8 @@ void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table) {
     dictEntry *de = NULL;
     while ((de = dictNext(di)) != NULL) {
         char *cache_key = (char *) de->key;
-        httpdns_cache_table_delete(cache_table, cache_key);
         log_debug("delete cache entry %s", cache_key);
+        httpdns_cache_table_delete(cache_table, cache_key);
     }
     dictReleaseIterator(di);
     pthread_mutex_unlock(&cache_table->lock);

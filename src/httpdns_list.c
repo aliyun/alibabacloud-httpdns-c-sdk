@@ -218,6 +218,12 @@ void *httpdns_list_search(struct list_head *head, const void *target, data_searc
     return NULL;
 }
 
+bool inline httpdns_list_is_end(httpdns_list_node_t *node, struct list_head *head) {
+    if (NULL == node || NULL == head) {
+        return false;
+    }
+    return node->list.next == head;
+}
 
 
 

@@ -135,7 +135,7 @@ static void parse_ip_array(cJSON *c_json_array, struct list_head *ips) {
     }
 }
 
-httpdns_schedule_response_t *httpdns_response_parse_schedule(char *body) {
+httpdns_schedule_response_t *httpdns_response_parse_schedule(const char *body) {
     if (IS_BLANK_STRING(body)) {
         return NULL;
     }
@@ -201,7 +201,7 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     return single_resolve_result;
 }
 
-httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *body) {
+httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const char *body) {
     if (IS_BLANK_STRING(body)) {
         log_info("parse single resolve failed, body is empty");
         return NULL;
@@ -219,7 +219,7 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(char *b
     return single_resolve_result;
 }
 
-httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(char *body) {
+httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const char *body) {
     if (IS_BLANK_STRING(body)) {
         log_info("parse multi resolve failed, body is empty");
         return NULL;

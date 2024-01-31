@@ -33,7 +33,7 @@ httpdns_resolve_result_t *httpdns_resolve_result_clone(httpdns_resolve_result_t 
 
 sds httpdns_resolve_result_to_string(httpdns_resolve_result_t *result);
 
-void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, char *cache_key);
+void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, const char *cache_key);
 
 void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool hit_cache);
 

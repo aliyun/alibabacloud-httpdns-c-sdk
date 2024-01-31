@@ -41,7 +41,7 @@ int main(void) {
     srunner_add_suite(suite_runner, make_httpdns_client_suite());
     // Uncomment the following if you want to debug.
     srunner_set_fork_status(suite_runner, CK_NOFORK);
-    srunner_run_all(suite_runner, CK_VERBOSE);
+    srunner_run_all(suite_runner, CK_NORMAL);
     number_failed = srunner_ntests_failed(suite_runner);
     srunner_free(suite_runner);
     cleanup_httpdns_sdk();

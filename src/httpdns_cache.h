@@ -19,15 +19,15 @@ typedef httpdns_resolve_result_t httpdns_cache_entry_t;
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry);
 
-httpdns_cache_table_t *httpdns_cache_table_create();
+httpdns_cache_table_t *httpdns_cache_table_new();
 
 int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
 
-int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, char *key);
+int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, const char *key);
 
 int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);
 
-httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, char *key, char *dns_type);
+httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, const char *dns_type);
 
 void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table);
 

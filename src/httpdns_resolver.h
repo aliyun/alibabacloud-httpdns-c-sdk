@@ -8,7 +8,7 @@
 #include "httpdns_scheduler.h"
 #include "httpdns_client_config.h"
 #include "httpdns_resolve_request.h"
-
+#include "httpdns_resolve_result.h"
 
 #define  HTTPDNS_API_D                   "/d"
 #define  HTTPDNS_API_SIGN_D              "/sign_d"
@@ -33,8 +33,8 @@
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AUTO, type) == 0)
 
 
-typedef void (*http_finish_callback_func_t)(char *response_body, int32_t response_status, int32_t response_rt_ms,
-                                            void *user_callback_param);
+typedef void (*http_complete_callback_func_t)(char *response_body, int32_t response_status, int32_t response_rt_ms,
+                                              void *user_callback_param);
 
 typedef struct {
     httpdns_resolve_request_t *request;
@@ -43,9 +43,9 @@ typedef struct {
 
 typedef struct {
     httpdns_resolve_request_t *request;
-    void *user_http_finish_callback_param;
+    void *user_http_complete_callback_param;
     data_free_function_ptr_t callback_param_free_func;
-    http_finish_callback_func_t http_finish_callback_func;
+    http_complete_callback_func_t http_complete_callback_func;
 } httpdns_resolve_param_t;
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param);

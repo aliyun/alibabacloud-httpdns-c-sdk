@@ -54,7 +54,6 @@
             httpdns_list_node_t *cursor;      \
             list_for_each_entry(cursor, head, list)
 
-
 typedef struct {
     struct list_head list;
     void *data;
@@ -104,5 +103,7 @@ void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func)
 sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t to_string_func);
 
 void *httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func);
+
+bool httpdns_list_is_end(httpdns_list_node_t *node, struct list_head *head);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

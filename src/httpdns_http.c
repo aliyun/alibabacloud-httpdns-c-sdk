@@ -237,6 +237,10 @@ int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
         curl_easy_setopt(handle, CURLOPT_URL, http_context->request_url);
         curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, http_context->request_timeout_ms);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
+        bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
+        if (using_https) {
+            curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+        }
         curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, http_context);

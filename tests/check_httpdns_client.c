@@ -17,7 +17,7 @@ START_TEST(test_simple_resolve_without_cache) {
     httpdns_config_set_using_cache(config, false);
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_result_t *result;
-    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, &result);
+    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, false, &result, NULL, NULL);
     bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
@@ -29,11 +29,11 @@ START_TEST(test_simple_resolve_with_cache) {
     httpdns_config_t *config = get_httpdns_config();
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_result_t *result;
-    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, &result);
+    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, true, &result, NULL, NULL);
     bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
     httpdns_resolve_result_free(result);
     sleep(1);
-    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, &result);
+    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, true, &result, NULL, NULL);
     is_success = is_success && (NULL != result && result->hit_cache && IS_NOT_EMPTY_LIST(&result->ips));
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);

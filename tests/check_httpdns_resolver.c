@@ -19,8 +19,8 @@ static void on_http_finish_callback(char *response_body,
 
 static httpdns_resolve_param_t *build_resolve_param(httpdns_resolve_request_t *request, bool *is_success) {
     httpdns_resolve_param_t *resolve_param = httpdns_resolve_param_new(request);
-    resolve_param->http_finish_callback_func = on_http_finish_callback;
-    resolve_param->user_http_finish_callback_param = is_success;
+    resolve_param->http_complete_callback_func = on_http_finish_callback;
+    resolve_param->user_http_complete_callback_param = is_success;
     return resolve_param;
 }
 

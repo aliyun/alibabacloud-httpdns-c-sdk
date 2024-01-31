@@ -18,7 +18,7 @@ static httpdns_cache_entry_t *create_test_cache_entry(char *cache_key, int ttl) 
 }
 
 START_TEST(test_miss_cache) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k2.com", NULL);
     bool is_miss_cache = (entry == NULL);
@@ -27,7 +27,7 @@ START_TEST(test_miss_cache) {
 }
 
 START_TEST(test_hit_cache) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
     bool is_hit_cache = (entry != NULL);
@@ -36,7 +36,7 @@ START_TEST(test_hit_cache) {
 }
 
 START_TEST(test_cache_expired) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 1));
     sleep(2);
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);
@@ -46,7 +46,7 @@ START_TEST(test_cache_expired) {
 }
 
 START_TEST(test_delete_cache_entry) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     sds cache_str = httpdns_cache_table_to_string(cache_table);
     log_trace("test_delete_cache_entry, cache table=%s", cache_str);
@@ -59,7 +59,7 @@ START_TEST(test_delete_cache_entry) {
 }
 
 START_TEST(test_update_cache_entry) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_cache_entry_t *update_entry = create_test_cache_entry("k1.com", 80);
     update_entry->origin_ttl = 120;
@@ -72,7 +72,7 @@ START_TEST(test_update_cache_entry) {
 }
 
 START_TEST(test_clean_cache) {
-    httpdns_cache_table_t *cache_table = httpdns_cache_table_create();
+    httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_cache_table_clean(cache_table);
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);

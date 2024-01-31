@@ -102,12 +102,12 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
     httpdns_list_for_each_entry(http_context_cursor, &http_contexts) {
         httpdns_http_context_t *http_context = http_context_cursor->data;
         httpdns_resolve_param_t *resolve_param = http_context->private_data;
-        if (NULL != resolve_param->http_finish_callback_func) {
-            resolve_param->http_finish_callback_func(
+        if (NULL != resolve_param->http_complete_callback_func) {
+            resolve_param->http_complete_callback_func(
                     http_context->response_body,
                     http_context->response_status,
                     http_context->response_rt_ms,
-                    resolve_param->user_http_finish_callback_param);
+                    resolve_param->user_http_complete_callback_param);
         }
     }
     httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_free));
@@ -154,7 +154,7 @@ void httpdns_resolve_param_free(httpdns_resolve_param_t *resolve_param) {
         httpdns_resolve_request_free(resolve_param->request);
     }
     if (NULL != resolve_param->callback_param_free_func) {
-        resolve_param->callback_param_free_func(resolve_param->user_http_finish_callback_param);
+        resolve_param->callback_param_free_func(resolve_param->user_http_complete_callback_param);
     }
     free(resolve_param);
 }

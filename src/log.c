@@ -73,8 +73,8 @@ static void file_callback(log_Event *ev) {
   char buf[64];
   buf[strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", ev->time)] = '\0';
   fprintf(
-    ev->udata, "%s %-5s %s:%d: ",
-    buf, level_strings[ev->level], ev->file, ev->line);
+    ev->udata, "%s %-5s %s:%d:%s: ",
+    buf, level_strings[ev->level], ev->file, ev->line, ev->func);
   vfprintf(ev->udata, ev->fmt, ev->ap);
   fprintf(ev->udata, "\n");
   fflush(ev->udata);
@@ -137,12 +137,13 @@ static void init_event(log_Event *ev, void *udata) {
 }
 
 
-void log_log(int level, const char *file, int line, const char *fmt, ...) {
+void log_log(int level, const char *file, int line, const char * func, const char *fmt, ...) {
   log_Event ev = {
     .fmt   = fmt,
     .file  = file,
     .line  = line,
     .level = level,
+    .func = func
   };
 
   lock();

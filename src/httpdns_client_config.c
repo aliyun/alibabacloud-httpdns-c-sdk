@@ -5,6 +5,7 @@
 
 #include "httpdns_client_config.h"
 #include "httpdns_list.h"
+#include "httpdns_string.h"
 #include "httpdns_memory.h"
 #include "sds.h"
 #include <string.h>

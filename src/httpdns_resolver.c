@@ -10,6 +10,7 @@
 #include "httpdns_ip.h"
 #include "log.h"
 #include "httpdns_resolve_result.h"
+#include "httpdns_string.h"
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) {
     if (NULL == resolve_param || NULL == resolve_param->request) {

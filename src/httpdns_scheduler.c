@@ -6,6 +6,7 @@
 #include "http_response_parser.h"
 #include "httpdns_ip.h"
 #include "httpdns_sign.h"
+#include "httpdns_string.h"
 #include "log.h"
 #include <pthread.h>
 

@@ -6,6 +6,7 @@
 #include "log.h"
 #include "sds.h"
 #include "httpdns_memory.h"
+#include "httpdns_string.h"
 
 
 

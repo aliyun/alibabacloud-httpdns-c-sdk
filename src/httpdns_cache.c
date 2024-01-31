@@ -7,6 +7,7 @@
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
 #include "log.h"
+#include "httpdns_string.h"
 #include <pthread.h>
 
 

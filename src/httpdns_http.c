@@ -7,6 +7,7 @@
 #include "openssl/x509v3.h"
 #include "httpdns_memory.h"
 #include "httpdns_client_config.h"
+#include "httpdns_string.h"
 #include "log.h"
 
 httpdns_http_context_t *httpdns_http_context_new(char *url, int32_t timeout_ms) {

@@ -2,11 +2,11 @@
 // Created by cagaoshuai on 2024/1/14.
 //
 #include "httpdns_global_config.h"
+#include "httpdns_string.h"
 #include <curl/curl.h>
 #include "configuration.h"
 #include "log.h"
 #include "string.h"
-#include "sds.h"
 
 static FILE *log_file = NULL;
 

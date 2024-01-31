@@ -34,33 +34,11 @@
 #define SDS_MAX_PREALLOC (1024*1024)
 
 #include <sys/types.h>
-#include <string.h>
 #include <stdarg.h>
 
 #ifdef WIN32
 #define inline __inline
 #endif
-
-
-#define IS_NOT_BLANK_STRING(str) \
-    (NULL != str && strlen(str) >0)
-
-#define IS_BLANK_STRING(str) \
-    ((NULL == str || strlen(str) <=0))
-
-#define SDS_CAT(dst_str, slice) \
-    dst_str = sdscat(dst_str, slice)
-
-
-#define SDS_CAT_INT(dst_str, int_val) \
-    {                                 \
-        char tmp_buffer[26];                  \
-        sprintf(tmp_buffer, "%d", int_val); \
-        SDS_CAT(dst_str, tmp_buffer); \
-    }
-
-#define MICRO_STRINGIFY(x) #x
-#define MICRO_TO_STRING(x) MICRO_STRINGIFY(x)
 
 typedef char *sds;
 
@@ -69,7 +47,6 @@ struct sdshdr {
     unsigned int free;
     char buf[];
 };
-
 
 size_t sdslen(const sds s);
 
@@ -106,8 +83,6 @@ sds sdscpylen(sds s, const char *t, size_t len);
 sds sdscpy(sds s, const char *t);
 
 sds sdscatvprintf(sds s, const char *fmt, va_list ap);
-
-void sdsprint(char *s);
 
 #ifdef __GNUC__
 

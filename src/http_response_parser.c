@@ -5,6 +5,7 @@
 #include "httpdns_memory.h"
 #include <stdio.h>
 #include "log.h"
+#include "httpdns_string.h"
 
 httpdns_schedule_response_t *httpdns_schedule_response_new() {
     HTTPDNS_NEW_OBJECT_IN_HEAP(schedule_response, httpdns_schedule_response_t);

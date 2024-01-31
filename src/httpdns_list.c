@@ -2,6 +2,7 @@
 // Created by cagaoshuai on 2024/1/10.
 //
 #include "httpdns_list.h"
+#include "httpdns_string.h"
 #include <stdio.h>
 
 void httpdns_list_init(struct list_head *ips) {

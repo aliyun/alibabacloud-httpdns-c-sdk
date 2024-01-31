@@ -30,6 +30,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <ctype.h>
 #include <assert.h>
 #include "sds.h"
@@ -395,10 +396,6 @@ sds sdscatprintf(sds s, const char *fmt, ...) {
     t = sdscatvprintf(s, fmt, ap);
     va_end(ap);
     return t;
-}
-
-void sdsprint(char *s) {
-    printf("%s", s);
 }
 
 

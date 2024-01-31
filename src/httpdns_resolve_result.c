@@ -2,6 +2,7 @@
 // Created by cagaoshuai on 2024/1/29.
 //
 #include "httpdns_resolve_result.h"
+#include "httpdns_string.h"
 #include "httpdns_memory.h"
 #include "log.h"
 #include "httpdns_list.h"

@@ -56,7 +56,7 @@ httpdns_resolve_task_t *httpdns_resolve_task_new(httpdns_client_t *httpdns_clien
 }
 
 
-int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_resolve_request_t *request) {
+int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, const httpdns_resolve_request_t *request) {
     if (NULL == task || NULL == request) {
         log_info("add resolve request into task failed, task or request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
@@ -122,6 +122,7 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
         httpdns_scheduler_update(param->scheduler, resolver, MAX_HTTP_REQUEST_TIMEOUT_MS);
         return;
     }
+    // 结果收集
     NEW_EMPTY_LIST_IN_STACK(httpdns_resolve_results);
     if (resolve_request->using_multi) {
         httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(response_body);
@@ -138,7 +139,12 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
         httpdns_list_add(&httpdns_resolve_results, result, NULL);
         httpdns_single_resolve_response_free(response);
     }
-    httpdns_list_for_each_entry(result_cursor, &httpdns_resolve_results) {
+    // 结果合并
+    NEW_EMPTY_LIST_IN_STACK(httpdns_merged_resolve_results);
+    httpdns_resolve_results_merge(&httpdns_resolve_results, &httpdns_merged_resolve_results);
+    httpdns_list_free(&httpdns_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    // 结果回调
+    httpdns_list_for_each_entry(result_cursor, &httpdns_merged_resolve_results) {
         httpdns_resolve_result_t *resolve_result = result_cursor->data;
         //添加结果
         httpdns_list_add(&param->resolve_context->result, resolve_result,
@@ -154,7 +160,7 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
             resolve_request->complete_callback_func(resolve_result, resolve_request->user_callback_param);
         }
     }
-    httpdns_list_free(&httpdns_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    httpdns_list_free(&httpdns_merged_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
 }
 
 

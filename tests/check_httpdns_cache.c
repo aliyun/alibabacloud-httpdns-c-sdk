@@ -6,6 +6,15 @@
 #include "httpdns_memory.h"
 #include "httpdns_time.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 static httpdns_cache_entry_t *create_test_cache_entry(char *cache_key, int ttl) {
     HTTPDNS_NEW_OBJECT_IN_HEAP(cache_entry, httpdns_cache_entry_t);
@@ -85,6 +94,7 @@ START_TEST(test_clean_cache) {
 Suite *make_httpdns_cache_suite(void) {
     Suite *suite = suite_create("HTTPDNS Cache Test");
     TCase *httpdns_cache = tcase_create("httpdns_cache");
+    tcase_add_unchecked_fixture(httpdns_cache, setup, teardown);
     suite_add_tcase(suite, httpdns_cache);
     tcase_add_test(httpdns_cache, test_miss_cache);
     tcase_add_test(httpdns_cache, test_hit_cache);

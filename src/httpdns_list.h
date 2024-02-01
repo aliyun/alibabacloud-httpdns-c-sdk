@@ -71,39 +71,33 @@ typedef sds (*data_to_string_function_ptr_t )(const void *data);
 
 void httpdns_list_init(struct list_head *head);
 
-/**
- *
- * @param head
- * @param data don't free data after httpdns_list_add, data will free when httpdns_list_free
- * @return
- */
 int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_function_ptr_t clone_func);
 
 int32_t httpdns_list_rotate(struct list_head *head);
 
 struct list_head *
-httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func);
+httpdns_list_dup(struct list_head *dst_head, const struct list_head *src_head, data_clone_function_ptr_t clone_func);
 
-void *httpdns_list_get(struct list_head *head, int index);
+void *httpdns_list_get(const struct list_head *head, int index);
 
-size_t httpdns_list_size(struct list_head *head);
+size_t httpdns_list_size(const struct list_head *head);
 
 void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_func);
 
 void httpdns_list_shuffle(struct list_head *head);
 
-bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func);
+bool httpdns_list_contain(const struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func);
 
-void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func);
+void *httpdns_list_min(const struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
-void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func);
+void *httpdns_list_max(const struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
 void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func);
 
-sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t to_string_func);
+sds httpdns_list_to_string(const struct list_head *head, data_to_string_function_ptr_t to_string_func);
 
-void *httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func);
+void *httpdns_list_search(const struct list_head *head, const void *target, data_search_function_ptr_t search_func);
 
-bool httpdns_list_is_end(httpdns_list_node_t *node, struct list_head *head);
+bool httpdns_list_is_end(const httpdns_list_node_t *node, const struct list_head *head);
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

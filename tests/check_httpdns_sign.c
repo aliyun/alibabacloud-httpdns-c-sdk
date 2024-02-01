@@ -3,10 +3,12 @@
 //
 #include "httpdns_sign.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
 
 static httpdns_signature_t *signature = NULL;
 
 static void setup(void) {
+    init_httpdns_sdk();
     struct timeval tv = {
             .tv_sec = 1706149424,
             .tv_usec = 0
@@ -18,6 +20,7 @@ static void teardown(void) {
     if (NULL != signature) {
         httpdns_signature_free(signature);
     }
+    cleanup_httpdns_sdk();
 }
 
 START_TEST(test_signature_sign) {

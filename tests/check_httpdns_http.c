@@ -4,7 +4,16 @@
 
 #include "httpdns_http.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
 
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 static bool test_exchange_single_request(char *url) {
     httpdns_http_context_t *http_context = httpdns_http_context_new(url, 10000);
@@ -74,6 +83,7 @@ END_TEST
 Suite *make_httpdns_http_suite(void) {
     Suite *suite = suite_create("HTTPDNS HTTP Client Test");
     TCase *httpdns_http = tcase_create("httpdns_http");
+    tcase_add_unchecked_fixture(httpdns_http, setup, teardown);
     suite_add_tcase(suite, httpdns_http);
     tcase_add_test(httpdns_http, test_exchange_singel_request_with_resolve);
     tcase_add_test(httpdns_http, test_exchange_singel_request_with_schedule);

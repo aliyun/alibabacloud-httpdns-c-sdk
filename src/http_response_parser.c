@@ -14,7 +14,7 @@ httpdns_schedule_response_t *httpdns_schedule_response_new() {
     return schedule_response;
 }
 
-sds httpdns_schedule_response_to_string(httpdns_schedule_response_t *response) {
+sds httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response) {
     if (NULL == response) {
         return sdsnew("httpdns_schedule_response_t()");
     }
@@ -48,7 +48,7 @@ httpdns_single_resolve_response_t *httpdns_single_resolve_response_new() {
 }
 
 
-sds httpdns_single_resolve_response_to_string(httpdns_single_resolve_response_t *response) {
+sds httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response) {
     if (NULL == response) {
         return sdsnew("httpdns_single_resolve_response_t()");
     }
@@ -104,7 +104,7 @@ httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new() {
     return multi_resolve_result;
 }
 
-sds httpdns_multi_resolve_response_to_string(httpdns_multi_resolve_response_t *response) {
+sds httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response) {
     if (NULL == response) {
         return sdsnew("httpdns_multi_resolve_response_t()");
     }
@@ -230,7 +230,7 @@ httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const cha
         return NULL;
     }
     httpdns_multi_resolve_response_t *mul_resolve_result = httpdns_multi_resolve_response_new();
-    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "results");
+    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "dns");
     if (NULL != dns_json) {
         int dns_size = cJSON_GetArraySize(dns_json);
         for (int i = 0; i < dns_size; i++) {

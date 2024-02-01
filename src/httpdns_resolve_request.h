@@ -70,11 +70,11 @@ void httpdns_resolve_request_set_callback(httpdns_resolve_request_t *request,
 httpdns_resolve_request_t *
 httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const char *resolver, const char *query_type);
 
-httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request_t *origin_resolve_request);
+httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_request_t *origin_resolve_request);
 
-sds httpdns_resolve_request_to_string(httpdns_resolve_request_t *request);
+sds httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request);
 
-int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request);
+int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request);
 
 void httpdns_resolve_request_free(httpdns_resolve_request_t *request);
 

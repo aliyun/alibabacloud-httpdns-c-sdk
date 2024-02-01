@@ -40,13 +40,14 @@ httpdns_config_t *get_httpdns_client_config();
  *  - HTTPDNS_QUERY_TYPE_AAAA       解析域名的AAAA记录
  *  - HTTPDNS_QUERY_TYPE_BOTH       同时解析域名的A和AAAA记录
  *  @param client_ip 可选，客户端ip, 默认为接口调用方的出口IP
- *  @return 解析结果
+ *  @return 解析结果，如果解析失败则返回NULL
  *  @note
  *      解析结果使用完毕后，需要调用httpdns_resolve_result_free进行释放，否则会造成内存泄露
  */
 httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_cache(const char *host,
                                                                       const char *query_type,
                                                                       const char *client_ip);
+
 /**
  *
  * 同步解析，阻塞线程，查询HTTPDNS服务器，直到结果返回或者超时
@@ -58,7 +59,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_cache(const char
  *  - HTTPDNS_QUERY_TYPE_AAAA       解析域名的AAAA记录
  *  - HTTPDNS_QUERY_TYPE_BOTH       同时解析域名的A和AAAA记录
  * @param client_ip 可选，客户端ip, 默认为接口调用方的出口IP
- *  @return 解析结果
+ *  @return 解析结果，如果解析失败则返回NULL
  *  @note
  *      解析结果使用完毕后，需要调用httpdns_resolve_result_free进行释放，否则会造成内存泄露
  */
@@ -88,6 +89,7 @@ batch_get_httpdns_result_for_hosts_sync_with_cache(struct list_head *hosts,
                                                    const char *query_type,
                                                    const char *client_ip,
                                                    struct list_head *results);
+
 /**
  *
  * 批量同步解析，阻塞线程，查询HTTPDNS服务器，直到结果返回或者超时
@@ -142,9 +144,53 @@ int32_t get_httpdns_result_for_host_async_with_cache(const char *host,
  *  @param client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  */
 int32_t get_httpdns_result_for_host_async_without_cache(const char *host,
-                                                     const char *query_type,
-                                                     const char *client_ip,
-                                                     httpdns_complete_callback_func_t cb,
-                                                     void *cb_param);
+                                                        const char *query_type,
+                                                        const char *client_ip,
+                                                        httpdns_complete_callback_func_t cb,
+                                                        void *cb_param);
+
+
+/**
+ *
+ * 批量异步解析，不阻塞线程，先查缓存，缓存为空则查询HTTPDNS服务器，直到结果返回或者超时
+ *
+ * @param hosts 待解析的域名列表
+ * @param query_type 解析类型，可选一下四种宏
+ *  - HTTPDNS_QUERY_TYPE_AUTO       根据网络类型自动解析对应类型的记录
+ *  - HTTPDNS_QUERY_TYPE_A          解析域名的A记录
+ *  - HTTPDNS_QUERY_TYPE_AAAA       解析域名的AAAA记录
+ *  - HTTPDNS_QUERY_TYPE_BOTH       同时解析域名的A和AAAA记录
+ *  @param client_ip 可选，客户端ip, 默认为接口调用方的出口IP
+ *  @return 函数调用结果，成功时为HTTPDNS_SUCCESS
+ *  @note
+ *      结果通过回调函数透出
+ */
+int32_t
+batch_get_httpdns_result_for_hosts_async_with_cache(struct list_head *hosts,
+                                                    const char *query_type,
+                                                    const char *client_ip,
+                                                    httpdns_complete_callback_func_t cb,
+                                                    void *cb_param);
+
+/**
+ *
+ * 批量异步解析，不阻塞调用线程，直接查询HTTPDNS服务器，直到结果返回或者超时
+ *
+ * @param host 待解析的域名
+ * @param query_type 解析类型，可选一下四种宏
+ *  - HTTPDNS_QUERY_TYPE_AUTO       根据网络类型自动解析对应类型的记录
+ *  - HTTPDNS_QUERY_TYPE_A          解析域名的A记录
+ *  - HTTPDNS_QUERY_TYPE_AAAA       解析域名的AAAA记录
+ *  - HTTPDNS_QUERY_TYPE_BOTH       同时解析域名的A和AAAA记录
+ *  @param client_ip 可选，客户端ip, 默认为接口调用方的出口IP
+ *  @return 函数调用结果，成功时为HTTPDNS_SUCCESS
+ *  @note
+ *      结果通过回调函数透出
+ */
+int32_t batch_get_httpdns_result_for_hosts_async_without_cache(struct list_head *hosts,
+                                                               const char *query_type,
+                                                               const char *client_ip,
+                                                               httpdns_complete_callback_func_t cb,
+                                                               void *cb_param);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H

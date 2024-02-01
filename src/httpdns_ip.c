@@ -9,7 +9,7 @@
 #include "httpdns_memory.h"
 
 
-sds httpdns_ip_to_string(httpdns_ip_t *httpdns_ip) {
+sds httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip) {
     if (NULL == httpdns_ip) {
         return sdsnew("httpdns_ip_t()");
     }
@@ -38,7 +38,7 @@ httpdns_ip_t *httpdns_ip_new(const char *ip) {
     return http_ip;
 }
 
-httpdns_ip_t *httpdns_ip_clone(httpdns_ip_t *origin_ip) {
+httpdns_ip_t *httpdns_ip_clone(const httpdns_ip_t *origin_ip) {
     if (NULL == origin_ip) {
         return NULL;
     }
@@ -50,7 +50,7 @@ httpdns_ip_t *httpdns_ip_clone(httpdns_ip_t *origin_ip) {
     return new_ip;
 }
 
-int32_t httpdns_ip_cmp(httpdns_ip_t *ip1, httpdns_ip_t *ip2) {
+int32_t httpdns_ip_cmp(const httpdns_ip_t *ip1, const httpdns_ip_t *ip2) {
     if (NULL == ip1 && NULL == ip2) {
         return 0;
     }
@@ -64,7 +64,7 @@ int32_t httpdns_ip_cmp(httpdns_ip_t *ip1, httpdns_ip_t *ip2) {
 }
 
 
-bool httpdns_ip_search(httpdns_ip_t *http_ip, char *ip) {
+bool httpdns_ip_search(const httpdns_ip_t *http_ip, const char *ip) {
     if (NULL != http_ip && NULL != ip) {
         return strcmp(http_ip->ip, ip) == 0;
     }

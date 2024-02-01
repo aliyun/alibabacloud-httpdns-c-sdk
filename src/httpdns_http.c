@@ -10,7 +10,7 @@
 #include "httpdns_string.h"
 #include "log.h"
 
-httpdns_http_context_t *httpdns_http_context_new(char *url, int32_t timeout_ms) {
+httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeout_ms) {
     if (IS_BLANK_STRING(url)) {
         log_info("create httpdns http context failed, url is blank");
         return NULL;
@@ -43,7 +43,7 @@ int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context
     return HTTPDNS_SUCCESS;
 }
 
-sds httpdns_http_context_to_string(httpdns_http_context_t *http_context) {
+sds httpdns_http_context_to_string(const httpdns_http_context_t *http_context) {
     if (NULL == http_context) {
         return sdsnew("httpdns_http_context_t()");
     }

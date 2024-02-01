@@ -4,6 +4,15 @@
 #include "httpdns_client.h"
 #include "httpdns_list.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 static httpdns_config_t *get_httpdns_config() {
     httpdns_config_t *config = httpdns_config_new();
@@ -95,6 +104,7 @@ END_TEST
 Suite *make_httpdns_client_suite(void) {
     Suite *suite = suite_create("HTTPDNS Client Test");
     TCase *httpdns_client = tcase_create("httpdns_client");
+    tcase_add_unchecked_fixture(httpdns_client, setup, teardown);
     suite_add_tcase(suite, httpdns_client);
     tcase_add_test(httpdns_client, test_simple_resolve_without_cache);
     tcase_add_test(httpdns_client, test_simple_resolve_with_cache);

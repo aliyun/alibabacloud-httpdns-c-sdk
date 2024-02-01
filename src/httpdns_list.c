@@ -46,7 +46,7 @@ int32_t httpdns_list_rotate(struct list_head *head) {
 
 
 struct list_head *
-httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_clone_function_ptr_t clone_func) {
+httpdns_list_dup(struct list_head *dst_head, const struct list_head *src_head, data_clone_function_ptr_t clone_func) {
     if (NULL == dst_head || NULL == src_head || NULL == clone_func) {
         return NULL;
     }
@@ -58,7 +58,7 @@ httpdns_list_dup(struct list_head *dst_head, struct list_head *src_head, data_cl
     return dst_head;
 }
 
-void *httpdns_list_get(struct list_head *head, int index) {
+void *httpdns_list_get(const struct list_head *head, int index) {
     if (NULL == head || index < 0) {
         return NULL;
     }
@@ -74,7 +74,7 @@ void *httpdns_list_get(struct list_head *head, int index) {
 }
 
 
-size_t httpdns_list_size(struct list_head *head) {
+size_t httpdns_list_size(const struct list_head *head) {
     if (NULL == head) {
         return 0;
     }
@@ -119,7 +119,7 @@ void httpdns_list_shuffle(struct list_head *head) {
     }
 }
 
-bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func) {
+bool httpdns_list_contain(const struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func) {
     if (NULL == head || NULL == data || NULL == cmp_func) {
         return false;
     }
@@ -132,7 +132,7 @@ bool httpdns_list_contain(struct list_head *head, const void *data, data_cmp_fun
     return false;
 }
 
-void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
+void *httpdns_list_min(const struct list_head *head, data_cmp_function_ptr_t cmp_func) {
     if (NULL == head || NULL == cmp_func) {
         return NULL;
     }
@@ -146,7 +146,7 @@ void *httpdns_list_min(struct list_head *head, data_cmp_function_ptr_t cmp_func)
     return min_data;
 }
 
-void *httpdns_list_max(struct list_head *head, data_cmp_function_ptr_t cmp_func) {
+void *httpdns_list_max(const struct list_head *head, data_cmp_function_ptr_t cmp_func) {
     if (NULL == head || NULL == cmp_func) {
         return NULL;
     }
@@ -182,7 +182,7 @@ void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func)
     }
 }
 
-sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t to_string_func) {
+sds httpdns_list_to_string(const struct list_head *head, data_to_string_function_ptr_t to_string_func) {
     if (NULL == head) {
         return sdsnew("[]");
     }
@@ -205,7 +205,7 @@ sds httpdns_list_to_string(struct list_head *head, data_to_string_function_ptr_t
 }
 
 
-void *httpdns_list_search(struct list_head *head, const void *target, data_search_function_ptr_t search_func) {
+void *httpdns_list_search(const struct list_head *head, const void *target, data_search_function_ptr_t search_func) {
     if (NULL == head || NULL == target || NULL == search_func) {
         return NULL;
     }
@@ -218,7 +218,7 @@ void *httpdns_list_search(struct list_head *head, const void *target, data_searc
     return NULL;
 }
 
-bool inline httpdns_list_is_end(httpdns_list_node_t *node, struct list_head *head) {
+bool inline httpdns_list_is_end(const httpdns_list_node_t *node, const struct list_head *head) {
     if (NULL == node || NULL == head) {
         return false;
     }

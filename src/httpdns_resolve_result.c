@@ -9,7 +9,7 @@
 #include "httpdns_ip.h"
 #include "httpdns_time.h"
 
-httpdns_resolve_result_t *httpdns_resolve_result_clone(httpdns_resolve_result_t *origin_result) {
+httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_result_t *origin_result) {
     if (NULL == origin_result) {
         log_info("clone resolve result failed, origin resolve result is NULL");
         return NULL;
@@ -38,7 +38,7 @@ httpdns_resolve_result_t *httpdns_resolve_result_clone(httpdns_resolve_result_t 
 }
 
 
-sds httpdns_resolve_result_to_string(httpdns_resolve_result_t *result) {
+sds httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result) {
     if (NULL == result) {
         return sdsnew("httpdns_resolve_result_t()");
     }
@@ -107,5 +107,46 @@ void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, cons
 void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool hit_cache) {
     if (NULL != result) {
         result->hit_cache = hit_cache;
+    }
+}
+
+int32_t httpdns_resolve_result_cmp(const httpdns_resolve_result_t *result1, const httpdns_resolve_result_t *result2) {
+    if (NULL == result1 && NULL == result2) {
+        return 0;
+    }
+    if (NULL == result1 && NULL != result2) {
+        return -1;
+    }
+    if (NULL != result1 && NULL == result2) {
+        return 1;
+    }
+    return strcmp(result1->host, result2->host);
+}
+
+void httpdns_resolve_results_merge(struct list_head *raw_results, struct list_head *merged_results) {
+    if (NULL == raw_results || NULL == merged_results) {
+        log_info("results merge failed, raw results or merged results is NULL");
+    }
+    httpdns_list_sort(raw_results, DATA_CMP_FUNC(httpdns_resolve_result_cmp));
+    httpdns_resolve_result_t *target_result = NULL;
+    httpdns_list_for_each_entry(curor, raw_results) {
+        httpdns_resolve_result_t *cur_result = curor->data;
+        if (NULL == target_result || strcmp(target_result->host, cur_result->host) != 0) {
+            target_result = httpdns_resolve_result_clone(cur_result);
+            httpdns_list_add(merged_results, target_result, NULL);
+        } else {
+            if(IS_NOT_EMPTY_LIST(&cur_result->ips) && IS_EMPTY_LIST(&target_result->ips)) {
+               httpdns_list_dup(&target_result->ips, &cur_result->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
+            }
+            if(IS_NOT_EMPTY_LIST(&cur_result->ipsv6) && IS_EMPTY_LIST(&target_result->ipsv6)) {
+                httpdns_list_dup(&target_result->ipsv6, &cur_result->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
+            }
+            if(cur_result->origin_ttl > target_result->origin_ttl) {
+                target_result->origin_ttl = cur_result->origin_ttl;
+            }
+            if(cur_result->ttl > target_result->ttl) {
+                target_result->ttl = cur_result->ttl;
+            }
+        }
     }
 }

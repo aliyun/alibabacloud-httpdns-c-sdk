@@ -5,6 +5,15 @@
 #include "httpdns_list.h"
 #include "sds.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 static size_t httpdns_list_string_diff(struct list_head *list1, struct list_head *list2) {
     size_t list1_size = httpdns_list_size(list1);
@@ -186,7 +195,8 @@ START_TEST(test_list_search) {
     char *search_result = httpdns_list_search(&list_head, search_target, DATA_SEARCH_FUNC(str_search_func));
     bool is_expected = strcmp(expected_val, search_result) == 0;
     sds list_str = httpdns_list_to_string(&list_head, NULL);
-    log_trace("test_list_search, list_str=%s, search_target=%s, search_result=%s", list_str, search_target, search_result);
+    log_trace("test_list_search, list_str=%s, search_target=%s, search_result=%s", list_str, search_target,
+              search_result);
     sdsfree(list_str);
     httpdns_list_free(&list_head, STRING_FREE_FUNC);
     ck_assert_msg(is_expected, "链表搜索结果不符合预期");
@@ -196,6 +206,7 @@ START_TEST(test_list_search) {
 Suite *make_httpdns_list_suite(void) {
     Suite *suite = suite_create("HTTPDNS List Test");
     TCase *httpdns_list = tcase_create("httpdns_list");
+    tcase_add_unchecked_fixture(httpdns_list, setup, teardown);
     suite_add_tcase(suite, httpdns_list);
     tcase_add_test(httpdns_list, test_list_add);
     tcase_add_test(httpdns_list, test_list_rotate);

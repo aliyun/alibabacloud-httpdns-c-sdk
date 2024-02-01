@@ -5,6 +5,16 @@
 #include "httpdns_time.h"
 #include "check_suit_list.h"
 #include "sds.h"
+#include "httpdns_global_config.h"
+
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 START_TEST(test_to_string) {
     struct timeval tv = {
@@ -48,6 +58,7 @@ END_TEST
 Suite *make_httpdns_time_suite(void) {
     Suite *suite = suite_create("HTTPDNS Time Test");
     TCase *httpdns_time = tcase_create("httpdns_time");
+    tcase_add_unchecked_fixture(httpdns_time, setup, teardown);
     suite_add_tcase(suite, httpdns_time);
     tcase_add_test(httpdns_time, test_to_string);
     tcase_add_test(httpdns_time, test_now);

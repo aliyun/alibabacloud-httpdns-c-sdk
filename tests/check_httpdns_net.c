@@ -4,10 +4,12 @@
 
 #include "net_stack_detector.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
 
 static httpdns_net_stack_detector_t *net_detector = NULL;
 
 static void setup(void) {
+    init_httpdns_sdk();
     net_detector = httpdns_net_stack_detector_new();
 }
 
@@ -15,6 +17,7 @@ static void teardown(void) {
     if (NULL != net_detector) {
         httpdns_net_stack_detector_free(net_detector);
     }
+    cleanup_httpdns_sdk();
 }
 
 START_TEST(test_net_detect_ipv4) {

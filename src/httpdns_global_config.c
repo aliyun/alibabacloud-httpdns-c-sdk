@@ -10,8 +10,13 @@
 
 static FILE *log_file = NULL;
 
+static volatile bool is_initialized = false;
+
 
 static void init_log() {
+    if (NULL != log_file) {
+        return;
+    }
     log_set_level(HTTPDNS_LOG_LEVEL);
     log_set_quiet(true);
     char log_file_path[1024] = MICRO_TO_STRING(LOG_FILE_PATH);
@@ -45,6 +50,8 @@ void init_httpdns_sdk() {
 
 void cleanup_httpdns_sdk() {
     curl_global_cleanup();
+    // 关闭之后，其他日志再使用就会失败
+    // 句柄已经加入到了logc的callback数组中了
     if (NULL != log_file) {
         fclose(log_file);
     }

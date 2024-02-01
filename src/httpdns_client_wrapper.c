@@ -7,6 +7,7 @@
 #include "httpdns_string.h"
 #include <pthread.h>
 #include "httpdns_memory.h"
+#include <string.h>
 
 static httpdns_client_t *httpdns_client = NULL;
 
@@ -43,13 +44,13 @@ httpdns_config_t *get_httpdns_client_config() {
 
 
 int32_t httpdns_client_env_cleanup() {
-    cleanup_httpdns_sdk();
     if (NULL != httpdns_config) {
         httpdns_config_free(httpdns_config);
     }
     if (NULL != httpdns_client) {
         httpdns_client_free(httpdns_client);
     }
+    cleanup_httpdns_sdk();
     return 0;
 }
 
@@ -97,9 +98,11 @@ static int32_t batch_get_httpdns_result_for_hosts(struct list_head *hosts,
                                                   const char *query_type,
                                                   const char *client_ip,
                                                   bool using_cache,
+                                                  httpdns_complete_callback_func_t cb,
+                                                  void *cb_param,
                                                   struct list_head *results) {
     if (IS_EMPTY_LIST(hosts) || IS_BLANK_STRING(query_type) || NULL == results) {
-        log_info("batch get httpdns failed, hosts or query type or resuts is NULL");
+        log_info("batch get httpdns failed, hosts or query type is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     httpdns_resolve_task_t *resolve_task = httpdns_resolve_task_new(httpdns_client);
@@ -125,6 +128,10 @@ static int32_t batch_get_httpdns_result_for_hosts(struct list_head *hosts,
             httpdns_resolve_request_set_client_ip(request, client_ip);
         }
         httpdns_resolve_request_set_using_cache(request, using_cache);
+        httpdns_resolve_request_set_using_multi(request, true);
+        httpdns_resolve_request_set_callback(request, cb, cb_param);
+        httpdns_resolve_request_set_timeout_ms(request, httpdns_config->timeout_ms);
+
         httpdns_resolve_task_add_request(resolve_task, request);
 
         sds request_str = httpdns_resolve_request_to_string(request);
@@ -152,7 +159,7 @@ int32_t batch_get_httpdns_result_for_hosts_sync_without_cache(struct list_head *
                                                               const char *query_type,
                                                               struct list_head *results,
                                                               const char *client_ip) {
-    return batch_get_httpdns_result_for_hosts(hosts, query_type, client_ip, false, results);
+    return batch_get_httpdns_result_for_hosts(hosts, query_type, client_ip, false, NULL, NULL, results);
 }
 
 int32_t
@@ -160,7 +167,7 @@ batch_get_httpdns_result_for_hosts_sync_with_cache(struct list_head *hosts,
                                                    const char *query_type,
                                                    const char *client_ip,
                                                    struct list_head *results) {
-    return batch_get_httpdns_result_for_hosts(hosts, query_type, client_ip, true, results);
+    return batch_get_httpdns_result_for_hosts(hosts, query_type, client_ip, true, NULL, NULL, results);
 }
 
 
@@ -170,11 +177,15 @@ typedef struct {
     const char *client_ip;
     bool using_cache;
     httpdns_complete_callback_func_t cb;
-    void *cb_param
+    void *cb_param;
 } private_httpdns_routine_arg_t;
 
 static void *httpdns_routine(void *arg) {
+#ifdef __APPLE__
     pthread_setname_np(__func__);
+#elif defined(__linux__)
+    pthread_setname_np(pthread_self(),__func__);
+#endif
     private_httpdns_routine_arg_t *routine_arg = arg;
 
 
@@ -242,4 +253,87 @@ int32_t get_httpdns_result_for_host_async_without_cache(const char *host,
                                                         httpdns_complete_callback_func_t cb,
                                                         void *cb_param) {
     return get_httpdns_result_for_host_async(host, query_type, client_ip, false, cb, cb_param);
+}
+
+
+typedef struct {
+    struct list_head *hosts;
+    const char *query_type;
+    const char *client_ip;
+    bool using_cache;
+    httpdns_complete_callback_func_t cb;
+    void *cb_param;
+} private_httpdns_batch_routine_arg_t;
+
+static void *httpdns_batch_routine(void *arg) {
+#ifdef __APPLE__
+    pthread_setname_np(__func__);
+#elif defined(__linux__)
+    pthread_setname_np(pthread_self(),__func__);
+#endif
+    private_httpdns_batch_routine_arg_t *batch_routine_arg = arg;
+
+    NEW_EMPTY_LIST_IN_STACK(results);
+    batch_get_httpdns_result_for_hosts(batch_routine_arg->hosts,
+                                       batch_routine_arg->query_type,
+                                       batch_routine_arg->client_ip,
+                                       batch_routine_arg->using_cache,
+                                       batch_routine_arg->cb,
+                                       batch_routine_arg->cb_param,
+                                       &results);
+
+    httpdns_list_free(&results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    free(arg);
+    pthread_exit(NULL);
+}
+
+
+static int32_t batch_get_httpdns_result_for_hosts_async(struct list_head *hosts,
+                                                        const char *query_type,
+                                                        const char *client_ip,
+                                                        bool using_cache,
+                                                        httpdns_complete_callback_func_t cb,
+                                                        void *cb_param) {
+    if (!is_initialized) {
+        log_info("batch_get_httpdns_result_for_hosts_async failed, httpdns client is not initialized");
+        return HTTPDNS_CLIENT_NOT_INITIALIZE;
+    }
+    if (IS_EMPTY_LIST(hosts) || IS_BLANK_STRING(query_type) || NULL == cb) {
+        log_info("batch_get_httpdns_result_for_hosts_async failed, hosts or query_type or cb is empty");
+        return HTTPDNS_PARAMETER_ERROR;
+    }
+
+    HTTPDNS_NEW_OBJECT_IN_HEAP(batch_routine_arg, private_httpdns_batch_routine_arg_t);
+    batch_routine_arg->hosts = hosts;
+    batch_routine_arg->query_type = query_type;
+    batch_routine_arg->client_ip = client_ip;
+    batch_routine_arg->cb = cb;
+    batch_routine_arg->using_cache = using_cache;
+    batch_routine_arg->cb_param = cb_param;
+
+    pthread_t tid;
+    int ret = pthread_create(&tid, NULL, httpdns_batch_routine, batch_routine_arg);
+    if (0 != ret) {
+        log_info("create thread error, ret %d", ret);
+        return HTTPDNS_THREAD_CREATE_FAIL_ERROR;
+    }
+    pthread_detach(tid);
+    return HTTPDNS_SUCCESS;
+}
+
+int32_t
+batch_get_httpdns_result_for_hosts_async_with_cache(struct list_head *hosts,
+                                                    const char *query_type,
+                                                    const char *client_ip,
+                                                    httpdns_complete_callback_func_t cb,
+                                                    void *cb_param) {
+    return batch_get_httpdns_result_for_hosts_async(hosts, query_type, client_ip, true, cb, cb_param);
+}
+
+int32_t batch_get_httpdns_result_for_hosts_async_without_cache(struct list_head *hosts,
+                                                               const char *query_type,
+                                                               const char *client_ip,
+                                                               httpdns_complete_callback_func_t cb,
+                                                               void *cb_param) {
+    return batch_get_httpdns_result_for_hosts_async(hosts, query_type, client_ip, false, cb, cb_param);
 }

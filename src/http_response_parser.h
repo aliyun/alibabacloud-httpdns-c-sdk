@@ -33,19 +33,19 @@ typedef struct {
 
 httpdns_schedule_response_t *httpdns_schedule_response_new();
 
-sds httpdns_schedule_response_to_string(httpdns_schedule_response_t *response);
+sds httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response);
 
 void httpdns_schedule_response_free(httpdns_schedule_response_t *response);
 
 httpdns_single_resolve_response_t *httpdns_single_resolve_response_new();
 
-sds httpdns_single_resolve_response_to_string(httpdns_single_resolve_response_t *response);
+sds httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response);
 
 void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *response);
 
 httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new();
 
-sds httpdns_multi_resolve_response_to_string(httpdns_multi_resolve_response_t *response);
+sds httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response);
 
 void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *response);
 

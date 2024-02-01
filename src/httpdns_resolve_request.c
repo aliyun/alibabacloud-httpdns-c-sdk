@@ -9,7 +9,7 @@
 #include "httpdns_string.h"
 
 
-int32_t httpdns_resolve_request_valid(httpdns_resolve_request_t *request) {
+int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
         log_info("resolve request valid failed, request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
@@ -85,7 +85,7 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
 }
 
 
-sds httpdns_resolve_request_to_string(httpdns_resolve_request_t *request) {
+sds httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
         return sdsnew("httpdns_resolve_request_t()");
     }
@@ -125,7 +125,7 @@ sds httpdns_resolve_request_to_string(httpdns_resolve_request_t *request) {
     return dst_str;
 }
 
-httpdns_resolve_request_t *httpdns_resolve_request_clone(httpdns_resolve_request_t *origin_resolve_request) {
+httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_request_t *origin_resolve_request) {
     if (NULL == origin_resolve_request) {
         log_info("resolve request clone failed, origin resolve reqeust is NULL");
         return NULL;

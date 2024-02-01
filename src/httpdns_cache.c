@@ -80,7 +80,8 @@ int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_c
     return HTTPDNS_SUCCESS;
 }
 
-httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, const char *dns_type) {
+httpdns_cache_entry_t *
+httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, const char *dns_type) {
     if (NULL == cache_table || NULL == key) {
         log_info("cache table get entry failed, table or cache_key is NULL");
         return NULL;
@@ -167,9 +168,10 @@ void httpdns_cache_table_free(httpdns_cache_table_t *cache_table) {
     if (NULL != cache_table) {
         httpdns_cache_table_clean(cache_table);
         dictRelease(cache_table->cache);
+        pthread_mutex_destroy(&cache_table->lock);
+        pthread_mutexattr_destroy(&cache_table->lock_attr);
+        free(cache_table);
     }
-    pthread_mutex_destroy(&cache_table->lock);
-    pthread_mutexattr_destroy(&cache_table->lock_attr);
 }
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry) {

@@ -114,7 +114,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
     return HTTPDNS_SUCCESS;
 }
 
-httpdns_resolve_context_t *httpdns_resolve_context_new(httpdns_resolve_request_t *request) {
+httpdns_resolve_context_t *httpdns_resolve_context_new(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
         log_info("create resolve context failed, request is NULL");
         return NULL;

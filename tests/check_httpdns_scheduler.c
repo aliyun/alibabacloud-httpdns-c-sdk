@@ -5,6 +5,17 @@
 #include "httpdns_list.h"
 #include "check_suit_list.h"
 #include "httpdns_ip.h"
+#include "pthread.h"
+#include "httpdns_global_config.h"
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
+
 
 START_TEST(test_refresh_resolve_servers) {
     httpdns_config_t *config = httpdns_config_new();
@@ -28,6 +39,9 @@ START_TEST(test_get_resolve_server) {
     };
     httpdns_list_init(&scheduler.ipv4_resolve_servers);
     httpdns_list_init(&scheduler.ipv6_resolve_servers);
+    pthread_mutexattr_init(&scheduler.lock_attr);
+    pthread_mutexattr_settype(&scheduler.lock_attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&scheduler.lock, &scheduler.lock_attr);
     httpdns_ip_t ip1 = {
             .ip = "1.1.1.1",
             .rt = 50
@@ -51,6 +65,8 @@ START_TEST(test_get_resolve_server) {
     httpdns_net_stack_detector_free(scheduler.net_stack_detector);
     sdsfree(schedule_ip);
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
+    pthread_mutex_destroy(&scheduler.lock);
+    pthread_mutexattr_init(&scheduler.lock_attr);
     ck_assert_msg(is_success, "未按照响应时间最小进行调度");
 }
 
@@ -60,6 +76,9 @@ START_TEST(test_scheduler_update) {
     httpdns_scheduler_t scheduler;
     httpdns_list_init(&scheduler.ipv4_resolve_servers);
     httpdns_list_init(&scheduler.ipv6_resolve_servers);
+    pthread_mutexattr_init(&scheduler.lock_attr);
+    pthread_mutexattr_settype(&scheduler.lock_attr, PTHREAD_MUTEX_RECURSIVE);
+    pthread_mutex_init(&scheduler.lock, &scheduler.lock_attr);
     httpdns_ip_t ip1 = {
             .ip = "1.1.1.1",
             .rt = 50
@@ -82,8 +101,10 @@ START_TEST(test_scheduler_update) {
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
     sdsfree(scheduler_str);
-    bool is_success = (ip3.rt == (int32_t)(DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - DELTA_WEIGHT_UPDATE_RATION) * 35));
+    bool is_success = (ip3.rt == (int32_t) (DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
+    pthread_mutex_destroy(&scheduler.lock);
+    pthread_mutexattr_init(&scheduler.lock_attr);
     ck_assert_msg(is_success, "更新reslover响应时间失败");
 }
 
@@ -93,6 +114,7 @@ END_TEST
 Suite *make_httpdns_scheduler_suite(void) {
     Suite *suite = suite_create("HTTPDNS Scheduler Test");
     TCase *httpdns_scheduler = tcase_create("httpdns_scheduler");
+    tcase_add_unchecked_fixture(httpdns_scheduler, setup, teardown);
     suite_add_tcase(suite, httpdns_scheduler);
     tcase_add_test(httpdns_scheduler, test_refresh_resolve_servers);
     tcase_add_test(httpdns_scheduler, test_get_resolve_server);

@@ -4,6 +4,16 @@
 #include "httpdns_resolver.h"
 #include "httpdns_http.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
+
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
+
 
 static void on_http_finish_callback(char *response_body,
                                     int32_t response_status,
@@ -93,6 +103,7 @@ END_TEST
 Suite *make_httpdns_resolver_suite(void) {
     Suite *suite = suite_create("HTTPDNS Resolver Test");
     TCase *httpdns_resolver = tcase_create("httpdns_resolver");
+    tcase_add_unchecked_fixture(httpdns_resolver, setup, teardown);
     suite_add_tcase(suite, httpdns_resolver);
     tcase_add_test(httpdns_resolver, test_single_resolve_task);
     tcase_add_test(httpdns_resolver, test_multi_resolve_task);

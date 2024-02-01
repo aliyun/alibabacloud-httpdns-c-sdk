@@ -21,14 +21,14 @@ typedef struct {
 
 httpdns_ip_t *httpdns_ip_new(const char *ip);
 
-sds httpdns_ip_to_string(httpdns_ip_t *httpdns_ip);
+sds httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip);
 
-httpdns_ip_t *httpdns_ip_clone(httpdns_ip_t *ip);
+httpdns_ip_t *httpdns_ip_clone(const httpdns_ip_t *ip);
 
 void httpdns_ip_free(httpdns_ip_t *ip);
 
-int32_t httpdns_ip_cmp(httpdns_ip_t *ip1, httpdns_ip_t *ip2);
+int32_t httpdns_ip_cmp(const httpdns_ip_t *ip1, const httpdns_ip_t *ip2);
 
-bool httpdns_ip_search(httpdns_ip_t *http_ip, char *ip);
+bool httpdns_ip_search(const httpdns_ip_t *http_ip, const char *ip);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_IP_H

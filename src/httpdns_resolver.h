@@ -52,7 +52,7 @@ int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param);
 
 int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params);
 
-httpdns_resolve_context_t *httpdns_resolve_context_new(httpdns_resolve_request_t *request);
+httpdns_resolve_context_t *httpdns_resolve_context_new(const httpdns_resolve_request_t *request);
 
 void httpdns_resolve_context_free(httpdns_resolve_context_t *resolve_context);
 

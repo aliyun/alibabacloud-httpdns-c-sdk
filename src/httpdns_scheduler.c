@@ -159,7 +159,7 @@ static int32_t update_server_rt(int32_t old_rt_val, int32_t new_rt_val) {
     return (int32_t) (new_rt_val * DELTA_WEIGHT_UPDATE_RATION + old_rt_val * (1.0 - DELTA_WEIGHT_UPDATE_RATION));
 }
 
-void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int32_t rt) {
+void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt) {
     if (IS_BLANK_STRING(server) || NULL == scheduler || rt <= 0) {
         log_info("httpdns scheduler upate failed, server or scheduler or rt is invalid");
         return;

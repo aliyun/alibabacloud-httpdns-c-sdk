@@ -50,7 +50,7 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
 httpdns_resolve_task_t *httpdns_resolve_task_new(httpdns_client_t *httpdns_client);
 
 
-int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, httpdns_resolve_request_t *request);
+int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, const httpdns_resolve_request_t *request);
 
 
 int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task);

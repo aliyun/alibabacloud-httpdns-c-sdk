@@ -4,7 +4,15 @@
 
 #include "http_response_parser.h"
 #include "check_suit_list.h"
+#include "httpdns_global_config.h"
 
+static void setup(void) {
+    init_httpdns_sdk();
+}
+
+static void teardown(void) {
+    cleanup_httpdns_sdk();
+}
 
 START_TEST(test_parse_schedule_response) {
     char *body = "{"
@@ -61,7 +69,7 @@ END_TEST
 
 START_TEST(test_parse_multi_resolve_response) {
     char *body = "{"
-                 "\"results\":[{"
+                 "\"dns\":[{"
                  "\"host\":\"www.aliyun.com\","
                  "\"client_ip\":\"47.96.236.37\","
                  "\"ips\":[\"47.118.227.116\"],"
@@ -94,6 +102,7 @@ END_TEST
 Suite *make_httpdns_response_suite(void) {
     Suite *suite = suite_create("HTTPDNS Response Parser Test");
     TCase *httpdns_response = tcase_create("httpdns_response");
+    tcase_add_unchecked_fixture(httpdns_response, setup, teardown);
     suite_add_tcase(suite, httpdns_response);
     tcase_add_test(httpdns_response, test_parse_schedule_response);
     tcase_add_test(httpdns_response, test_parse_single_resolve_response);

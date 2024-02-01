@@ -29,7 +29,7 @@ httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config);
 
 int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler);
 
-void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, char *server, int32_t rt);
+void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt);
 
 MUST_FREE char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
 

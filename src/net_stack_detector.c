@@ -101,7 +101,7 @@ net_stack_type_t detect_net_stack_by_dns(const char *probe_domain) {
 net_stack_type_t detect_net_stack(const char *probe_domain) {
     net_stack_type_t net_stack_type = detect_net_stack_by_udp();
     if (net_stack_type != IP_STACK_UNKNOWN) {
-        log_info("detect net stack by udp");
+        log_info("detect net stack by udp, type=%d", net_stack_type);
         return net_stack_type;
     }
     if (NULL == probe_domain) {
@@ -109,7 +109,7 @@ net_stack_type_t detect_net_stack(const char *probe_domain) {
     }
     net_stack_type = detect_net_stack_by_dns(probe_domain);
     if (net_stack_type != IP_STACK_UNKNOWN) {
-        log_debug("detect net stack by dns");
+        log_debug("detect net stack by dns, type=%d", net_stack_type);
         return net_stack_type;
     }
     log_info("no network stack available");

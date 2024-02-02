@@ -22,6 +22,8 @@ START_TEST(test_refresh_resolve_servers) {
     httpdns_config_set_account_id(config, "100000");
     httpdns_config_set_using_https(config, true);
     httpdns_scheduler_t *scheduler = httpdns_scheduler_new(config);
+    httpdns_net_stack_detector_t *net_stack_detector = httpdns_net_stack_detector_new();
+    httpdns_scheduler_set_net_stack_detector(scheduler, net_stack_detector);
     httpdns_scheduler_refresh(scheduler);
     bool is_success = httpdns_list_size(&scheduler->ipv4_resolve_servers) > 1
                       && httpdns_list_size(&scheduler->ipv6_resolve_servers) > 1;
@@ -30,6 +32,7 @@ START_TEST(test_refresh_resolve_servers) {
     sdsfree(scheduler_str);
     httpdns_config_free(config);
     httpdns_scheduler_free(scheduler);
+    httpdns_net_stack_detector_free(net_stack_detector);
     ck_assert_msg(is_success, "更新解析服务列表失败");
 }
 

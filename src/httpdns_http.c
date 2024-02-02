@@ -20,6 +20,8 @@ httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeou
     if (timeout_ms <= 0) {
         log_debug("request timeout is less than 0, using default %d", MAX_HTTP_REQUEST_TIMEOUT_MS);
         httpdns_http_ctx->request_timeout_ms = MAX_HTTP_REQUEST_TIMEOUT_MS;
+    } else {
+        httpdns_http_ctx->request_timeout_ms = timeout_ms;
     }
     httpdns_http_ctx->user_agent = sdsnew(USER_AGENT);
     return httpdns_http_ctx;
@@ -154,6 +156,10 @@ static int32_t ssl_cert_verify(CURL *curl) {
             ASN1_STRING *data = X509_NAME_ENTRY_get_data(entry);
             unsigned char *cn;
             ASN1_STRING_to_UTF8(&cn, data);
+            if (strcmp(SSL_VERIFY_HOST, cn) != 0) {
+                OPENSSL_free(cn);
+                goto free_cert_bio;
+            }
             httpdns_list_add(&host_names, cn, STRING_CLONE_FUNC);
             OPENSSL_free(cn);
 

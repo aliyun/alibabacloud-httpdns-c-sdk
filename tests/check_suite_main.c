@@ -23,9 +23,10 @@
 #include <stdlib.h>
 #include <check.h>
 #include "check_suit_list.h"
-#include "httpdns_global_config.h"
+#include "httpdns_log.h"
 
 int main(void) {
+    httpdns_log_start();
     int number_failed;
     SRunner *suite_runner = srunner_create(make_httpdns_time_suite());
     srunner_add_suite(suite_runner, make_httpdns_sign_suite());
@@ -44,5 +45,6 @@ int main(void) {
     srunner_run_all(suite_runner, CK_NORMAL);
     number_failed = srunner_ntests_failed(suite_runner);
     srunner_free(suite_runner);
+    httpdns_log_stop();
     return (number_failed == 0) ? EXIT_SUCCESS : EXIT_FAILURE;
 }

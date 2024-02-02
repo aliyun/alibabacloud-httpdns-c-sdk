@@ -57,7 +57,7 @@ START_TEST(test_get_httpdns_result_for_host_async) {
 END_TEST
 
 
-START_TEST(test_batch_get_httpdns_result_for_hosts_sync) {
+START_TEST(test_get_httpdns_results_for_hosts_sync) {
     NEW_EMPTY_LIST_IN_STACK(hosts);
     httpdns_list_add(&hosts, "www.aliyun.com", STRING_CLONE_FUNC);
     httpdns_list_add(&hosts, "www.taobao.com", STRING_CLONE_FUNC);
@@ -67,10 +67,10 @@ START_TEST(test_batch_get_httpdns_result_for_hosts_sync) {
     httpdns_list_add(&hosts, "www.tmall.com", STRING_CLONE_FUNC);
 
     NEW_EMPTY_LIST_IN_STACK(results);
-    int ret = batch_get_httpdns_result_for_hosts_sync_with_cache(&hosts, HTTPDNS_QUERY_TYPE_AUTO, NULL, &results);
+    int ret = get_httpdns_results_for_hosts_sync_with_cache(&hosts, HTTPDNS_QUERY_TYPE_AUTO, NULL, &results);
 
     sds results_str = httpdns_list_to_string(&results, DATA_TO_STRING_FUNC(httpdns_resolve_result_to_string));
-    log_trace("test_batch_get_httpdns_result_for_hosts_sync_with_cache, results %s", results_str);
+    log_trace("test_get_httpdns_results_for_hosts_sync_with_cache, results %s", results_str);
     sdsfree(results_str);
 
     bool is_success = HTTPDNS_SUCCESS == ret && httpdns_list_size(&results) == httpdns_list_size(&hosts);
@@ -81,7 +81,7 @@ START_TEST(test_batch_get_httpdns_result_for_hosts_sync) {
 
 END_TEST
 
-START_TEST(test_batch_get_httpdns_result_for_hosts_async) {
+START_TEST(test_get_httpdns_results_for_hosts_async) {
     NEW_EMPTY_LIST_IN_STACK(hosts);
     httpdns_list_add(&hosts, "www.aliyun.com", STRING_CLONE_FUNC);
     httpdns_list_add(&hosts, "www.taobao.com", STRING_CLONE_FUNC);
@@ -90,11 +90,11 @@ START_TEST(test_batch_get_httpdns_result_for_hosts_async) {
     httpdns_list_add(&hosts, "www.freshippo.com", STRING_CLONE_FUNC);
     httpdns_list_add(&hosts, "www.tmall.com", STRING_CLONE_FUNC);
     int32_t success_num = 0;
-    batch_get_httpdns_result_for_hosts_async_with_cache(&hosts,
-                                                        HTTPDNS_QUERY_TYPE_AUTO,
-                                                        NULL,
-                                                        httpdns_complete_callback_func,
-                                                        &success_num
+    get_httpdns_results_for_hosts_async_with_cache(&hosts,
+                                                   HTTPDNS_QUERY_TYPE_AUTO,
+                                                   NULL,
+                                                   httpdns_complete_callback_func,
+                                                   &success_num
     );
     sleep(5);
     bool is_success = success_num == httpdns_list_size(&hosts);
@@ -112,7 +112,7 @@ Suite *make_httpdns_client_wrapper_suite(void) {
     suite_add_tcase(suite, httpdns_client_wrapper);
     tcase_add_test(httpdns_client_wrapper, test_get_httpdns_result_for_host_sync);
     tcase_add_test(httpdns_client_wrapper, test_get_httpdns_result_for_host_async);
-    tcase_add_test(httpdns_client_wrapper, test_batch_get_httpdns_result_for_hosts_sync);
-    tcase_add_test(httpdns_client_wrapper, test_batch_get_httpdns_result_for_hosts_async);
+    tcase_add_test(httpdns_client_wrapper, test_get_httpdns_results_for_hosts_sync);
+    tcase_add_test(httpdns_client_wrapper, test_get_httpdns_results_for_hosts_async);
     return suite;
 }

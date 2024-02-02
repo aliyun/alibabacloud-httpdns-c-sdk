@@ -85,10 +85,10 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_without_cache(const c
  *      httpdns_list_free(results, DATA_FREE_FUNC(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
  */
 int32_t
-batch_get_httpdns_result_for_hosts_sync_with_cache(struct list_head *hosts,
-                                                   const char *query_type,
-                                                   const char *client_ip,
-                                                   struct list_head *results);
+get_httpdns_results_for_hosts_sync_with_cache(struct list_head *hosts,
+                                              const char *query_type,
+                                              const char *client_ip,
+                                              struct list_head *results);
 
 /**
  *
@@ -106,10 +106,10 @@ batch_get_httpdns_result_for_hosts_sync_with_cache(struct list_head *hosts,
  *  @note
  *      解析结果使用完毕后，需要调用httpdns_list_free(results, DATA_FREE_FUNC(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
  */
-int32_t batch_get_httpdns_result_for_hosts_sync_without_cache(struct list_head *hosts,
-                                                              const char *query_type,
-                                                              struct list_head *results,
-                                                              const char *client_ip);
+int32_t get_httpdns_results_for_hosts_sync_without_cache(struct list_head *hosts,
+                                                         const char *query_type,
+                                                         struct list_head *results,
+                                                         const char *client_ip);
 
 /**
  *
@@ -166,11 +166,11 @@ int32_t get_httpdns_result_for_host_async_without_cache(const char *host,
  *      结果通过回调函数透出
  */
 int32_t
-batch_get_httpdns_result_for_hosts_async_with_cache(struct list_head *hosts,
-                                                    const char *query_type,
-                                                    const char *client_ip,
-                                                    httpdns_complete_callback_func_t cb,
-                                                    void *cb_param);
+get_httpdns_results_for_hosts_async_with_cache(struct list_head *hosts,
+                                               const char *query_type,
+                                               const char *client_ip,
+                                               httpdns_complete_callback_func_t cb,
+                                               void *cb_param);
 
 /**
  *
@@ -187,10 +187,10 @@ batch_get_httpdns_result_for_hosts_async_with_cache(struct list_head *hosts,
  *  @note
  *      结果通过回调函数透出
  */
-int32_t batch_get_httpdns_result_for_hosts_async_without_cache(struct list_head *hosts,
-                                                               const char *query_type,
-                                                               const char *client_ip,
-                                                               httpdns_complete_callback_func_t cb,
-                                                               void *cb_param);
+int32_t get_httpdns_results_for_hosts_async_without_cache(struct list_head *hosts,
+                                                          const char *query_type,
+                                                          const char *client_ip,
+                                                          httpdns_complete_callback_func_t cb,
+                                                          void *cb_param);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H

@@ -20,16 +20,36 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     config->using_sign = false;
     config->fallbacking_localdns = true;
     config->timeout_ms = DEFAULT_TIMEOUT_MS;
-    config->region = sdsnew(REGION_CHINA_MAINLAND);
     config->sdk_version = sdsnew(SDK_VERSION);
     config->user_agent = sdsnew(USER_AGENT);
-
     httpdns_list_init(&config->pre_resolve_hosts);
     httpdns_list_init(&config->ipv4_boot_servers);
-    httpdns_list_add(&config->ipv4_boot_servers, DEFAULT_IPV4_BOOT_SERVER, STRING_CLONE_FUNC);
     httpdns_list_init(&config->ipv6_boot_servers);
-    httpdns_list_add(&config->ipv6_boot_servers, DEFAULT_IPV6_BOOT_SERVER, STRING_CLONE_FUNC);
 
+    char httpdns_region[10] = MICRO_TO_STRING(HTTPDNS_REGION);
+    config->region = sdsnew(httpdns_region);
+
+    if (strcmp(httpdns_region, REGION_SINGAPORE) == 0) {
+        httpdns_config_add_ipv4_boot_server(config, "161.117.200.122");
+        httpdns_config_add_ipv4_boot_server(config, "8.219.89.41");
+        httpdns_config_add_ipv6_boot_server(config, "240b:4000:f10::208");
+    } else if (strcmp(httpdns_region, REGION_HONG_KONG) == 0) {
+        httpdns_config_add_ipv4_boot_server(config, "47.56.234.194");
+        httpdns_config_add_ipv6_boot_server(config, "240b:4000:f10::208");
+    } else {
+        httpdns_config_add_ipv4_boot_server(config, DEFAULT_IPV4_BOOT_SERVER);
+        httpdns_config_add_ipv4_boot_server(config, "203.107.1.33");
+        httpdns_config_add_ipv4_boot_server(config, "203.107.1.66");
+        httpdns_config_add_ipv4_boot_server(config, "203.107.1.98");
+
+        httpdns_config_add_ipv6_boot_server(config, DEFAULT_IPV6_BOOT_SERVER);
+    }
+    // 设置默认调度入口
+    httpdns_config_add_ipv4_boot_server(config, DEFAULT_IPV4_BOOT_SERVER);
+    httpdns_config_add_ipv4_boot_server(config, "httpdns-sc.aliyuncs.com");
+
+    httpdns_config_add_ipv6_boot_server(config, DEFAULT_IPV6_BOOT_SERVER);
+    httpdns_config_add_ipv6_boot_server(config, "httpdns-sc.aliyuncs.com");
 }
 
 httpdns_config_t *httpdns_config_new() {

@@ -45,4 +45,10 @@ void httpdns_scheduler_free(httpdns_scheduler_t *scheduler);
 void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
                                               httpdns_net_stack_detector_t *net_stack_detector);
 
+void httpdns_scheduler_add_ipv4_resolve_server(httpdns_scheduler_t *scheduler,
+                                              const char* resolve_server);
+
+void httpdns_scheduler_add_ipv6_resolve_server(httpdns_scheduler_t *scheduler,
+                                               const char* resolve_server);
+
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SCHEDULER_H

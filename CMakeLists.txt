@@ -34,18 +34,24 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 
-# 配置文件
+# 配置日志等级
 if (DEFINED HTTPDNS_LOG_LEVEL)
     set(HTTPDNS_LOG_LEVEL ${HTTPDNS_LOG_LEVEL})
 else ()
     set(HTTPDNS_LOG_LEVEL LOG_INFO)
 endif ()
-
-#if (DEFINED LOG_FILE_PATH)
-#    set(LOG_FILE_PATH ${LOG_FILE_PATH})
-#else ()
-#    set(LOG_FILE_PATH "/tmp/httpdns.log")
-#endif ()
+# 配置日志文件路径
+if (DEFINED LOG_FILE_PATH)
+    set(LOG_FILE_PATH ${LOG_FILE_PATH})
+else ()
+    set(LOG_FILE_PATH "/tmp/httpdns.log")
+endif ()
+# 配置HTTPDNS集群
+if (DEFINED HTTPDNS_REGION)
+    set(HTTPDNS_REGION ${HTTPDNS_REGION})
+else ()
+    set(LOG_FILE_PATH "cn")
+endif ()
 
 
 configure_file(

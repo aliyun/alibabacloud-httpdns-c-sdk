@@ -18,11 +18,18 @@ typedef struct {
     int32_t rt;
 } httpdns_ip_t;
 
-
+/**
+ * must free using httpdns_ip_free
+ */
 httpdns_ip_t *httpdns_ip_new(const char *ip);
 
+/**
+ * must free using sdsfree
+ */
 sds httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip);
-
+/**
+ * must free using httpdns_ip_free
+ */
 httpdns_ip_t *httpdns_ip_clone(const httpdns_ip_t *ip);
 
 void httpdns_ip_free(httpdns_ip_t *ip);

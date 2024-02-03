@@ -7,7 +7,9 @@
 
 #include <time.h>
 #include <stdlib.h>
-
+/**
+ * must cleanup using cleanup_httpdns_sdk
+ */
 void init_httpdns_sdk();
 
 void cleanup_httpdns_sdk();

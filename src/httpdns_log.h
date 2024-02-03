@@ -7,7 +7,9 @@
 
 #include "log.h"
 #include "configuration.h"
-
+/**
+ * must free using httpdns_log_stop
+ */
 void httpdns_log_start();
 
 void httpdns_log_stop();

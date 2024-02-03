@@ -16,7 +16,8 @@
  * 初始化htptdns client 环境
  * @param account_id   HTTPDNS账户ip
  * @param secret_key   HTTPDNS加签秘钥，如果设置为空则采用非加签访问
- * @return
+ * @note must free using httpdns_client_env_cleanup
+ *
  */
 int32_t httpdns_client_env_init(const char *account_id,
                                 const char *secret_key);

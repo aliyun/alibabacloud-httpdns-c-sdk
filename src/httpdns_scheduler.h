@@ -24,15 +24,20 @@ typedef struct {
     pthread_mutexattr_t lock_attr;
 } httpdns_scheduler_t;
 
-
+/**
+ * must free using httpdns_scheduler_free
+ */
 httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config);
 
 int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt);
 
-MUST_FREE char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
+char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
 
+/**
+ * must free using sdsfree
+ */
 sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_free(httpdns_scheduler_t *scheduler);

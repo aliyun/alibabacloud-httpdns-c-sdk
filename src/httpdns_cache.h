@@ -18,7 +18,9 @@ typedef struct {
 typedef httpdns_resolve_result_t httpdns_cache_entry_t;
 
 void httpdns_cache_entry_free(httpdns_cache_entry_t *entry);
-
+/**
+ * must free using httpdns_cache_table_free
+ */
 httpdns_cache_table_t *httpdns_cache_table_new();
 
 int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry);

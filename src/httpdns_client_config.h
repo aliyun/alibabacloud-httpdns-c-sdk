@@ -43,6 +43,7 @@ typedef struct {
 /**
  * @description create a empty httpdns client config, should set config params manually
  * @return empty httpdns clent config
+ * @note must free using httpdns_config_free
  */
 httpdns_config_t *httpdns_config_new();
 

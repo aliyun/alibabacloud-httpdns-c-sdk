@@ -34,13 +34,17 @@ typedef struct {
     void *private_data;
 } httpdns_http_context_t;
 
-
+/**
+ * must free using httpdns_http_context_free
+ */
 httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeout_ms);
 
 int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_context, void *private_data);
 
 int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context, const char *user_agent);
-
+/**
+ * must free using sdsfree
+ */
 sds httpdns_http_context_to_string(const httpdns_http_context_t *http_context);
 
 void httpdns_http_context_free(httpdns_http_context_t *http_context);

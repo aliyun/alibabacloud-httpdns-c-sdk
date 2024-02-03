@@ -54,7 +54,9 @@ typedef struct {
     volatile bool using_cache;
 } httpdns_net_stack_detector_t;
 
-
+/**
+ * must free using httpdns_net_stack_detector_free
+ */
 httpdns_net_stack_detector_t *httpdns_net_stack_detector_new();
 
 void httpdns_net_stack_detector_free(httpdns_net_stack_detector_t *detector);

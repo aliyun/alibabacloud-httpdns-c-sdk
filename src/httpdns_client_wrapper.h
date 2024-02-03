@@ -1,4 +1,6 @@
 //
+// 面向上层应用的接口封装，提升SDK易用性
+//
 // Created by caogaoshuai on 2024/1/31.
 //
 

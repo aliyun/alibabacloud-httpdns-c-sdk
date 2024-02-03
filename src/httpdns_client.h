@@ -1,4 +1,7 @@
 //
+// HTTPDNS组件集成，实现HTTPDNS解析功能，组件包括
+// 网络环境检测、解析器、缓存、调度器
+//
 // Created by caogaoshuai on 2024/1/22.
 //
 

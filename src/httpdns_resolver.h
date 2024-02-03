@@ -1,4 +1,6 @@
 //
+// 把HTTPDNS解析的相关参数转化为HTTPDNS请求，并通过回调透出HTTPDNS响应结果
+//
 // Created by caogaoshuai on 2024/1/9.
 //
 

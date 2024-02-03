@@ -1,4 +1,6 @@
 //
+//负责HTTPDNS服务端响应报文解析
+//
 // Created by caogaoshuai on 2024/1/19.
 //
 

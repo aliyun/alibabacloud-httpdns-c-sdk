@@ -1,4 +1,6 @@
 //
+//负责与HTTPDNS服务端的HTTP交互，主要包括请求和响应
+//
 // Created by caogaoshuai on 2024/1/10.
 //
 

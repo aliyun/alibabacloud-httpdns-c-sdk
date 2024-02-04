@@ -15,16 +15,14 @@ static void teardown(void) {
 }
 
 
-static void on_http_finish_callback(char *response_body,
-                                    int32_t response_status,
-                                    int32_t response_rt_ms,
+static void on_http_finish_callback(httpdns_http_context_t *http_context,
                                     void *user_callback_param) {
-    log_trace("on_http_finish_callback, body=%s, response_status=%d, response_rt_ms=%d", response_body, response_status,
-              response_rt_ms);
-    (void) response_body;
-    (void) response_rt_ms;
+    sds http_context_str = httpdns_http_context_to_string(http_context);
+    log_trace("on_http_finish_callback, %s", http_context_str);
+    sdsfree(http_context_str);
+
     bool *is_success = (bool *) (user_callback_param);
-    *is_success = (HTTP_STATUS_OK == response_status);
+    *is_success = (HTTP_STATUS_OK == http_context->response_status);
 }
 
 static httpdns_resolve_param_t *build_resolve_param(httpdns_resolve_request_t *request, bool *is_success) {

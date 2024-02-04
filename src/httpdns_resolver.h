@@ -35,7 +35,7 @@
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AUTO, type) == 0)
 
 
-typedef void (*http_complete_callback_func_t)(char *response_body, int32_t response_status, int32_t response_rt_ms,
+typedef void (*http_complete_callback_func_t)(httpdns_http_context_t *httpdns_context,
                                               void *user_callback_param);
 
 typedef struct {

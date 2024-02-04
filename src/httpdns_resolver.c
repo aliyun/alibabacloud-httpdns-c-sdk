@@ -104,9 +104,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
         httpdns_resolve_param_t *resolve_param = http_context->private_data;
         if (NULL != resolve_param->http_complete_callback_func) {
             resolve_param->http_complete_callback_func(
-                    http_context->response_body,
-                    http_context->response_status,
-                    http_context->response_rt_ms,
+                    http_context,
                     resolve_param->user_http_complete_callback_param);
         }
     }

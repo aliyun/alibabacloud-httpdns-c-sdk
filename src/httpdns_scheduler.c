@@ -150,12 +150,9 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
             httpdns_parse_body(http_context->response_body, scheduler);
             log_info("try server %s fetch resolve server success", cur_entry->data);
         } else {
-            log_info("httpdns scheduler exchange http request failed, "
-                     "response_body=%s, response_status=%d, response_rt=%d",
-                     http_context->response_body,
-                     http_context->response_status,
-                     http_context->response_rt_ms
-            );
+            sds http_context_str = httpdns_http_context_to_string(http_context);
+            log_info("httpdns scheduler exchange http request failed, http context is %s ", http_context_str);
+            sdsfree(http_context_str);
         }
         httpdns_http_context_free(http_context);
         if (success) {

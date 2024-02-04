@@ -103,21 +103,25 @@ static httpdns_resolve_result_t *single_resolve_response_to_result(httpdns_singl
     return result;
 }
 
-static void on_http_complete_callback_func(char *response_body, int32_t response_status, int32_t response_rt_ms,
+static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
                                            void *user_callback_param) {
-    log_debug("http response(response_body=%s,response_status=%d,response_rt_ms=%d)",
-              response_body, response_status, response_rt_ms);
+    sds http_context_str = httpdns_http_context_to_string(http_context);
+    log_debug("on_http_complete_callback_func %s", http_context_str);
+    sdsfree(http_context_str);
+
     if (NULL == user_callback_param) {
         log_debug("user callback param is NULL, skip");
         return;
     }
+
     on_http_finish_callback_param_t *param = (on_http_finish_callback_param_t *) user_callback_param;
     httpdns_resolve_context_t *resolve_context = param->resolve_context;
     httpdns_resolve_request_t *resolve_request = resolve_context->request;
     httpdns_scheduler_t *scheduler = param->scheduler;
-    if (response_status != HTTP_STATUS_OK) {
-        log_info("http response exception, response(response_body=%s,response_status=%d,response_rt_ms=%d)",
-                 response_body, response_status, response_rt_ms);
+    if (http_context->response_status != HTTP_STATUS_OK) {
+        sds http_context_str = httpdns_http_context_to_string(http_context);
+        log_info("http response exception, httpdns_conxtext %s", http_context_str);
+        sdsfree(http_context_str);
         char *resolver = resolve_context->request->resolver;
         httpdns_scheduler_update(param->scheduler, resolver, MAX_HTTP_REQUEST_TIMEOUT_MS);
         return;
@@ -125,7 +129,7 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
     // 结果收集
     NEW_EMPTY_LIST_IN_STACK(httpdns_resolve_results);
     if (resolve_request->using_multi) {
-        httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(response_body);
+        httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(http_context->response_body);
         httpdns_list_dup(&httpdns_resolve_results, &response->dns, DATA_CLONE_FUNC(single_resolve_response_to_result));
         httpdns_multi_resolve_response_free(response);
         httpdns_list_for_each_entry(resolve_result_cursor, &httpdns_resolve_results) {
@@ -133,7 +137,7 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
             httpdns_resolve_result_set_cache_key(result, result->host);
         }
     } else {
-        httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(response_body);
+        httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(http_context->response_body);
         httpdns_resolve_result_t *result = single_resolve_response_to_result(response);
         httpdns_resolve_result_set_cache_key(result, resolve_request->cache_key);
         httpdns_list_add(&httpdns_resolve_results, result, NULL);
@@ -154,7 +158,7 @@ static void on_http_complete_callback_func(char *response_body, int32_t response
             httpdns_cache_table_update(param->cache_table, resolve_result);
         }
         //更新调度器
-        httpdns_scheduler_update(scheduler, resolve_request->resolver, response_rt_ms);
+        httpdns_scheduler_update(scheduler, resolve_request->resolver, http_context->response_rt_ms);
         //用户自定义回调
         if (NULL != resolve_request->complete_callback_func) {
             resolve_request->complete_callback_func(resolve_result, resolve_request->user_callback_param);

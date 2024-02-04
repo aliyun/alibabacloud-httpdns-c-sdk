@@ -3,5 +3,5 @@
 #define HTTPDNS_LOG_LEVEL       LOG_INFO
 #define LOG_FILE_PATH           /tmp/httpdns.log
 #define HTTPDNS_REGION          cn
-#define HTTPDNS_RETRY_TIMES     1
+#define HTTPDNS_RETRY_TIMES     2
 

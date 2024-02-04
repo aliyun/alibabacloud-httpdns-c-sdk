@@ -277,7 +277,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
             // 重试时更换服务IP
             httpdns_resolve_param_t *new_resolve_param = httpdns_resolve_param_new(resolve_param->request);
             sds new_resolver=httpdns_scheduler_get(scheduler);
-            httpdns_resolve_request_set_resolver(resolve_param->request->resolver, new_resolver);
+            httpdns_resolve_request_set_resolver(new_resolve_param->request, new_resolver);
             sdsfree(new_resolver);
 
             // 这里不释放参数，只进行参数传递

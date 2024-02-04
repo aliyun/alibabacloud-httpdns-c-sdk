@@ -50,7 +50,7 @@ endif ()
 if (DEFINED HTTPDNS_REGION)
     set(HTTPDNS_REGION ${HTTPDNS_REGION})
 else ()
-    set(LOG_FILE_PATH "cn")
+    set(HTTPDNS_REGION "cn")
 endif ()
 
 

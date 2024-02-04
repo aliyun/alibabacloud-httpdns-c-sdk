@@ -246,11 +246,11 @@ int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
         bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
         if (using_https) {
             curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+            curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         }
         curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);
         curl_easy_setopt(handle, CURLOPT_WRITEDATA, http_context);
-        curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
         curl_easy_setopt(handle, CURLOPT_USERAGENT, http_context->user_agent);
         /**
@@ -288,7 +288,7 @@ int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
             if (NULL != http_context) {
                 bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
 #ifdef __APPLE__
-                bool very_https_cert_success = (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
+                bool very_https_cert_success = using_https && (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
 #else
                 bool very_https_cert_success = true;
 #endif

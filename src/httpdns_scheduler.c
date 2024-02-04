@@ -84,6 +84,8 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
                 httpdns_config_add_ipv6_boot_server(httpdns_config, ipv6_resolve_server_cursor->data);
             }
         }
+        // 设置默认降级解析服务器
+        httpdns_scheduler_add_ipv4_resolve_server(scheduler, DEFAULT_IPV4_BOOT_SERVER);
         pthread_mutex_unlock(&scheduler->lock);
         httpdns_schedule_response_free(schedule_response);
         return;

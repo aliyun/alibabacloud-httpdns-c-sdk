@@ -16,6 +16,7 @@
 #define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
 #define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
 #define DEFAULT_TIMEOUT_MS         3000L
+#define DEFAULT_RETRY_TIMES        1
 #define REGION_CHINA_MAINLAND      "cn"
 #define REGION_HONG_KONG           "hk"
 #define REGION_SINGAPORE           "sg"
@@ -27,6 +28,7 @@ typedef struct {
     char *probe_domain;  //default www.taobao.com
     char *region;  //default cn, cn china ; sg singapore; hk HongKong
     int32_t timeout_ms; // max timeout in the whole process of http request, default 5000 ms, max value 5000
+    int32_t retry_times; // retry times when one of servers failed
     char *sdk_version;
     char *user_agent;
     bool using_async;  // default true, false synchronously, true asynchronously
@@ -144,6 +146,8 @@ int32_t httpdns_config_add_ipv4_boot_server(httpdns_config_t *config, const char
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
 int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char *boot_server);
+
+int32_t httpdns_config_set_retry_times(httpdns_config_t *config, int32_t retry_times);
 
 /**
  * check if given config is valid

@@ -20,6 +20,11 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     config->using_sign = false;
     config->fallbacking_localdns = true;
     config->timeout_ms = DEFAULT_TIMEOUT_MS;
+#ifdef HTTPDNS_RETRY_TIMES
+    config->retry_times = HTTPDNS_RETRY_TIMES;
+#else
+    config->retry_times = DEFAULT_RETRY_TIMES;
+#endif
     config->sdk_version = sdsnew(SDK_VERSION);
     config->user_agent = sdsnew(USER_AGENT);
     httpdns_list_init(&config->pre_resolve_hosts);
@@ -170,6 +175,16 @@ int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char
     }
     log_info("httpdns config set ipv6 boot server failed, boot_server %s have been exist", boot_server);
     return HTTPDNS_LIST_NODE_DUPLICATED;
+}
+
+
+int32_t httpdns_config_set_retry_times(httpdns_config_t *config, int32_t retry_times) {
+    if (config == NULL || retry_times <= 0) {
+        log_info("httpdns config set timeout failed, config or timeout_ms param is null");
+        return HTTPDNS_PARAMETER_ERROR;
+    }
+    config->retry_times = retry_times;
+    return HTTPDNS_SUCCESS;
 }
 
 int32_t httpdns_config_valid(httpdns_config_t *config) {

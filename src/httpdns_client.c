@@ -118,6 +118,7 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
     httpdns_resolve_context_t *resolve_context = param->resolve_context;
     httpdns_resolve_request_t *resolve_request = resolve_context->request;
     httpdns_scheduler_t *scheduler = param->scheduler;
+    param->retry_times = param->retry_times - 1;
     if (http_context->response_status != HTTP_STATUS_OK) {
         sds http_context_str = httpdns_http_context_to_string(http_context);
         log_info("http response exception, httpdns_conxtext %s", http_context_str);
@@ -165,6 +166,7 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
         }
     }
     httpdns_list_free(&httpdns_merged_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    param->is_completed = true;
 }
 
 
@@ -210,6 +212,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     httpdns_cache_table_t *cache_table = task->httpdns_client->cache;
     httpdns_scheduler_t *scheduler = task->httpdns_client->scheduler;
     httpdns_net_stack_detector_t *net_stack_detector = task->httpdns_client->net_stack_detector;
+    httpdns_config_t *config = task->httpdns_client->config;
     NEW_EMPTY_LIST_IN_STACK(resolve_params);
     httpdns_list_for_each_entry(resolve_context_cursor, &task->resolve_contexts) {
         httpdns_resolve_context_t *resolve_context = resolve_context_cursor->data;
@@ -240,19 +243,57 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
                 continue;
             }
         }
-        HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_param, httpdns_resolve_param_t);
-        resolve_param->request = httpdns_resolve_request_clone(resolve_context->request);
+        httpdns_resolve_param_t *resolve_param = httpdns_resolve_param_new(resolve_context->request);
         httpdns_resolve_request_set_query_type(resolve_param->request, query_dns_type);
+
         HTTPDNS_NEW_OBJECT_IN_HEAP(on_http_finish_callback_param, on_http_finish_callback_param_t);
         on_http_finish_callback_param->cache_table = cache_table;
         on_http_finish_callback_param->resolve_context = resolve_context;
         on_http_finish_callback_param->scheduler = scheduler;
+        on_http_finish_callback_param->retry_times = config->retry_times;
+        on_http_finish_callback_param->is_completed = false;
+
         resolve_param->user_http_complete_callback_param = on_http_finish_callback_param;
         resolve_param->callback_param_free_func = DATA_FREE_FUNC(on_http_finish_callback_param_free);
         resolve_param->http_complete_callback_func = on_http_complete_callback_func;
+
+
         httpdns_list_add(&resolve_params, resolve_param, NULL);
     }
-    httpdns_resolver_multi_resolve(&resolve_params);
+    // 多轮执行
+    int32_t query_resolve_param_size;
+    do {
+        query_resolve_param_size = 0;
+        NEW_EMPTY_LIST_IN_STACK(query_reoslve_params);
+        httpdns_list_for_each_entry(resolve_param_curosr, &resolve_params) {
+            httpdns_resolve_param_t *resolve_param = resolve_param_curosr->data;
+            on_http_finish_callback_param_t *on_http_finish_callback_param = resolve_param->user_http_complete_callback_param;
+            if (on_http_finish_callback_param->is_completed) {
+                continue;
+            }
+            if (on_http_finish_callback_param->retry_times < 0) {
+                continue;
+            }
+            // 重试时更换服务IP
+            httpdns_resolve_param_t *new_resolve_param = httpdns_resolve_param_new(resolve_param->request);
+            sds new_resolver=httpdns_scheduler_get(scheduler);
+            httpdns_resolve_request_set_resolver(resolve_param->request->resolver, new_resolver);
+            sdsfree(new_resolver);
+
+            // 这里不释放参数，只进行参数传递
+            new_resolve_param->callback_param_free_func = NULL;
+            new_resolve_param->http_complete_callback_func = resolve_param->http_complete_callback_func;
+            new_resolve_param->user_http_complete_callback_param = resolve_param->user_http_complete_callback_param;
+
+            query_resolve_param_size++;
+
+            httpdns_list_add(&query_reoslve_params, new_resolve_param, NULL);
+        }
+        httpdns_resolver_multi_resolve(&query_reoslve_params);
+        httpdns_list_free(&query_reoslve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+    } while (query_resolve_param_size > 0);
+
+
     httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
     return HTTPDNS_SUCCESS;
 }

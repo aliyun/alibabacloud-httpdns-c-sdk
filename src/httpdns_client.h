@@ -32,6 +32,8 @@ typedef struct {
     httpdns_resolve_context_t *resolve_context;
     httpdns_cache_table_t *cache_table;
     httpdns_scheduler_t *scheduler;
+    int32_t retry_times;
+    bool is_completed;
 } on_http_finish_callback_param_t;
 
 /**

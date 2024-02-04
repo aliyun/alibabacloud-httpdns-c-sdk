@@ -117,6 +117,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         log_info("refresh resolver list failed, first entry is NULL");
         return HTTPDNS_BOOT_SERVER_EMPTY;
     }
+    // 轮询启动IP， 更新IP
     do {
         sds url = sdsnew(http_scheme);
         url = sdscat(url, cur_entry->data);

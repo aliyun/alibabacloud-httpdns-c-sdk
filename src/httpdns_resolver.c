@@ -29,6 +29,11 @@ int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) 
     return ret;
 }
 
+static bool is_valid_ipv6(const char *ipv6) {
+    struct in6_addr addr6;
+    return inet_pton(AF_INET6, ipv6, &addr6) == 1;
+}
+
 int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
     if (NULL == resolve_params) {
         log_info("multi resolve failed, resolve_params is NULL");
@@ -45,10 +50,6 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
     httpdns_list_for_each_entry(param_cursor, resolve_params) {
         httpdns_resolve_param_t *resolve_param = param_cursor->data;
         httpdns_resolve_request_t *request = resolve_param->request;
-        if (HTTPDNS_SUCCESS != httpdns_resolve_request_valid(request)) {
-            log_info("httpdns resolve request is invalid, skip");
-            continue;
-        }
 
         sds request_str = httpdns_resolve_request_to_string(request);
         log_debug("multi resolve request %s", request_str);
@@ -59,7 +60,13 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
         const char *http_api = request->using_multi ? (using_sign ? HTTPDNS_API_SIGN_RESOLVE : HTTPDNS_API_RESOLVE)
                                                     : (using_sign ? HTTPDNS_API_SIGN_D : HTTPDNS_API_D);
         sds url = sdsnew(http_scheme);
+        if (is_valid_ipv6(request->resolver)) {
+            SDS_CAT(url, "[");
+        }
         SDS_CAT(url, request->resolver);
+        if (is_valid_ipv6(request->resolver)) {
+            SDS_CAT(url, "]");
+        }
         SDS_CAT(url, "/");
         SDS_CAT(url, request->account_id);
         SDS_CAT(url, http_api);

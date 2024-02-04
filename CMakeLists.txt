@@ -53,6 +53,13 @@ else ()
     set(HTTPDNS_REGION "cn")
 endif ()
 
+# 配置HTTPDNS失败重试次数
+if (DEFINED HTTPDNS_RETRY_TIMES)
+    set(HTTPDNS_RETRY_TIMES ${HTTPDNS_RETRY_TIMES})
+else ()
+    set(HTTPDNS_RETRY_TIMES 1)
+endif ()
+
 
 configure_file(
         "${CMAKE_SOURCE_DIR}/configuration.h.in"

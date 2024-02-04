@@ -276,7 +276,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
             }
             // 重试时更换服务IP
             httpdns_resolve_param_t *new_resolve_param = httpdns_resolve_param_new(resolve_param->request);
-            sds new_resolver=httpdns_scheduler_get(scheduler);
+            sds new_resolver = httpdns_scheduler_get(scheduler);
             httpdns_resolve_request_set_resolver(new_resolve_param->request, new_resolver);
             sdsfree(new_resolver);
 
@@ -289,8 +289,10 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
 
             httpdns_list_add(&query_reoslve_params, new_resolve_param, NULL);
         }
-        httpdns_resolver_multi_resolve(&query_reoslve_params);
-        httpdns_list_free(&query_reoslve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+        if (query_resolve_param_size > 0) {
+            httpdns_resolver_multi_resolve(&query_reoslve_params);
+            httpdns_list_free(&query_reoslve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+        }
     } while (query_resolve_param_size > 0);
 
 

@@ -33,4 +33,6 @@ Suite *make_httpdns_client_suite(void);
 
 Suite *make_httpdns_client_wrapper_suite(void);
 
+Suite *make_httpdns_localdns_suite(void);
+
 #endif //HTTPDNS_C_SDK_CHECK_SUIT_LIST_H

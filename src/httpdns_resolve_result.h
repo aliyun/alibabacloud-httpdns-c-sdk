@@ -26,6 +26,7 @@ typedef struct {
     bool hit_cache;
 } httpdns_resolve_result_t;
 
+httpdns_resolve_result_t *httpdns_resolve_result_new();
 
 void httpdns_resolve_result_free(httpdns_resolve_result_t *result);
 

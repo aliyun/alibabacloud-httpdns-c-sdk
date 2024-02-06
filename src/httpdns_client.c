@@ -83,7 +83,7 @@ static httpdns_resolve_result_t *single_resolve_response_to_result(httpdns_singl
     if (NULL == response) {
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(result, httpdns_resolve_result_t);
+    httpdns_resolve_result_t *result = httpdns_resolve_result_new();
     if (NULL != response->host) {
         result->host = sdsnew(response->host);
         result->cache_key = sdsnew(response->host);
@@ -138,7 +138,8 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
             httpdns_resolve_result_set_cache_key(result, result->host);
         }
     } else {
-        httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(http_context->response_body);
+        httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(
+                http_context->response_body);
         httpdns_resolve_result_t *result = single_resolve_response_to_result(response);
         httpdns_resolve_result_set_cache_key(result, resolve_request->cache_key);
         httpdns_list_add(&httpdns_resolve_results, result, NULL);

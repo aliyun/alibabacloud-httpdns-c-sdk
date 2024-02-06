@@ -9,12 +9,20 @@
 #include "httpdns_ip.h"
 #include "httpdns_time.h"
 
+httpdns_resolve_result_t *httpdns_resolve_result_new() {
+    HTTPDNS_NEW_OBJECT_IN_HEAP(result, httpdns_resolve_result_t);
+    httpdns_list_init(&result->ips);
+    httpdns_list_init(&result->ipsv6);
+    return result;
+}
+
+
 httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_result_t *origin_result) {
     if (NULL == origin_result) {
         log_info("clone resolve result failed, origin resolve result is NULL");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(new_result, httpdns_resolve_result_t);
+    httpdns_resolve_result_t *new_result = httpdns_resolve_result_new();
     memset(new_result, 0, sizeof(httpdns_resolve_result_t));
     if (NULL != origin_result->host) {
         new_result->host = sdsnew(origin_result->host);
@@ -135,16 +143,16 @@ void httpdns_resolve_results_merge(struct list_head *raw_results, struct list_he
             target_result = httpdns_resolve_result_clone(cur_result);
             httpdns_list_add(merged_results, target_result, NULL);
         } else {
-            if(IS_NOT_EMPTY_LIST(&cur_result->ips) && IS_EMPTY_LIST(&target_result->ips)) {
-               httpdns_list_dup(&target_result->ips, &cur_result->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
+            if (IS_NOT_EMPTY_LIST(&cur_result->ips) && IS_EMPTY_LIST(&target_result->ips)) {
+                httpdns_list_dup(&target_result->ips, &cur_result->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
             }
-            if(IS_NOT_EMPTY_LIST(&cur_result->ipsv6) && IS_EMPTY_LIST(&target_result->ipsv6)) {
+            if (IS_NOT_EMPTY_LIST(&cur_result->ipsv6) && IS_EMPTY_LIST(&target_result->ipsv6)) {
                 httpdns_list_dup(&target_result->ipsv6, &cur_result->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
             }
-            if(cur_result->origin_ttl > target_result->origin_ttl) {
+            if (cur_result->origin_ttl > target_result->origin_ttl) {
                 target_result->origin_ttl = cur_result->origin_ttl;
             }
-            if(cur_result->ttl > target_result->ttl) {
+            if (cur_result->ttl > target_result->ttl) {
                 target_result->ttl = cur_result->ttl;
             }
         }

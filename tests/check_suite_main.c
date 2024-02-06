@@ -40,6 +40,7 @@ int main(void) {
     srunner_add_suite(suite_runner, make_httpdns_resolver_suite());
     srunner_add_suite(suite_runner, make_httpdns_client_suite());
     srunner_add_suite(suite_runner, make_httpdns_client_wrapper_suite());
+    srunner_add_suite(suite_runner, make_httpdns_localdns_suite());
     // Uncomment the following if you want to debug.
     srunner_set_fork_status(suite_runner, CK_NOFORK);
     srunner_run_all(suite_runner, CK_NORMAL);

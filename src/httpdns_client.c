@@ -125,6 +125,9 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
         sdsfree(http_context_str);
         char *resolver = resolve_context->request->resolver;
         httpdns_scheduler_update(param->scheduler, resolver, MAX_HTTP_REQUEST_TIMEOUT_MS);
+        if (NULL != resolve_request->complete_callback_func) {
+            resolve_request->complete_callback_func(NULL, resolve_request->user_callback_param);
+        }
         return;
     }
     // 结果收集

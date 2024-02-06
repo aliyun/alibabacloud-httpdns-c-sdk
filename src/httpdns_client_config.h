@@ -35,7 +35,6 @@ typedef struct {
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https
     bool using_sign;   // default false, false not sign, true use sign
-    bool fallbacking_localdns;  // default true, false not fallback, true fallback localdns
     struct list_head pre_resolve_hosts;
     struct list_head ipv4_boot_servers;
     struct list_head ipv6_boot_servers;
@@ -113,15 +112,6 @@ int32_t httpdns_config_set_using_https(httpdns_config_t *config, bool using_http
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
 int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool using_sign);
-
-
-/**
- * @description determine whether to fall back to localdns when accessing httpdns fails
- * @param config
- * @param using_https default 1, 0 not fallback, 1 fallback localdns
- * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
- */
-int32_t httpdns_config_set_fallbacking_localdns(httpdns_config_t *config, bool fallbacking_localdns);
 
 /**
  * @description add pre-resolve host name

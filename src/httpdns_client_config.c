@@ -18,7 +18,6 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     config->using_cache = true;
     config->using_https = false;
     config->using_sign = false;
-    config->fallbacking_localdns = true;
     config->timeout_ms = DEFAULT_TIMEOUT_MS;
 #ifdef HTTPDNS_RETRY_TIMES
     config->retry_times = HTTPDNS_RETRY_TIMES;
@@ -124,16 +123,6 @@ int32_t httpdns_config_set_using_sign(httpdns_config_t *config, bool using_sign)
         return HTTPDNS_PARAMETER_EMPTY;
     }
     config->using_sign = using_sign;
-    return HTTPDNS_SUCCESS;
-}
-
-
-int32_t httpdns_config_set_fallbacking_localdns(httpdns_config_t *config, bool fallbacking_localdns) {
-    if (NULL == config) {
-        log_info("httpdns config set fallbacking localdns failed, config is null");
-        return HTTPDNS_PARAMETER_EMPTY;
-    }
-    config->fallbacking_localdns = fallbacking_localdns;
     return HTTPDNS_SUCCESS;
 }
 

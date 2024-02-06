@@ -3,6 +3,7 @@
 //
 #include "httpdns_client_wrapper.h"
 #include "check_suit_list.h"
+#include "httpdns_string.h"
 
 
 static void setup(void) {
@@ -37,6 +38,46 @@ START_TEST(test_get_httpdns_result_for_host_sync) {
     bool is_success = NULL != result && IS_NOT_EMPTY_LIST(&result->ips);
     httpdns_resolve_result_free(result);
     ck_assert_msg(is_success, "同步且使用缓存的单解析失败");
+}
+
+END_TEST
+
+START_TEST(test_process_pre_resolve_hosts) {
+    httpdns_config_t *httpdns_config = get_httpdns_client_config();
+    httpdns_config_add_pre_resolve_host(httpdns_config, "www.aliyun.com");
+    httpdns_client_process_pre_resolve_hosts();
+    sleep(2);
+    httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_cache("www.aliyun.com",
+                                                                                   HTTPDNS_QUERY_TYPE_AUTO,
+                                                                                   NULL);
+    sds result_str = httpdns_resolve_result_to_string(result);
+    log_trace("test_process_pre_resolve_hosts, result %s", result_str);
+    sdsfree(result_str);
+
+    bool is_success = NULL != result && result->hit_cache;
+    httpdns_resolve_result_free(result);
+    ck_assert_msg(is_success, "预加载处理失败");
+}
+
+END_TEST
+
+START_TEST(test_httpdns_sdns) {
+    httpdns_config_t *httpdns_config = get_httpdns_client_config();
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_config,
+                                                                     "httpdns.c.sdk.com",
+                                                                     NULL,
+                                                                     HTTPDNS_QUERY_TYPE_AUTO);
+    httpdns_resolve_request_append_sdns_params(request, "a", "a");
+    httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_custom_request(request);
+
+    sds result_str = httpdns_resolve_result_to_string(result);
+    log_trace("test_httpdns_sdns, result %s", result_str);
+    sdsfree(result_str);
+
+    bool is_success = NULL != result && IS_NOT_BLANK_STRING(result->extra);
+    httpdns_resolve_result_free(result);
+    httpdns_resolve_request_free(request);
+    ck_assert_msg(is_success, "SDNS测试失败");
 }
 
 END_TEST
@@ -114,5 +155,7 @@ Suite *make_httpdns_client_wrapper_suite(void) {
     tcase_add_test(httpdns_client_wrapper, test_get_httpdns_result_for_host_async);
     tcase_add_test(httpdns_client_wrapper, test_get_httpdns_results_for_hosts_sync);
     tcase_add_test(httpdns_client_wrapper, test_get_httpdns_results_for_hosts_async);
+    tcase_add_test(httpdns_client_wrapper, test_process_pre_resolve_hosts);
+    tcase_add_test(httpdns_client_wrapper, test_httpdns_sdns);
     return suite;
 }

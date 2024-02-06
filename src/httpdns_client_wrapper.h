@@ -33,6 +33,22 @@ int32_t httpdns_client_env_cleanup();
 httpdns_config_t *get_httpdns_client_config();
 
 /**
+ * 预加载域名解析
+ */
+ void  httpdns_client_process_pre_resolve_hosts();
+
+/**
+ *
+ * 单域名同步解析，阻塞线程，直到结果返回或者超时
+ *
+ *  @param request 自定义的httpdns 请求
+ *  @return 解析结果，如果解析失败则返回NULL
+ *  @note
+ *      解析结果使用完毕后，需要调用httpdns_resolve_result_free进行释放，否则会造成内存泄露
+ */
+ httpdns_resolve_result_t * get_httpdns_result_for_host_sync_with_custom_request(httpdns_resolve_request_t* request);
+
+/**
  *
  * 单域名同步解析，阻塞线程，先查缓存，缓存为空则查询HTTPDNS服务器，直到结果返回或者超时
  *
@@ -113,6 +129,18 @@ int32_t get_httpdns_results_for_hosts_sync_without_cache(struct list_head *hosts
                                                          const char *query_type,
                                                          struct list_head *results,
                                                          const char *client_ip);
+
+/**
+ *
+ * 单域名异步解析，不阻塞线程，直到结果返回或者超时
+ *
+ *  @param request 自定义的httpdns 请求
+ *  @return 解析结果，如果解析失败则返回NULL
+ *  @note
+ *      解析结果使用完毕后，需要调用httpdns_resolve_result_free进行释放，否则会造成内存泄露
+ */
+int32_t get_httpdns_result_for_host_async_with_custom_request(httpdns_resolve_request_t *request);
+
 
 /**
  *

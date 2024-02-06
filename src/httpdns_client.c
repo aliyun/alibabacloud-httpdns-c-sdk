@@ -305,29 +305,20 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
 }
 
 int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
-                                      const char *host,
-                                      const char *query_type,
-                                      const char *client_ip,
-                                      bool using_cache,
-                                      httpdns_resolve_result_t **result,
-                                      httpdns_complete_callback_func_t callback,
-                                      void *user_callback_param) {
-    if (NULL == httpdns_client
-        || NULL == httpdns_client->config
-        || IS_BLANK_STRING(host)
-        || IS_BLANK_STRING(query_type)) {
-        log_debug("simple resolve failed, client or config or host or query type is empty");
+                                      httpdns_resolve_request_t *request,
+        // must free using httpdns_resolve_result_free
+                                      httpdns_resolve_result_t **result) {
+
+    if (NULL == request || NULL == httpdns_client) {
+        log_info("httpdns client custom resolve failed, request or httpdns client is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_client->config,
-                                                                     host,
-                                                                     NULL,
-                                                                     query_type);
-    if (IS_NOT_BLANK_STRING(client_ip)) {
-        httpdns_resolve_request_set_client_ip(request, client_ip);
+    if (NULL == httpdns_client->config
+        || IS_BLANK_STRING(request->host)
+        || IS_BLANK_STRING(request->query_type)) {
+        log_info("simple resolve failed, config or host or query type is empty");
+        return HTTPDNS_PARAMETER_EMPTY;
     }
-    httpdns_resolve_request_set_callback(request, callback, user_callback_param);
-    httpdns_resolve_request_set_using_cache(request, using_cache);
 
     httpdns_resolve_task_t *resolve_task = httpdns_resolve_task_new(httpdns_client);
     httpdns_resolve_task_add_request(resolve_task, request);
@@ -341,11 +332,10 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
             *result = httpdns_resolve_result_clone(httpdns_list_get(&resolve_context->result, 0));
         }
     }
-    httpdns_resolve_request_free(request);
     httpdns_resolve_task_free(resolve_task);
     if (NULL != *result) {
         return HTTPDNS_SUCCESS;
     }
     return HTTPDNS_FAILURE;
-}
 
+}

@@ -24,6 +24,13 @@
         sprintf(tmp_buffer, "%d", int_val); \
         SDS_CAT(dst_str, tmp_buffer); \
     }
+#define SDS_CAT_CHAR(dst_str, ch_val) \
+    {                                 \
+        char tmp_buffer[2];           \
+        tmp_buffer[0]=ch_val;         \
+        tmp_buffer[1]='\0';         \
+        SDS_CAT(dst_str, tmp_buffer); \
+    }
 
 #define MICRO_STRINGIFY(x) #x
 #define MICRO_TO_STRING(x) MICRO_STRINGIFY(x)

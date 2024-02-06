@@ -26,7 +26,12 @@ START_TEST(test_simple_resolve_without_cache) {
     httpdns_config_set_using_cache(config, false);
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_result_t *result = NULL;
-    httpdns_client_simple_resolve(client, "www.aliyun.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, false, &result, NULL, NULL);
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(config,
+                                                                     "www.aliyun.com",
+                                                                     NULL,
+                                                                     HTTPDNS_QUERY_TYPE_BOTH);
+    httpdns_client_simple_resolve(client, request, &result);
+    httpdns_resolve_request_free(request);
     bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
@@ -38,11 +43,23 @@ START_TEST(test_simple_resolve_with_cache) {
     httpdns_config_t *config = get_httpdns_config();
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_result_t *result = NULL;
-    httpdns_client_simple_resolve(client, "www.taobao.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, true, &result, NULL, NULL);
+    httpdns_resolve_request_t *request = httpdns_resolve_request_new(config,
+                                                                     "www.taobao.com",
+                                                                     NULL,
+                                                                     HTTPDNS_QUERY_TYPE_BOTH);
+    httpdns_resolve_request_set_using_cache(request, true);
+    httpdns_client_simple_resolve(client, request, &result);
+    httpdns_resolve_request_free(request);
     bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
     httpdns_resolve_result_free(result);
     sleep(1);
-    httpdns_client_simple_resolve(client, "www.taobao.com", HTTPDNS_QUERY_TYPE_BOTH, NULL, true, &result, NULL, NULL);
+    request = httpdns_resolve_request_new(config,
+                                          "www.taobao.com",
+                                          NULL,
+                                          HTTPDNS_QUERY_TYPE_BOTH);
+    httpdns_resolve_request_set_using_cache(request, true);
+    httpdns_client_simple_resolve(client, request, &result);
+    httpdns_resolve_request_free(request);
     is_success = is_success && (NULL != result && result->hit_cache && IS_NOT_EMPTY_LIST(&result->ips));
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);

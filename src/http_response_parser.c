@@ -158,6 +158,37 @@ httpdns_schedule_response_t *httpdns_response_parse_schedule(const char *body) {
     return schedule_result;
 }
 
+static char *decode_html(char *str) {
+    char *src = str;
+    char *dst = sdsempty();
+    size_t length = strlen(str);
+    size_t index = 0;
+
+    while (index < length) {
+        if (src[index] == '&' && index + 4 < length && strncmp(&src[index], "&amp;", 5) == 0) {
+            SDS_CAT(dst, "&");
+            index += 5;
+        } else if (src[index] == '&' && index + 3 < length && strncmp(&src[index], "&lt;", 4) == 0) {
+            SDS_CAT(dst, "<");
+            index += 4;
+        } else if (src[index] == '&' && index + 3 < length && strncmp(&src[index], "&gt;", 4) == 0) {
+            SDS_CAT(dst, ">");
+            index += 4;
+        } else if (src[index] == '&' && index + 5 < length && strncmp(&src[index], "&quot;", 6) == 0) {
+            SDS_CAT(dst, "\"");
+            index += 6;
+        } else if (src[index] == '&' && index + 5 < length && strncmp(&src[index], "&apos;", 6) == 0) {
+            SDS_CAT(dst, "\'");
+            index += 6;
+        } else {
+            SDS_CAT_CHAR(dst, src[index++]);
+        }
+    }
+    SDS_CAT_CHAR(dst, '\0');
+    return dst;
+}
+
+
 static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(cJSON *c_json_body) {
     if (NULL == c_json_body) {
         return NULL;
@@ -188,6 +219,10 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     cJSON *origin_ttl_json = cJSON_GetObjectItem(c_json_body, "origin_ttl");
     if (NULL != origin_ttl_json) {
         single_resolve_result->origin_ttl = origin_ttl_json->valueint;
+    }
+    cJSON *extra_json = cJSON_GetObjectItem(c_json_body, "extra");
+    if (NULL != extra_json) {
+        single_resolve_result->extra = decode_html(extra_json->valuestring);
     }
     // 多域名解析接口
     cJSON *type_json = cJSON_GetObjectItem(c_json_body, "type");

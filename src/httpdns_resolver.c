@@ -89,6 +89,9 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
             SDS_CAT(url, "&ip=");
             SDS_CAT(url, request->client_ip);
         }
+        if (IS_NOT_BLANK_STRING(request->sdns_params)) {
+            SDS_CAT(url, request->sdns_params);
+        }
         SDS_CAT(url, "&platform=linux&sdk_version=");
         SDS_CAT(url, request->sdk_version);
 

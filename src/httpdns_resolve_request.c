@@ -180,9 +180,10 @@ httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, c
     if (NULL == request->sdns_params) {
         request->sdns_params = sdsempty();
     }
-    request->sdns_params = sdscat(request->sdns_params, key);
-    request->sdns_params = sdscat(request->sdns_params, "=");
-    request->sdns_params = sdscat(request->sdns_params, value);
+    SDS_CAT(request->sdns_params, "&sdns-");
+    SDS_CAT(request->sdns_params, key);
+    SDS_CAT(request->sdns_params, "=");
+    SDS_CAT(request->sdns_params, value);
 }
 
 void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, const char *host) {

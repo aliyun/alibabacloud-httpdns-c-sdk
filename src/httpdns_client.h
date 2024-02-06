@@ -43,15 +43,10 @@ httpdns_client_t *httpdns_client_new(httpdns_config_t *config);
 
 void httpdns_client_free(httpdns_client_t *client);
 
-
 int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
-                                      const char *host,
-                                      const char *query_type,
-                                      const char *client_ip,
-                                      bool using_cache,
-                                      httpdns_resolve_result_t **result, // must free using httpdns_resolve_result_free
-                                      httpdns_complete_callback_func_t callback,
-                                      void *user_callback_param);
+                                      httpdns_resolve_request_t *request,
+                                        // must free using httpdns_resolve_result_free
+                                      httpdns_resolve_result_t **result);
 
 /**
  * must free using httpdns_resolve_task_free

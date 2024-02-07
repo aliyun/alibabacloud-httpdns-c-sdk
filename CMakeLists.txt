@@ -78,6 +78,10 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 aux_source_directory(src SRC_LIST)
 ################################# 静态库编译安装 ############################################
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
+target_link_libraries(${CMAKE_PROJECT_NAME}_static ${OPENSSL_LIBRARIES})
+target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CURL_LIBRARY})
+target_link_libraries(${CMAKE_PROJECT_NAME}_static Threads::Threads)
+
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
 

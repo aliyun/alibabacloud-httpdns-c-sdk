@@ -5,6 +5,11 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "list.h"
 #include "httpdns_error_type.h"
 #include "httpdns_memory.h"
@@ -99,5 +104,10 @@ sds httpdns_list_to_string(const struct list_head *head, data_to_string_function
 void *httpdns_list_search(const struct list_head *head, const void *target, data_search_function_ptr_t search_func);
 
 bool httpdns_list_is_end(const httpdns_list_node_t *node, const struct list_head *head);
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H

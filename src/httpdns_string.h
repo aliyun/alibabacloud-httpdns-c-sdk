@@ -5,6 +5,12 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_STRING_H
 #define HTTPDNS_C_SDK_HTTPDNS_STRING_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #include <string.h>
 #include "sds.h"
 
@@ -34,5 +40,9 @@
 
 #define MICRO_STRINGIFY(x) #x
 #define MICRO_TO_STRING(x) MICRO_STRINGIFY(x)
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_STRING_H

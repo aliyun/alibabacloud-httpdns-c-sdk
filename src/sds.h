@@ -31,6 +31,11 @@
 #ifndef __SDS_H
 #define __SDS_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #define SDS_MAX_PREALLOC (1024*1024)
 
 #include <sys/types.h>
@@ -93,5 +98,9 @@ __attribute__((format(printf, 2, 3)));
 sds sdscatprintf(sds s, const char *fmt, ...);
 #endif
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

@@ -5,6 +5,13 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #include "dict.h"
 #include "httpdns_resolver.h"
 #include "httpdns_resolve_result.h"
@@ -38,5 +45,9 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table);
 void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry);
 
 void httpdns_cache_table_free(httpdns_cache_table_t *cache_table);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CACHE_H

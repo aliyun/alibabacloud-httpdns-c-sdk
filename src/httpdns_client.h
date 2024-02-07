@@ -8,6 +8,13 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_CLIENT_H
 #define HTTPDNS_C_SDK_HTTPDNS_CLIENT_H
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #include "httpdns_scheduler.h"
 #include "httpdns_cache.h"
 #include "httpdns_resolver.h"
@@ -61,5 +68,9 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task);
 
 
 void httpdns_resolve_task_free(httpdns_resolve_task_t *resolve_task);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_H

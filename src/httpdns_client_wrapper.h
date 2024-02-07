@@ -7,6 +7,11 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H
 #define HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include  "httpdns_resolve_result.h"
 #include "httpdns_client.h"
 
@@ -225,5 +230,9 @@ int32_t get_httpdns_results_for_hosts_async_without_cache(struct list_head *host
                                                           void *cb_param);
 
 int32_t select_ip_from_httpdns_result(httpdns_resolve_result_t *result, char *dst_ip_buffer);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H

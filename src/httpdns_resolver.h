@@ -7,6 +7,12 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESOLVER_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESOLVER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #include "httpdns_scheduler.h"
 #include "httpdns_client_config.h"
 #include "httpdns_resolve_request.h"
@@ -67,5 +73,11 @@ void httpdns_resolve_param_free(httpdns_resolve_param_t *resolve_param);
  * must free using httpdns_resolve_param_free
  */
 httpdns_resolve_param_t *httpdns_resolve_param_new(httpdns_resolve_request_t *request);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_RESOLVER_H

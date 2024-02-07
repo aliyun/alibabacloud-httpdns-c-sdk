@@ -5,6 +5,11 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_RESOLVE_REQUEST_H
 #define HTTPDNS_C_SDK_HTTPDNS_RESOLVE_REQUEST_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdbool.h>
 #include <stdint.h>
 #include "httpdns_client_config.h"
@@ -87,5 +92,10 @@ sds httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request);
 int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request);
 
 void httpdns_resolve_request_free(httpdns_resolve_request_t *request);
+
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_RESOLVE_REQUEST_H

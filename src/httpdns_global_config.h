@@ -5,6 +5,11 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_GLOBLE_CONFIG_H
 #define HTTPDNS_C_SDK_HTTPDNS_GLOBLE_CONFIG_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <time.h>
 #include <stdlib.h>
 /**
@@ -13,5 +18,9 @@
 void init_httpdns_sdk();
 
 void cleanup_httpdns_sdk();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_GLOBLE_CONFIG_H

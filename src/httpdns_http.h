@@ -7,6 +7,11 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include<stdint.h>
 #include <stdbool.h>
 #include <curl/curl.h>
@@ -52,5 +57,11 @@ void httpdns_http_context_free(httpdns_http_context_t *http_context);
 int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context);
 
 int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts);
+
+
+#ifdef __cplusplus
+}
+#endif
+
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_HTTP_H

@@ -5,6 +5,13 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H
 
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+
 #include "list.h"
 #include "net_stack_detector.h"
 #include "httpdns_error_type.h"
@@ -143,5 +150,9 @@ int32_t httpdns_config_valid(httpdns_config_t *config);
  */
 void httpdns_config_free(httpdns_config_t *config);
 
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_CONFIG_H

@@ -5,6 +5,11 @@
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_NET_STACK_DETECTOR_H
 #define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_NET_STACK_DETECTOR_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 /**
  * @description Detect the type of network stack
 
@@ -69,5 +74,8 @@ void httpdns_net_stack_detector_set_probe_domain(httpdns_net_stack_detector_t *d
 
 net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector);
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_NET_STACK_DETECTOR_H

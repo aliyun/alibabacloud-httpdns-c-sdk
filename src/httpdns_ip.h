@@ -5,6 +5,11 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_IP_H
 #define HTTPDNS_C_SDK_HTTPDNS_IP_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include <stdint.h>
 #include<stdlib.h>
 #include<stdbool.h>
@@ -37,5 +42,9 @@ void httpdns_ip_free(httpdns_ip_t *ip);
 int32_t httpdns_ip_cmp(const httpdns_ip_t *ip1, const httpdns_ip_t *ip2);
 
 bool httpdns_ip_search(const httpdns_ip_t *http_ip, const char *ip);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_IP_H

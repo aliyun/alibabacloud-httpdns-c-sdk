@@ -7,6 +7,11 @@
 #ifndef HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H
 #define HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #include "cJSON.h"
 #include "sds.h"
 #include "httpdns_list.h"
@@ -83,5 +88,9 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const c
  * must free using httpdns_multi_resolve_response_free
  */
 httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const char *body);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_HTTP_RESPONSE_PARSER_H

@@ -4,6 +4,7 @@
 #include "httpdns_client_wrapper.h"
 #include "httpdns_log.h"
 #include "httpdns_time.h"
+#include "httpdns_localdns.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST   "www.aliyun.com"
@@ -59,6 +60,10 @@ static void mock_access_business_web_server(const char *dst_ip) {
 // 3. 构建解析回调函数
 static void httpdns_complete_callback_func(const httpdns_resolve_result_t *result,
                                            void *user_callback_param) {
+    if (NULL == result) {
+        log_trace("httpdns resolve failed, fallback to localdns");
+        result = resolve_host_by_localdns(MOCK_BUSINESS_HOST);
+    }
     if (NULL == result) {
         return;
     }

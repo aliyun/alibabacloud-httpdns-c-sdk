@@ -43,7 +43,7 @@ START_TEST(test_get_httpdns_result_for_host_sync) {
 END_TEST
 
 START_TEST(test_process_pre_resolve_hosts) {
-    httpdns_config_t *httpdns_config = get_httpdns_client_config();
+    httpdns_config_t *httpdns_config = httpdns_client_get_config();
     httpdns_config_add_pre_resolve_host(httpdns_config, "www.aliyun.com");
     httpdns_client_process_pre_resolve_hosts();
     sleep(2);
@@ -62,7 +62,7 @@ START_TEST(test_process_pre_resolve_hosts) {
 END_TEST
 
 START_TEST(test_httpdns_sdns) {
-    httpdns_config_t *httpdns_config = get_httpdns_client_config();
+    httpdns_config_t *httpdns_config = httpdns_client_get_config();
     httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_config,
                                                                      "httpdns.c.sdk.com",
                                                                      NULL,

@@ -24,3 +24,5 @@ endfunction()
 _TARGET_EXAMPLE_LIBRARIES(sync_client_in_linux_example sync_client_in_linux_example.c)
 
 _TARGET_EXAMPLE_LIBRARIES(async_client_in_linux_example async_client_in_linux_example.c)
+
+_TARGET_EXAMPLE_LIBRARIES(sync_server_in_linux_example sync_server_in_linux_example.c)

@@ -1,5 +1,5 @@
 //
-// Created by cagaoshuai on 2024/2/7.
+// Created by caogaoshuai on 2024/2/7.
 //
 #include "httpdns_client_wrapper.h"
 #include "httpdns_log.h"
@@ -47,6 +47,7 @@ static void mock_access_business_web_server(const char *dst_ip) {
         // 5.5 释放业务访问相关资源
         sdsfree(url);
         sdsfree(resolve_param);
+        curl_slist_free_all(dns);
         /* always cleanup */
         curl_easy_cleanup(curl);
     }
@@ -60,6 +61,7 @@ int main(int argc, char *argv[]) {
 //    httpdns_config_t *httpdns_config = httpdns_client_get_config();
 //    httpdns_config_set_using_https(httpdns_config, true);
 //    httpdns_config_set_using_sign(httpdns_config, true);
+//    httpdns_config_set_using_cache(httpdns_config, false);
 
     httpdns_log_start();
     // 2. HTTPDNS SDK 解析结果
@@ -67,12 +69,6 @@ int main(int argc, char *argv[]) {
     httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_cache(MOCK_BUSINESS_HOST,
                                                                                    HTTPDNS_QUERY_TYPE_AUTO,
                                                                                    NULL);
-    // 3. 设置降级localdns
-    if (NULL == result) {
-        log_trace("httpdns resolve failed, fallback to localdns");
-        result = resolve_host_by_localdns(MOCK_BUSINESS_HOST);
-    }
-
     struct timeval end_time = httpdns_time_now();
     log_trace("sync client in linux example, httpdns cost %ld ms", httpdns_time_diff(end_time, start_time));
     if (NULL == result || IS_EMPTY_LIST(&result->ips)) {
@@ -88,7 +84,7 @@ int main(int argc, char *argv[]) {
         log_trace("sync client in linux example, access business cost %ld ms", httpdns_time_diff(end_time, start_time));
 
     }
-    // 6. 解析结果
+    // 6. 解析结果释放
     httpdns_resolve_result_free(result);
     // 7. HTTPDNS SDK 环境释放
     httpdns_client_env_cleanup();

@@ -104,5 +104,3 @@ INSTALL(FILES
 
 enable_testing()
 add_subdirectory(tests)
-
-add_subdirectory(examples)

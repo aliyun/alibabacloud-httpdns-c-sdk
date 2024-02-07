@@ -3,6 +3,7 @@
 //
 #include "httpdns_client_wrapper.h"
 #include "httpdns_log.h"
+#include "httpdns_time.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST   "www.aliyun.com"
@@ -56,9 +57,12 @@ int main(int argc, char *argv[]) {
     httpdns_client_env_init(MOCK_HTTPDNS_ACCOUNT, NULL);
     httpdns_log_start();
     // 2. HTTPDNS SDK 解析结果
+    struct timeval start_time = httpdns_time_now();
     httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_cache(MOCK_BUSINESS_HOST,
                                                                                    HTTPDNS_QUERY_TYPE_AUTO,
                                                                                    NULL);
+    struct timeval end_time = httpdns_time_now();
+    log_trace("sync client in linux example, httpdns cost %ld ms", httpdns_time_diff(end_time, start_time));
     if (NULL == result || IS_EMPTY_LIST(&result->ips)) {
         perror("域名解析失败");
     } else {
@@ -66,7 +70,11 @@ int main(int argc, char *argv[]) {
         char dst_ip[INET6_ADDRSTRLEN];
         select_ip_from_httpdns_result(result, dst_ip);
         // 4. 使用解析的IP访问业务
+        start_time = httpdns_time_now();
         mock_access_business_web_server(dst_ip);
+        end_time = httpdns_time_now();
+        log_trace("sync client in linux example, access business cost %ld ms", httpdns_time_diff(end_time, start_time));
+
     }
     //5. 解析结果
     httpdns_resolve_result_free(result);

@@ -8,7 +8,6 @@
 #include "log.h"
 
 
-
 sds httpdns_time_to_string(struct timeval ts) {
     char ts_str[32];
     time_t sec = ts.tv_sec;
@@ -37,4 +36,8 @@ bool httpdns_time_is_expired(struct timeval ts, int32_t ttl) {
         return true;
     }
     return ts.tv_usec >= now.tv_usec;
+}
+
+int64_t httpdns_time_diff(struct timeval time1, struct timeval time2) {
+    return (time1.tv_sec - time2.tv_sec) * 1000 + (time1.tv_usec - time2.tv_usec) / 1000;
 }

@@ -17,4 +17,6 @@ struct timeval httpdns_time_now();
 
 bool httpdns_time_is_expired(struct timeval ts, int32_t ttl);
 
+int64_t httpdns_time_diff(struct timeval time1, struct timeval time2);
+
 #endif //HTTPDNS_C_SDK_HTTPDNS_TIME_H

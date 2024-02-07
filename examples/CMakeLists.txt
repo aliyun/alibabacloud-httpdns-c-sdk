@@ -21,4 +21,6 @@ function(_TARGET_EXAMPLE_LIBRARIES EXAMPLE_BIN_NAME SOURCE_FILES)
     target_link_libraries(${EXAMPLE_BIN_NAME} ${CRYPTO_LIBRARY})
 endfunction()
 
-_TARGET_EXAMPLE_LIBRARIES(client_in_linux_example sync_client_in_linux_example.c)
+_TARGET_EXAMPLE_LIBRARIES(sync_client_in_linux_example sync_client_in_linux_example.c)
+
+_TARGET_EXAMPLE_LIBRARIES(async_client_in_linux_example async_client_in_linux_example.c)

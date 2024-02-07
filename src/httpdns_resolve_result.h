@@ -22,7 +22,7 @@ typedef struct {
     int origin_ttl;
     int ttl;
     struct timeval query_ts;
-    void *cache_key;
+    char *cache_key;
     bool hit_cache;
 } httpdns_resolve_result_t;
 

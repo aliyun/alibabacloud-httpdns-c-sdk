@@ -1,10 +1,10 @@
 //
 // Created by caogaoshuai on 2024/2/7.
 //
-#include "httpdns_client_wrapper.h"
-#include "httpdns_log.h"
-#include "httpdns_time.h"
-#include "httpdns_localdns.h"
+#include "httpdns/httpdns_client_wrapper.h"
+#include "httpdns/httpdns_log.h"
+#include "httpdns/httpdns_time.h"
+#include "httpdns/httpdns_localdns.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST   "www.aliyun.com"

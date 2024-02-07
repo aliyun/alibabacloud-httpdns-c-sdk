@@ -1,9 +1,5 @@
 project(alicloud_httpdns_c_sdk_examples)
 
-include_directories("${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/examples")
-
-
-
 find_library(CURL_LIBRARY curl)
 find_library(PTHREAD_LIBRARY pthread)
 find_library(SSL_LIBRARY ssl)

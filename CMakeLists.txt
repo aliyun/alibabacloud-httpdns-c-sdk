@@ -100,7 +100,7 @@ file(GLOB HEADER_FILES src/*.h)
 
 INSTALL(FILES
         ${HEADER_FILES}
-        DESTINATION include/${CMAKE_PROJECT_NAME})
+        DESTINATION include/httpdns)
 
 enable_testing()
 add_subdirectory(tests)

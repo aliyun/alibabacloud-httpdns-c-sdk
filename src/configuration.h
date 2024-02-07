@@ -4,3 +4,4 @@
 #define LOG_FILE_PATH           /tmp/httpdns.log
 #define HTTPDNS_REGION          cn
 #define HTTPDNS_RETRY_TIMES     5
+

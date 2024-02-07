@@ -8,6 +8,7 @@
 #include <pthread.h>
 #include "httpdns_memory.h"
 #include <string.h>
+#include "httpdns_ip.h"
 
 static httpdns_client_t *httpdns_client = NULL;
 
@@ -363,4 +364,29 @@ int32_t get_httpdns_results_for_hosts_async_without_cache(struct list_head *host
                                                           httpdns_complete_callback_func_t cb,
                                                           void *cb_param) {
     return get_httpdns_results_for_hosts_async(hosts, query_type, client_ip, false, cb, cb_param);
+}
+
+
+int32_t select_ip_from_httpdns_result(httpdns_resolve_result_t *result, char *dst_ip_buffer) {
+    if (!is_initialized) {
+        return HTTPDNS_CLIENT_NOT_INITIALIZE;
+    }
+    if (NULL == result || NULL == dst_ip_buffer || (IS_EMPTY_LIST(&result->ipsv6) && IS_EMPTY_LIST(&result->ips))) {
+        return HTTPDNS_PARAMETER_EMPTY;
+    }
+    struct list_head *ip_list;
+    httpdns_net_stack_detector_t *detector = httpdns_client->net_stack_detector;
+    net_stack_type_t net_stype = httpdns_net_stack_type_get(detector);
+    if (HAVE_IPV4_NET_TYPE(net_stype)) {
+        ip_list = &result->ips;
+    } else {
+        ip_list = &result->ipsv6;
+    }
+    if (IS_EMPTY_LIST(ip_list)) {
+        return HTTPDNS_RESULT_IP_EMPTY;
+    }
+    httpdns_ip_t *httpdns_ip = httpdns_list_get(ip_list, 0);
+    httpdns_list_rotate(ip_list);
+    strcpy(dst_ip_buffer, httpdns_ip->ip);
+    return HTTPDNS_SUCCESS;
 }

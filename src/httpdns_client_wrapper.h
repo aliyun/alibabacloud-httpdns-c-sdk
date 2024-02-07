@@ -35,7 +35,7 @@ httpdns_config_t *get_httpdns_client_config();
 /**
  * 预加载域名解析
  */
- void  httpdns_client_process_pre_resolve_hosts();
+void httpdns_client_process_pre_resolve_hosts();
 
 /**
  *
@@ -46,7 +46,7 @@ httpdns_config_t *get_httpdns_client_config();
  *  @note
  *      解析结果使用完毕后，需要调用httpdns_resolve_result_free进行释放，否则会造成内存泄露
  */
- httpdns_resolve_result_t * get_httpdns_result_for_host_sync_with_custom_request(httpdns_resolve_request_t* request);
+httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_custom_request(httpdns_resolve_request_t *request);
 
 /**
  *
@@ -223,5 +223,7 @@ int32_t get_httpdns_results_for_hosts_async_without_cache(struct list_head *host
                                                           const char *client_ip,
                                                           httpdns_complete_callback_func_t cb,
                                                           void *cb_param);
+
+int32_t select_ip_from_httpdns_result(httpdns_resolve_result_t *result, char *dst_ip_buffer);
 
 #endif //HTTPDNS_C_SDK_HTTPDNS_CLIENT_WRAPPER_H

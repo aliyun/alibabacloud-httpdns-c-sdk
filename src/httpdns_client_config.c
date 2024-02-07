@@ -14,7 +14,6 @@
 
 
 static void set_default_httpdns_config(httpdns_config_t *config) {
-    config->using_async = true;
     config->using_cache = true;
     config->using_https = false;
     config->using_sign = false;
@@ -86,17 +85,6 @@ int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int32_t timeout_
     config->timeout_ms = timeout_ms;
     return HTTPDNS_SUCCESS;
 }
-
-
-int32_t httpdns_config_set_using_async(httpdns_config_t *config, bool using_async) {
-    if (NULL == config) {
-        log_info("httpdns config set async failed, config is null");
-        return HTTPDNS_PARAMETER_EMPTY;
-    }
-    config->using_async = using_async;
-    return HTTPDNS_SUCCESS;
-}
-
 
 int32_t httpdns_config_set_using_cache(httpdns_config_t *config, bool using_cache) {
     if (NULL == config) {

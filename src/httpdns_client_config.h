@@ -31,7 +31,6 @@ typedef struct {
     int32_t retry_times; // retry times when one of servers failed
     char *sdk_version;
     char *user_agent;
-    bool using_async;  // default true, false synchronously, true asynchronously
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https
     bool using_sign;   // default false, false not sign, true use sign
@@ -78,15 +77,6 @@ int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
  */
 int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int32_t timeout_ms);
-
-
-/**
- * @description determine whether to parse asynchronously
- * @param config
- * @param using_async default 1, 0 synchronously, 1 asynchronously
- * @return: HTTPDNS_SUCCESS represents success, others represent specific failure
- */
-int32_t httpdns_config_set_using_async(httpdns_config_t *config, bool using_async);
 
 /**
  * @description determine whether to sign HTTP requests

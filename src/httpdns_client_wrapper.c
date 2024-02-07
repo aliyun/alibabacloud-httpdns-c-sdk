@@ -290,15 +290,15 @@ typedef struct {
     bool using_cache;
     httpdns_complete_callback_func_t cb;
     void *cb_param;
-} private_httpdns_batch_routine_arg_t;
+} private_httpdns_multi_resolve_routine_arg_t;
 
-static void *httpdns_batch_routine(void *arg) {
+static void *httpdns_multi_resolve_routine(void *arg) {
 #ifdef __APPLE__
     pthread_setname_np(__func__);
 #elif defined(__linux__)
     pthread_setname_np(pthread_self(),__func__);
 #endif
-    private_httpdns_batch_routine_arg_t *batch_routine_arg = arg;
+    private_httpdns_multi_resolve_routine_arg_t *batch_routine_arg = arg;
 
     NEW_EMPTY_LIST_IN_STACK(results);
     get_httpdns_results_for_hosts(batch_routine_arg->hosts,
@@ -330,7 +330,7 @@ static int32_t get_httpdns_results_for_hosts_async(struct list_head *hosts,
         return HTTPDNS_PARAMETER_ERROR;
     }
 
-    HTTPDNS_NEW_OBJECT_IN_HEAP(batch_routine_arg, private_httpdns_batch_routine_arg_t);
+    HTTPDNS_NEW_OBJECT_IN_HEAP(batch_routine_arg, private_httpdns_multi_resolve_routine_arg_t);
     batch_routine_arg->hosts = hosts;
     batch_routine_arg->query_type = query_type;
     batch_routine_arg->client_ip = client_ip;
@@ -339,7 +339,7 @@ static int32_t get_httpdns_results_for_hosts_async(struct list_head *hosts,
     batch_routine_arg->cb_param = cb_param;
 
     pthread_t tid;
-    int ret = pthread_create(&tid, NULL, httpdns_batch_routine, batch_routine_arg);
+    int ret = pthread_create(&tid, NULL, httpdns_multi_resolve_routine, batch_routine_arg);
     if (0 != ret) {
         log_info("create thread error, ret %d", ret);
         return HTTPDNS_THREAD_CREATE_FAIL_ERROR;

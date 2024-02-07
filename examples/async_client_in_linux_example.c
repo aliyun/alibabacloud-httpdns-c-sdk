@@ -80,6 +80,10 @@ static void httpdns_complete_callback_func(const httpdns_resolve_result_t *resul
 int main(int argc, char *argv[]) {
     // 1. HTTPDNS SDK 环境初始化
     httpdns_client_env_init(MOCK_HTTPDNS_ACCOUNT, NULL);
+      // 其他自定义配置
+//    httpdns_config_t *httpdns_config = httpdns_client_get_config();
+//    httpdns_config_set_using_https(httpdns_config, true);
+//    httpdns_config_set_using_sign(httpdns_config, true);
     httpdns_log_start();
     int32_t success_num = 0;
     // 2. 异步提交多个解析任务

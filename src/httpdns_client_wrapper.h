@@ -30,7 +30,7 @@ int32_t httpdns_client_env_cleanup();
 /**
  * 获取当前所使用的客户端配置，用于正式解析之前自定义配置
  */
-httpdns_config_t *get_httpdns_client_config();
+httpdns_config_t *httpdns_client_get_config();
 
 /**
  * 预加载域名解析

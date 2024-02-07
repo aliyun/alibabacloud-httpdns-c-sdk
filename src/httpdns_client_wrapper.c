@@ -39,7 +39,7 @@ int32_t httpdns_client_env_init(const char *account_id, const char *secret_key) 
     return HTTPDNS_SUCCESS;
 }
 
-httpdns_config_t *get_httpdns_client_config() {
+httpdns_config_t *httpdns_client_get_config() {
     return httpdns_config;
 }
 

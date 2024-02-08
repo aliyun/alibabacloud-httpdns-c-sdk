@@ -100,6 +100,7 @@ git clone https://code.alibaba-inc.com/alicloud-ams/alicloud-httpdns-sdk-c
   - 如果要指定安装目录，则需要在cmake时增加： -DCMAKE_INSTALL_PREFIX=/your/install/path/usr/local/
 
 ### 使用
+#### 构建配置
 集成HTTPDNS C SDK构建应用，需要在CMakeLists.txt构建文件添加以指令：
 ```cmake
 # 应用名和源文件
@@ -126,4 +127,13 @@ target_link_libraries(${APPLICATION_BIN_NAME} ${SSL_LIBRARY})
 target_link_libraries(${APPLICATION_BIN_NAME} ${CRYPTO_LIBRARY})
 
 ```
+#### 代码使用
+核心头文件是```httpdns_client_wrapper.h```，具体使用步骤参考examples文件夹下的使用示例。
+#### 风险提示
+SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行配置自定义配置
+```c
+   httpdns_config_t *httpdns_config = httpdns_client_get_config();
+   httpdns_config_set_timeout_ms(httpdns_config, 1000);
+```
+
 

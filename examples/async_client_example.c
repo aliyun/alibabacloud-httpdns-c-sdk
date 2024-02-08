@@ -101,8 +101,11 @@ int main(int argc, char *argv[]) {
                                                      &success_num);
     }
     // 4. 等待结果完成
-    sleep(30);
     struct timeval end_time = httpdns_time_now();
+    while (httpdns_time_diff(end_time, start_time) < 30000 && success_num < MOCK_ASYNC_REQUEST_NUM) {
+        usleep(1000);
+        end_time = httpdns_time_now();
+    }
     log_trace("async client in linux example, access business cost %ld ms/次, success number %d",
               httpdns_time_diff(end_time, start_time) / MOCK_ASYNC_REQUEST_NUM, success_num);
     // 5. HTTPDNS SDK 环境释放

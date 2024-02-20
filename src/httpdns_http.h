@@ -17,7 +17,7 @@ extern "C"
 #include <curl/curl.h>
 #include <string.h>
 #include "httpdns_list.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 
 #define SSL_VERIFY_HOST    "203.107.1.1"
 #define MIN_HTTP_REQUEST_TIMEOUT_MS  10
@@ -48,9 +48,9 @@ int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_conte
 
 int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context, const char *user_agent);
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_http_context_to_string(const httpdns_http_context_t *http_context);
+httpdns_sds_t httpdns_http_context_to_string(const httpdns_http_context_t *http_context);
 
 void httpdns_http_context_free(httpdns_http_context_t *http_context);
 

@@ -13,7 +13,7 @@ extern "C"
 #endif
 
 #include <cjson/cJSON.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 #include "httpdns_list.h"
 
 #define RESOLVE_TYPE_A 1
@@ -44,9 +44,9 @@ typedef struct {
 httpdns_schedule_response_t *httpdns_schedule_response_new();
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response);
+httpdns_sds_t httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response);
 
 void httpdns_schedule_response_free(httpdns_schedule_response_t *response);
 
@@ -56,9 +56,9 @@ void httpdns_schedule_response_free(httpdns_schedule_response_t *response);
 httpdns_single_resolve_response_t *httpdns_single_resolve_response_new();
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response);
+httpdns_sds_t httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response);
 
 void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *response);
 
@@ -68,9 +68,9 @@ void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *res
 httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new();
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response);
+httpdns_sds_t httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response);
 
 void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *response);
 

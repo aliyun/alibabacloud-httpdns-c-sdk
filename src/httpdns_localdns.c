@@ -13,11 +13,11 @@
 
 static httpdns_resolve_result_t *create_localdns_result(const char *host) {
     httpdns_resolve_result_t *result = httpdns_resolve_result_new();
-    result->host = sdsnew(host);
+    result->host = httpdns_sds_new(host);
     result->query_ts = httpdns_time_now();
     result->origin_ttl = 0;
     result->ttl = 0;
-    result->cache_key = sdsnew(host);
+    result->cache_key = httpdns_sds_new(host);
     result->hit_cache = false;
     return result;
 }

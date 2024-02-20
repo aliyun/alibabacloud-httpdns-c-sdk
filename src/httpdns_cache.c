@@ -2,7 +2,7 @@
 // Created by caogaoshuai on 2024/1/18.
 //
 #include "httpdns_cache.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 #include "httpdns_error_type.h"
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
@@ -139,24 +139,24 @@ void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table) {
     pthread_mutex_unlock(&cache_table->lock);
 }
 
-sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
+httpdns_sds_t httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
     if (NULL == cache_table) {
-        return sdsnew("cache_table()");
+        return httpdns_sds_new("cache_table()");
     }
     pthread_mutex_lock(&cache_table->lock);
     httpdns_dict_iterator_t *di = httpdns_dict_get_safe_iterator(cache_table->cache);
     if (NULL == di) {
         pthread_mutex_unlock(&cache_table->lock);
-        return sdsnew("cache_table()");
+        return httpdns_sds_new("cache_table()");
     }
-    sds dst_str = sdsnew("cache_table(");
+    httpdns_sds_t dst_str = httpdns_sds_new("cache_table(");
     httpdns_dict_entry_t *de = NULL;
     while ((de = httpdns_dict_next(di)) != NULL) {
         SDS_CAT(dst_str, "\t");
         httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
-        sds entry_str = httpdns_resolve_result_to_string(entry);
+        httpdns_sds_t entry_str = httpdns_resolve_result_to_string(entry);
         SDS_CAT(dst_str, entry_str);
-        sdsfree(entry_str);
+        httpdns_sds_free(entry_str);
     }
     httpdns_dict_release_iterator(di);
     SDS_CAT(dst_str, ")");

@@ -211,11 +211,11 @@ void httpdns_list_sort(httpdns_list_head_t *head, httpdns_data_cmp_func_t cmp_fu
     }
 }
 
-sds httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_string_func_t to_string_func) {
+httpdns_sds_t httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_string_func_t to_string_func) {
     if (NULL == head) {
-        return sdsnew("[]");
+        return httpdns_sds_new("[]");
     }
-    sds dst_str = sdsnew("[");
+    httpdns_sds_t dst_str = httpdns_sds_new("[");
     for (httpdns_list_node_t *cursor = httpdns_list_first_entry(head); cursor != head; cursor = cursor->next) {
         if (cursor->prev != head) {
             SDS_CAT(dst_str, ",");
@@ -223,9 +223,9 @@ sds httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_stri
         if (NULL == to_string_func) {
             SDS_CAT(dst_str, cursor->data);
         } else {
-            sds node_data_str = to_string_func(cursor->data);
+            httpdns_sds_t node_data_str = to_string_func(cursor->data);
             SDS_CAT(dst_str, node_data_str);
-            sdsfree(node_data_str);
+            httpdns_sds_free(node_data_str);
         }
     }
     SDS_CAT(dst_str, "]");

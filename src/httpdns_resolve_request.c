@@ -4,7 +4,7 @@
 #include "httpdns_resolve_request.h"
 #include "httpdns_error_type.h"
 #include "log.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 #include "httpdns_memory.h"
 #include "httpdns_string.h"
 
@@ -57,26 +57,26 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_request, httpdns_resolve_request_t);
-    resolve_request->host = sdsnew(host);
-    resolve_request->cache_key = sdsnew(host);
-    resolve_request->account_id = sdsnew(config->account_id);
+    resolve_request->host = httpdns_sds_new(host);
+    resolve_request->cache_key = httpdns_sds_new(host);
+    resolve_request->account_id = httpdns_sds_new(config->account_id);
     if (config->using_sign && IS_NOT_BLANK_STRING(config->secret_key)) {
         resolve_request->using_sign = config->using_sign;
-        resolve_request->secret_key = sdsnew(config->secret_key);
+        resolve_request->secret_key = httpdns_sds_new(config->secret_key);
     }
     resolve_request->using_https = config->using_https;
     resolve_request->using_cache = config->using_cache;
     if (NULL != config->user_agent) {
-        resolve_request->user_agent = sdsnew(config->user_agent);
+        resolve_request->user_agent = httpdns_sds_new(config->user_agent);
     }
     if (NULL != config->sdk_version) {
-        resolve_request->sdk_version = sdsnew(config->sdk_version);
+        resolve_request->sdk_version = httpdns_sds_new(config->sdk_version);
     }
     if (IS_NOT_BLANK_STRING(resolver)) {
-        resolve_request->resolver = sdsnew(resolver);
+        resolve_request->resolver = httpdns_sds_new(resolver);
     }
     if (IS_NOT_BLANK_STRING(query_type)) {
-        resolve_request->query_type = sdsnew(query_type);
+        resolve_request->query_type = httpdns_sds_new(query_type);
     }
     if (config->timeout_ms > 0) {
         resolve_request->timeout_ms = config->timeout_ms;
@@ -85,11 +85,11 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
 }
 
 
-sds httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request) {
+httpdns_sds_t httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
-        return sdsnew("httpdns_resolve_request_t()");
+        return httpdns_sds_new("httpdns_resolve_request_t()");
     }
-    sds dst_str = sdsnew("httpdns_resolve_request_t(host=");
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_resolve_request_t(host=");
     SDS_CAT(dst_str, request->host);
     SDS_CAT(dst_str, ",account_id=");
     SDS_CAT(dst_str, request->account_id);
@@ -132,34 +132,34 @@ httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_r
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(new_resolve_request, httpdns_resolve_request_t);
     if (NULL != origin_resolve_request->host) {
-        new_resolve_request->host = sdsnew(origin_resolve_request->host);
+        new_resolve_request->host = httpdns_sds_new(origin_resolve_request->host);
     }
     if (NULL != origin_resolve_request->account_id) {
-        new_resolve_request->account_id = sdsnew(origin_resolve_request->account_id);
+        new_resolve_request->account_id = httpdns_sds_new(origin_resolve_request->account_id);
     }
     if (NULL != origin_resolve_request->secret_key) {
-        new_resolve_request->secret_key = sdsnew(origin_resolve_request->secret_key);
+        new_resolve_request->secret_key = httpdns_sds_new(origin_resolve_request->secret_key);
     }
     if (NULL != origin_resolve_request->resolver) {
-        new_resolve_request->resolver = sdsnew(origin_resolve_request->resolver);
+        new_resolve_request->resolver = httpdns_sds_new(origin_resolve_request->resolver);
     }
     if (NULL != origin_resolve_request->query_type) {
-        new_resolve_request->query_type = sdsnew(origin_resolve_request->query_type);
+        new_resolve_request->query_type = httpdns_sds_new(origin_resolve_request->query_type);
     }
     if (NULL != origin_resolve_request->client_ip) {
-        new_resolve_request->client_ip = sdsnew(origin_resolve_request->client_ip);
+        new_resolve_request->client_ip = httpdns_sds_new(origin_resolve_request->client_ip);
     }
     if (NULL != origin_resolve_request->sdk_version) {
-        new_resolve_request->sdk_version = sdsnew(origin_resolve_request->sdk_version);
+        new_resolve_request->sdk_version = httpdns_sds_new(origin_resolve_request->sdk_version);
     }
     if (NULL != origin_resolve_request->user_agent) {
-        new_resolve_request->user_agent = sdsnew(origin_resolve_request->user_agent);
+        new_resolve_request->user_agent = httpdns_sds_new(origin_resolve_request->user_agent);
     }
     if (NULL != origin_resolve_request->sdns_params) {
-        new_resolve_request->sdns_params = sdsnew(origin_resolve_request->sdns_params);
+        new_resolve_request->sdns_params = httpdns_sds_new(origin_resolve_request->sdns_params);
     }
     if (NULL != origin_resolve_request->cache_key) {
-        new_resolve_request->cache_key = sdsnew(origin_resolve_request->cache_key);
+        new_resolve_request->cache_key = httpdns_sds_new(origin_resolve_request->cache_key);
     }
     new_resolve_request->using_https = origin_resolve_request->using_https;
     new_resolve_request->using_sign = origin_resolve_request->using_sign;
@@ -178,7 +178,7 @@ httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, c
         return;
     }
     if (NULL == request->sdns_params) {
-        request->sdns_params = sdsempty();
+        request->sdns_params = httpdns_sds_empty();
     }
     SDS_CAT(request->sdns_params, "&sdns-");
     SDS_CAT(request->sdns_params, key);
@@ -246,7 +246,7 @@ void httpdns_resolve_request_set_using_multi(httpdns_resolve_request_t *request,
     }
     request->using_multi = using_multi;
     if (NULL != request->cache_key) {
-        sdsfree(request->cache_key);
+        httpdns_sds_free(request->cache_key);
         request->cache_key = NULL;
     }
 }
@@ -274,34 +274,34 @@ void httpdns_resolve_request_free(httpdns_resolve_request_t *request) {
         return;
     }
     if (NULL != request->host) {
-        sdsfree(request->host);
+        httpdns_sds_free(request->host);
     }
     if (NULL != request->account_id) {
-        sdsfree(request->account_id);
+        httpdns_sds_free(request->account_id);
     }
     if (NULL != request->secret_key) {
-        sdsfree(request->secret_key);
+        httpdns_sds_free(request->secret_key);
     }
     if (NULL != request->resolver) {
-        sdsfree(request->resolver);
+        httpdns_sds_free(request->resolver);
     }
     if (NULL != request->query_type) {
-        sdsfree(request->query_type);
+        httpdns_sds_free(request->query_type);
     }
     if (NULL != request->client_ip) {
-        sdsfree(request->client_ip);
+        httpdns_sds_free(request->client_ip);
     }
     if (NULL != request->sdk_version) {
-        sdsfree(request->sdk_version);
+        httpdns_sds_free(request->sdk_version);
     }
     if (NULL != request->user_agent) {
-        sdsfree(request->user_agent);
+        httpdns_sds_free(request->user_agent);
     }
     if (NULL != request->sdns_params) {
-        sdsfree(request->sdns_params);
+        httpdns_sds_free(request->sdns_params);
     }
     if (NULL != request->cache_key) {
-        sdsfree(request->cache_key);
+        httpdns_sds_free(request->cache_key);
     }
     free(request);
 }

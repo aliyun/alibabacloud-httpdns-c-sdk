@@ -13,7 +13,7 @@ extern "C"
 #include <stdint.h>
 #include<stdlib.h>
 #include<stdbool.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 
 
 #define DEFAULT_IP_RT         0
@@ -29,9 +29,9 @@ typedef struct {
 httpdns_ip_t *httpdns_ip_new(const char *ip);
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip);
+httpdns_sds_t httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip);
 /**
  * must free using httpdns_ip_free
  */

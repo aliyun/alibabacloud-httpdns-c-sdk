@@ -15,9 +15,9 @@ extern "C"
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/time.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 
-sds httpdns_time_to_string(struct timeval ts);
+httpdns_sds_t httpdns_time_to_string(struct timeval ts);
 
 struct timeval httpdns_time_now();
 

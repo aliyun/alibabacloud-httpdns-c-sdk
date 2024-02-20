@@ -120,7 +120,7 @@ httpdns_net_stack_detector_t *httpdns_net_stack_detector_new() {
     HTTPDNS_NEW_OBJECT_IN_HEAP(detector, httpdns_net_stack_detector_t);
     detector->net_stack_type_cache = IP_STACK_UNKNOWN;
     detector->using_cache = true;
-    detector->probe_domain = sdsnew(PROBE_DOMAIN);
+    detector->probe_domain = httpdns_sds_new(PROBE_DOMAIN);
     return detector;
 }
 
@@ -129,7 +129,7 @@ void httpdns_net_stack_detector_free(httpdns_net_stack_detector_t *detector) {
         return;
     }
     if (NULL != detector->probe_domain) {
-        sdsfree(detector->probe_domain);
+        httpdns_sds_free(detector->probe_domain);
     }
     free(detector);
 }

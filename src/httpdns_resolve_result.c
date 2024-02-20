@@ -25,16 +25,16 @@ httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_res
     httpdns_resolve_result_t *new_result = httpdns_resolve_result_new();
     memset(new_result, 0, sizeof(httpdns_resolve_result_t));
     if (NULL != origin_result->host) {
-        new_result->host = sdsnew(origin_result->host);
+        new_result->host = httpdns_sds_new(origin_result->host);
     }
     if (NULL != origin_result->client_ip) {
-        new_result->client_ip = sdsnew(origin_result->client_ip);
+        new_result->client_ip = httpdns_sds_new(origin_result->client_ip);
     }
     if (NULL != origin_result->extra) {
-        new_result->extra = sdsnew(origin_result->extra);
+        new_result->extra = httpdns_sds_new(origin_result->extra);
     }
     if (NULL != origin_result->cache_key) {
-        new_result->cache_key = sdsnew(origin_result->cache_key);
+        new_result->cache_key = httpdns_sds_new(origin_result->cache_key);
     }
     new_result->ttl = origin_result->ttl;
     new_result->origin_ttl = origin_result->origin_ttl;
@@ -46,13 +46,13 @@ httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_res
 }
 
 
-sds httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result) {
+httpdns_sds_t httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result) {
     if (NULL == result) {
-        return sdsnew("httpdns_resolve_result_t()");
+        return httpdns_sds_new("httpdns_resolve_result_t()");
     }
 
 
-    sds dst_str = sdsnew("httpdns_resolve_result_t(");
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_resolve_result_t(");
     SDS_CAT(dst_str, "host=");
     SDS_CAT(dst_str, result->host);
     SDS_CAT(dst_str, ",client_ip=");
@@ -68,19 +68,19 @@ sds httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result) {
     SDS_CAT(dst_str, ",hit_cache=");
     SDS_CAT_INT(dst_str, result->hit_cache);
     SDS_CAT(dst_str, ",query_ts=");
-    sds query_ts = httpdns_time_to_string(result->query_ts);
+    httpdns_sds_t query_ts = httpdns_time_to_string(result->query_ts);
     SDS_CAT(dst_str, query_ts);
-    sdsfree(query_ts);
+    httpdns_sds_free(query_ts);
     SDS_CAT(dst_str, ",ips=");
 
-    sds list = httpdns_list_to_string(&result->ips, to_httpdns_data_to_string_func(httpdns_ip_to_string));
+    httpdns_sds_t list = httpdns_list_to_string(&result->ips, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
 
     SDS_CAT(dst_str, ",ipsv6=");
     list = httpdns_list_to_string(&result->ipsv6, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
     SDS_CAT(dst_str, ")");
     return dst_str;
 }
@@ -91,16 +91,16 @@ void httpdns_resolve_result_free(httpdns_resolve_result_t *result) {
         return;
     }
     if (NULL != result->host) {
-        sdsfree(result->host);
+        httpdns_sds_free(result->host);
     }
     if (NULL != result->client_ip) {
-        sdsfree(result->client_ip);
+        httpdns_sds_free(result->client_ip);
     }
     if (NULL != result->extra) {
-        sdsfree(result->extra);
+        httpdns_sds_free(result->extra);
     }
     if (NULL != result->cache_key) {
-        sdsfree(result->cache_key);
+        httpdns_sds_free(result->cache_key);
     }
     httpdns_list_free(&result->ips, to_httpdns_data_free_func(httpdns_ip_free));
     httpdns_list_free(&result->ipsv6, to_httpdns_data_free_func(httpdns_ip_free));

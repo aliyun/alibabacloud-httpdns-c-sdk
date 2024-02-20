@@ -15,7 +15,7 @@ extern "C"
 #include <time.h>
 #include <sys/time.h>
 #include "httpdns_list.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 
 
 typedef struct {
@@ -41,9 +41,9 @@ void httpdns_resolve_result_free(httpdns_resolve_result_t *result);
 httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_result_t *origin_result);
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result);
+httpdns_sds_t httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result);
 
 void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, const char *cache_key);
 

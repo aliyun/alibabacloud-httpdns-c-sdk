@@ -42,9 +42,9 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server
 char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler);
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler);
+httpdns_sds_t httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler);
 
 void httpdns_scheduler_free(httpdns_scheduler_t *scheduler);
 

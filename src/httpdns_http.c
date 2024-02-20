@@ -16,14 +16,14 @@ httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeou
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_http_ctx, httpdns_http_context_t);
-    httpdns_http_ctx->request_url = sdsnew(url);
+    httpdns_http_ctx->request_url = httpdns_sds_new(url);
     if (timeout_ms <= 0) {
         log_debug("request timeout is less than 0, using default %d", MAX_HTTP_REQUEST_TIMEOUT_MS);
         httpdns_http_ctx->request_timeout_ms = MAX_HTTP_REQUEST_TIMEOUT_MS;
     } else {
         httpdns_http_ctx->request_timeout_ms = timeout_ms;
     }
-    httpdns_http_ctx->user_agent = sdsnew(USER_AGENT);
+    httpdns_http_ctx->user_agent = httpdns_sds_new(USER_AGENT);
     return httpdns_http_ctx;
 }
 
@@ -45,11 +45,11 @@ int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context
     return HTTPDNS_SUCCESS;
 }
 
-sds httpdns_http_context_to_string(const httpdns_http_context_t *http_context) {
+httpdns_sds_t httpdns_http_context_to_string(const httpdns_http_context_t *http_context) {
     if (NULL == http_context) {
-        return sdsnew("httpdns_http_context_t()");
+        return httpdns_sds_new("httpdns_http_context_t()");
     }
-    sds dst_str = sdsnew("httpdns_http_context_t(request_url=");
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_http_context_t(request_url=");
     SDS_CAT(dst_str, http_context->request_url);
     SDS_CAT(dst_str, ",request_timeout_ms=");
     SDS_CAT_INT(dst_str, http_context->request_timeout_ms);
@@ -70,13 +70,13 @@ void httpdns_http_context_free(httpdns_http_context_t *http_context) {
         return;
     }
     if (NULL != http_context->request_url) {
-        sdsfree(http_context->request_url);
+        httpdns_sds_free(http_context->request_url);
     }
     if (NULL != http_context->user_agent) {
-        sdsfree(http_context->user_agent);
+        httpdns_sds_free(http_context->user_agent);
     }
     if (NULL != http_context->response_body) {
-        sdsfree(http_context->response_body);
+        httpdns_sds_free(http_context->response_body);
     }
     free(http_context);
 }
@@ -92,7 +92,7 @@ int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context) {
 static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
     size_t real_size = size * nmemb;
     httpdns_http_context_t *response_ptr = (httpdns_http_context_t *) write_data;
-    response_ptr->response_body = sdsnewlen(buffer, real_size);
+    response_ptr->response_body = httpdns_sds_new_len(buffer, real_size);
     return real_size;
 }
 
@@ -205,14 +205,14 @@ static int32_t ssl_cert_verify(CURL *curl) {
             BIO_free(bio);
         }
     }
-    sds host_names_str = httpdns_list_to_string(&host_names, NULL);
+    httpdns_sds_t host_names_str = httpdns_list_to_string(&host_names, NULL);
     log_debug("get host name from https cert is %s", host_names_str);
     bool is_domain_matched = httpdns_list_contain(&host_names, SSL_VERIFY_HOST, httpdns_string_cmp_func);
     httpdns_list_free(&host_names, httpdns_string_free_func);
     if (!is_domain_matched) {
         log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, SSL_VERIFY_HOST);
     }
-    sdsfree(host_names_str);
+    httpdns_sds_free(host_names_str);
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
 }
 

@@ -37,9 +37,9 @@ int main(int argc, char *argv[]) {
               httpdns_list_size(&results));
     // 3. 轮询获取结果
     httpdns_list_for_each_entry(result_cursor, &results) {
-        sds result_str = httpdns_resolve_result_to_string(result_cursor->data);
+        httpdns_sds_t result_str = httpdns_resolve_result_to_string(result_cursor->data);
         printf("%s\n", result_str);
-        sdsfree(result_str);
+        httpdns_sds_free(result_str);
     }
     // 4. 解析结果释放
     httpdns_list_free(&results, to_httpdns_data_free_func(httpdns_resolve_result_free));

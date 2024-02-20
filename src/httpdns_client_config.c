@@ -7,7 +7,7 @@
 #include "httpdns_list.h"
 #include "httpdns_string.h"
 #include "httpdns_memory.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 #include <string.h>
 #include <stdlib.h>
 #include "log.h"
@@ -23,14 +23,14 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
 #else
     config->retry_times = DEFAULT_RETRY_TIMES;
 #endif
-    config->sdk_version = sdsnew(SDK_VERSION);
-    config->user_agent = sdsnew(USER_AGENT);
+    config->sdk_version = httpdns_sds_new(SDK_VERSION);
+    config->user_agent = httpdns_sds_new(USER_AGENT);
     httpdns_list_init(&config->pre_resolve_hosts);
     httpdns_list_init(&config->ipv4_boot_servers);
     httpdns_list_init(&config->ipv6_boot_servers);
 
     char httpdns_region[10] = MICRO_TO_STRING(HTTPDNS_REGION);
-    config->region = sdsnew(httpdns_region);
+    config->region = httpdns_sds_new(httpdns_region);
 
     if (strcmp(httpdns_region, REGION_SINGAPORE) == 0) {
         httpdns_config_add_ipv4_boot_server(config, "161.117.200.122");
@@ -205,26 +205,26 @@ void httpdns_config_free(httpdns_config_t *config) {
         return;
     }
     if (NULL != config->sdk_version) {
-        sdsfree(config->sdk_version);
+        httpdns_sds_free(config->sdk_version);
     }
     if (NULL != config->region) {
-        sdsfree(config->region);
+        httpdns_sds_free(config->region);
     }
     if (NULL != config->account_id) {
-        sdsfree(config->account_id);
+        httpdns_sds_free(config->account_id);
     }
     if (NULL != config->secret_key) {
-        sdsfree(config->secret_key);
+        httpdns_sds_free(config->secret_key);
     }
     if (NULL != config->probe_domain) {
-        sdsfree(config->probe_domain);
+        httpdns_sds_free(config->probe_domain);
     }
     if (NULL != config->user_agent) {
-        sdsfree(config->user_agent);
+        httpdns_sds_free(config->user_agent);
     }
-    httpdns_list_free(&config->ipv4_boot_servers, (httpdns_data_free_func_t) sdsfree);
-    httpdns_list_free(&config->ipv6_boot_servers, (httpdns_data_free_func_t) sdsfree);
-    httpdns_list_free(&config->pre_resolve_hosts, (httpdns_data_free_func_t) sdsfree);
+    httpdns_list_free(&config->ipv4_boot_servers, (httpdns_data_free_func_t) httpdns_sds_free);
+    httpdns_list_free(&config->ipv6_boot_servers, (httpdns_data_free_func_t) httpdns_sds_free);
+    httpdns_list_free(&config->pre_resolve_hosts, (httpdns_data_free_func_t) httpdns_sds_free);
     free(config);
 }
 

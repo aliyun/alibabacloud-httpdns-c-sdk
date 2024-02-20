@@ -18,9 +18,9 @@ static void teardown(void) {
 static bool test_exchange_single_request(char *url) {
     httpdns_http_context_t *http_context = httpdns_http_context_new(url, 10000);
     httpdns_http_single_exchange(http_context);
-    sds http_context_str = httpdns_http_context_to_string(http_context);
+    httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
     log_trace("test_exchange_single_request, http_context=%s", http_context_str);
-    sdsfree(http_context_str);
+    httpdns_sds_free(http_context_str);
     bool is_success = (NULL != http_context) && (http_context->response_status == HTTP_STATUS_OK);
     httpdns_http_context_free(http_context);
     return is_success;
@@ -65,9 +65,9 @@ START_TEST(test_exchange_multi_request_with_resolve) {
     bool is_all_success = true;
     httpdns_list_for_each_entry(http_context_cursor, &http_contexts) {
         httpdns_http_context_t *ctx = http_context_cursor->data;
-        sds http_context_str = httpdns_http_context_to_string(ctx);
+        httpdns_sds_t http_context_str = httpdns_http_context_to_string(ctx);
         log_trace("test_exchange_multi_request_with_resolve, http_context=%s", http_context_str);
-        sdsfree(http_context_str);
+        httpdns_sds_free(http_context_str);
         if ((NULL == ctx) || (ctx->response_status != HTTP_STATUS_OK)) {
             is_all_success = false;
             break;

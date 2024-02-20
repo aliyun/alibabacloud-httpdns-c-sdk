@@ -18,7 +18,7 @@ extern "C"
 #include <stdbool.h>
 #include <stdint.h>
 #include <time.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 
 #define httpdns_list_new_empty_in_stack(var_name) \
     httpdns_list_head_t var_name;       \
@@ -46,13 +46,13 @@ extern "C"
    (httpdns_data_search_func_t)func
 
 #define httpdns_string_clone_func \
-   to_httpdns_data_clone_func(sdsnew)
+   to_httpdns_data_clone_func(httpdns_sds_new)
 
 #define httpdns_string_cmp_func \
     to_httpdns_data_cmp_func(strcmp)
 
 #define httpdns_string_free_func \
-  to_httpdns_data_free_func(sdsfree)
+  to_httpdns_data_free_func(httpdns_sds_free)
 
 
 #define httpdns_list_for_each_entry(cursor, head) \
@@ -103,7 +103,7 @@ void *httpdns_list_max(const httpdns_list_head_t *head, httpdns_data_cmp_func_t 
 
 void httpdns_list_sort(httpdns_list_head_t *head, httpdns_data_cmp_func_t cmp_func);
 
-sds httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_string_func_t to_string_func);
+httpdns_sds_t httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_string_func_t to_string_func);
 
 void *httpdns_list_search(const httpdns_list_head_t *head, const void *target, httpdns_data_search_func_t search_func);
 

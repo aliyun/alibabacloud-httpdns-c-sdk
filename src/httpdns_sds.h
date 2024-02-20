@@ -1,0 +1,77 @@
+//
+// Created by caogaoshuai on 2024/1/9.
+// 参考linux httpdns_sds.h
+//
+
+#ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SDS_H
+#define ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SDS_H
+
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
+#define HTTPDNS_SDS_MAX_PREALLOC (1024*1024)
+
+#include <sys/types.h>
+#include <stdarg.h>
+
+#ifdef WIN32
+#define inline __inline
+#endif
+
+typedef char *httpdns_sds_t;
+
+typedef struct httpdns_sds_header_t {
+    unsigned int len;
+    unsigned int free;
+    char buf[];
+} httpdns_sds_header_t;
+
+size_t httpdns_sds_len(const httpdns_sds_t s);
+
+size_t httpdns_sds_avail(const httpdns_sds_t s);
+
+httpdns_sds_t httpdns_sds_new_len(const void *init, size_t initlen);
+
+httpdns_sds_t httpdns_sds_new_empty(size_t preAlloclen);
+
+httpdns_sds_t httpdns_sds_new(const char *init);
+
+httpdns_sds_t httpdns_sds_empty(void);
+
+httpdns_sds_t httpdns_sds_dup(const httpdns_sds_t s);
+
+void httpdns_sds_free(httpdns_sds_t s);
+
+httpdns_sds_t httpdns_sds_grow_zero(httpdns_sds_t s, size_t len);
+
+httpdns_sds_t httpdns_sds_cat_len(httpdns_sds_t s, const void *t, size_t len);
+
+httpdns_sds_t httpdns_sds_cat(httpdns_sds_t s, const char *t);
+
+httpdns_sds_t httpdns_sds_cat_char(httpdns_sds_t s, char c);
+
+httpdns_sds_t httpdns_sds_cat_sds(httpdns_sds_t s, const httpdns_sds_t t);
+
+httpdns_sds_t httpdns_sds_cpy_len(httpdns_sds_t s, const char *t, size_t len);
+
+httpdns_sds_t httpdns_sds_cpy(httpdns_sds_t s, const char *t);
+
+httpdns_sds_t httpdns_sds_cat_vprintf(httpdns_sds_t s, const char *fmt, va_list ap);
+
+#ifdef __GNUC__
+
+httpdns_sds_t httpdns_sds_cat_printf(httpdns_sds_t s, const char *fmt, ...)
+__attribute__((format(printf, 2, 3)));
+
+#else
+httpdns_sds_t httpdns_sds_cat_printf(httpdns_sds_t s, const char *fmt, ...);
+#endif
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif

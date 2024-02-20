@@ -28,9 +28,9 @@ START_TEST(test_parse_schedule_response) {
     bool is_expected = (NULL != response) && httpdns_list_is_not_empty(&response->service_ip) &&
                        httpdns_list_is_not_empty(&response->service_ipv6);
 
-    sds parsed_body = httpdns_schedule_response_to_string(response);
+    httpdns_sds_t parsed_body = httpdns_schedule_response_to_string(response);
     log_trace("test_parse_schedule_response, raw body=%s, parse result=%s", body, parsed_body);
-    sdsfree(parsed_body);
+    httpdns_sds_free(parsed_body);
 
     httpdns_schedule_response_free(response);
     ck_assert_msg(is_expected, "解析调度报文错误");
@@ -49,9 +49,9 @@ START_TEST(test_parse_single_resolve_response) {
                  "}";
     httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(body);
 
-    sds parsed_body = httpdns_single_resolve_response_to_string(response);
+    httpdns_sds_t parsed_body = httpdns_single_resolve_response_to_string(response);
     log_trace("test_parse_single_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
-    sdsfree(parsed_body);
+    httpdns_sds_free(parsed_body);
 
     bool is_expected = (NULL != response)
                        && httpdns_list_is_not_empty(&response->ips)
@@ -88,9 +88,9 @@ START_TEST(test_parse_multi_resolve_response) {
                  "}";
     httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(body);
 
-    sds parsed_body = httpdns_multi_resolve_response_to_string(response);
+    httpdns_sds_t parsed_body = httpdns_multi_resolve_response_to_string(response);
     log_trace("test_parse_multi_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
-    sdsfree(parsed_body);
+    httpdns_sds_free(parsed_body);
 
     bool is_expected = (NULL != response) && (httpdns_list_size(&response->dns) == 2);
     httpdns_multi_resolve_response_free(response);

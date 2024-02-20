@@ -12,7 +12,7 @@ extern "C"
 
 
 #include <string.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 
 #define IS_NOT_BLANK_STRING(str) \
     (NULL != str && strlen(str) >0)
@@ -21,7 +21,7 @@ extern "C"
     ((NULL == str || strlen(str) <=0))
 
 #define SDS_CAT(dst_str, slice) \
-    dst_str = sdscat(dst_str, slice)
+    dst_str = httpdns_sds_cat(dst_str, slice)
 
 
 #define SDS_CAT_INT(dst_str, int_val) \

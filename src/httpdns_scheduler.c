@@ -25,19 +25,19 @@ httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config) {
     return scheduler;
 }
 
-sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
+httpdns_sds_t httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler) {
-        return sdsnew("httpdns_scheduler_t()");
+        return httpdns_sds_new("httpdns_scheduler_t()");
     }
     pthread_mutex_lock(&scheduler->lock);
-    sds dst_str = sdsnew("httpdns_scheduler_t(ipv4_resolve_servers=");
-    sds list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_scheduler_t(ipv4_resolve_servers=");
+    httpdns_sds_t list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
     SDS_CAT(dst_str, ",ipv6_resolve_servers=");
     list = httpdns_list_to_string(&scheduler->ipv6_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
     SDS_CAT(dst_str, ")");
     pthread_mutex_unlock(&scheduler->lock);
     return dst_str;
@@ -123,14 +123,14 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     }
     // 轮询启动IP， 更新IP
     do {
-        sds url = sdsnew(http_scheme);
-        url = sdscat(url, cur_entry->data);
-        url = sdscat(url, "/");
-        url = sdscat(url, config->account_id);
-        url = sdscat(url, "/ss?platform=linux&sdkVersion=");
-        url = sdscat(url, config->sdk_version);
-        url = sdscat(url, "&region=");
-        url = sdscat(url, config->region);
+        httpdns_sds_t url = httpdns_sds_new(http_scheme);
+        url = httpdns_sds_cat(url, cur_entry->data);
+        url = httpdns_sds_cat(url, "/");
+        url = httpdns_sds_cat(url, config->account_id);
+        url = httpdns_sds_cat(url, "/ss?platform=linux&sdkVersion=");
+        url = httpdns_sds_cat(url, config->sdk_version);
+        url = httpdns_sds_cat(url, "&region=");
+        url = httpdns_sds_cat(url, config->region);
         if (config->using_sign && NULL != config->secret_key) {
             char nonce[SCHEDULE_NONCE_SIZE + 1];
             generate_nonce(nonce);
@@ -138,26 +138,26 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
                                                                    config->secret_key,
                                                                    MAX_SCHEDULE_SIGNATURE_OFFSET_TIME,
                                                                    httpdns_time_now());
-            url = sdscat(url, "&s=");
-            url = sdscat(url, signature->sign);
-            url = sdscat(url, "&t=");
-            url = sdscat(url, signature->timestamp);
-            url = sdscat(url, "&n=");
-            url = sdscat(url, nonce);
+            url = httpdns_sds_cat(url, "&s=");
+            url = httpdns_sds_cat(url, signature->sign);
+            url = httpdns_sds_cat(url, "&t=");
+            url = httpdns_sds_cat(url, signature->timestamp);
+            url = httpdns_sds_cat(url, "&n=");
+            url = httpdns_sds_cat(url, nonce);
             httpdns_signature_free(signature);
         }
         httpdns_http_context_t *http_context = httpdns_http_context_new(url, config->timeout_ms);
         log_debug("exchange http request url %s", url);
-        sdsfree(url);
+        httpdns_sds_free(url);
         httpdns_http_single_exchange(http_context);
         bool success = (http_context->response_status == HTTP_STATUS_OK);
         if (success) {
             httpdns_parse_body(http_context->response_body, scheduler);
             log_info("try server %s fetch resolve server success", cur_entry->data);
         } else {
-            sds http_context_str = httpdns_http_context_to_string(http_context);
+            httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
             log_info("httpdns scheduler exchange http request failed, http context is %s ", http_context_str);
-            sdsfree(http_context_str);
+            httpdns_sds_free(http_context_str);
         }
         httpdns_http_context_free(http_context);
         if (success) {
@@ -224,10 +224,10 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     }
     httpdns_ip_t *resolve_server = httpdns_list_min(resolve_servers, to_httpdns_data_cmp_func(httpdns_ip_cmp));
     if (NULL != resolve_server) {
-        sds httpdns_ip_str = httpdns_ip_to_string(resolve_server);
+        httpdns_sds_t httpdns_ip_str = httpdns_ip_to_string(resolve_server);
         log_debug("get resolve server %s", httpdns_ip_str);
-        sdsfree(httpdns_ip_str);
-        sds resolve_server_ip = sdsnew(resolve_server->ip);
+        httpdns_sds_free(httpdns_ip_str);
+        httpdns_sds_t resolve_server_ip = httpdns_sds_new(resolve_server->ip);
         pthread_mutex_unlock(&scheduler->lock);
         return resolve_server_ip;
     }

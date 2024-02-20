@@ -27,9 +27,9 @@ START_TEST(test_refresh_resolve_servers) {
     httpdns_scheduler_refresh(scheduler);
     bool is_success = httpdns_list_size(&scheduler->ipv4_resolve_servers) > 1
                       && httpdns_list_size(&scheduler->ipv6_resolve_servers) > 1;
-    sds scheduler_str = httpdns_scheduler_to_string(scheduler);
+    httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(scheduler);
     log_trace("test_refresh_resolve_servers, scheduler=%s", scheduler_str);
-    sdsfree(scheduler_str);
+    httpdns_sds_free(scheduler_str);
     httpdns_config_free(config);
     httpdns_scheduler_free(scheduler);
     httpdns_net_stack_detector_free(net_stack_detector);
@@ -62,11 +62,11 @@ START_TEST(test_get_resolve_server) {
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip3, NULL);
     char *schedule_ip = httpdns_scheduler_get(&scheduler);
     bool is_success = strcmp("2.2.2.2", schedule_ip) == 0;
-    sds scheduler_str = httpdns_scheduler_to_string(&scheduler);
+    httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_get_resolve_server, get resolver %s from scheduler=%s", schedule_ip, scheduler_str);
-    sdsfree(scheduler_str);
+    httpdns_sds_free(scheduler_str);
     httpdns_net_stack_detector_free(scheduler.net_stack_detector);
-    sdsfree(schedule_ip);
+    httpdns_sds_free(schedule_ip);
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     pthread_mutex_destroy(&scheduler.lock);
     pthread_mutexattr_init(&scheduler.lock_attr);
@@ -97,13 +97,13 @@ START_TEST(test_scheduler_update) {
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip1, NULL);
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip2, NULL);
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip3, NULL);
-    sds scheduler_str = httpdns_scheduler_to_string(&scheduler);
+    httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_scheduler_update, before update %s, scheduler=%s", ip3.ip, scheduler_str);
-    sdsfree(scheduler_str);
+    httpdns_sds_free(scheduler_str);
     httpdns_scheduler_update(&scheduler, "3.3.3.3", 100);
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
-    sdsfree(scheduler_str);
+    httpdns_sds_free(scheduler_str);
     bool is_success = (ip3.rt == (int32_t) (DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     pthread_mutex_destroy(&scheduler.lock);

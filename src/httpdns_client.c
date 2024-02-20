@@ -85,14 +85,14 @@ static httpdns_resolve_result_t *single_resolve_response_to_result(httpdns_singl
     }
     httpdns_resolve_result_t *result = httpdns_resolve_result_new();
     if (NULL != response->host) {
-        result->host = sdsnew(response->host);
-        result->cache_key = sdsnew(response->host);
+        result->host = httpdns_sds_new(response->host);
+        result->cache_key = httpdns_sds_new(response->host);
     }
     if (NULL != response->client_ip) {
-        result->client_ip = sdsnew(response->client_ip);
+        result->client_ip = httpdns_sds_new(response->client_ip);
     }
     if (NULL != response->extra) {
-        result->extra = sdsnew(response->extra);
+        result->extra = httpdns_sds_new(response->extra);
     }
     httpdns_list_dup(&result->ips, &response->ips, to_httpdns_data_clone_func(httpdns_ip_new));
     httpdns_list_dup(&result->ipsv6, &response->ipsv6, to_httpdns_data_clone_func(httpdns_ip_new));
@@ -105,9 +105,9 @@ static httpdns_resolve_result_t *single_resolve_response_to_result(httpdns_singl
 
 static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
                                            void *user_callback_param) {
-    sds http_context_str = httpdns_http_context_to_string(http_context);
+    httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
     log_debug("on_http_complete_callback_func %s", http_context_str);
-    sdsfree(http_context_str);
+    httpdns_sds_free(http_context_str);
 
     if (NULL == user_callback_param) {
         log_debug("user callback param is NULL, skip");
@@ -120,9 +120,9 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
     httpdns_scheduler_t *scheduler = param->scheduler;
     param->retry_times = param->retry_times - 1;
     if (http_context->response_status != HTTP_STATUS_OK) {
-        sds http_context_str = httpdns_http_context_to_string(http_context);
+        httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
         log_info("http response exception, httpdns_conxtext %s", http_context_str);
-        sdsfree(http_context_str);
+        httpdns_sds_free(http_context_str);
         char *resolver = resolve_context->request->resolver;
         httpdns_scheduler_update(param->scheduler, resolver, MAX_HTTP_REQUEST_TIMEOUT_MS);
         if (NULL != resolve_request->complete_callback_func) {
@@ -280,9 +280,9 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
             }
             // 重试时更换服务IP
             httpdns_resolve_param_t *new_resolve_param = httpdns_resolve_param_new(resolve_param->request);
-            sds new_resolver = httpdns_scheduler_get(scheduler);
+            httpdns_sds_t new_resolver = httpdns_scheduler_get(scheduler);
             httpdns_resolve_request_set_resolver(new_resolve_param->request, new_resolver);
-            sdsfree(new_resolver);
+            httpdns_sds_free(new_resolver);
 
             // 这里不释放参数，只进行参数传递
             new_resolve_param->callback_param_free_func = NULL;

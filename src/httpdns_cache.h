@@ -40,7 +40,7 @@ httpdns_cache_entry_t *httpdns_cache_table_get(httpdns_cache_table_t *cache_tabl
 
 void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table);
 
-sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table);
+httpdns_sds_t httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table);
 
 void httpdns_cache_entry_rotate(httpdns_cache_entry_t *cache_entry);
 

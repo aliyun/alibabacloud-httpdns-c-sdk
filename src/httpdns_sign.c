@@ -4,7 +4,7 @@
 
 #include "httpdns_sign.h"
 #include "httpdns_time.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 #include "openssl/md5.h"
 #include <string.h>
 #include <stdlib.h>
@@ -27,18 +27,18 @@ httpdns_signature_t *httpdns_signature_new(const char *host, const char *secret,
     }
     char ts_str[32];
     sprintf(ts_str, "%ld", tv.tv_sec + max_offset);
-    sds raw_str = sdsnew(host);
-    raw_str = sdscat(raw_str, "-");
-    raw_str = sdscat(raw_str, secret);
-    raw_str = sdscat(raw_str, "-");
-    raw_str = sdscat(raw_str, ts_str);
+    httpdns_sds_t raw_str = httpdns_sds_new(host);
+    raw_str = httpdns_sds_cat(raw_str, "-");
+    raw_str = httpdns_sds_cat(raw_str, secret);
+    raw_str = httpdns_sds_cat(raw_str, "-");
+    raw_str = httpdns_sds_cat(raw_str, ts_str);
     char raw_sign_str[16];
     MD5((unsigned char *) raw_str, strlen(raw_str), (unsigned char *) raw_sign_str);
     HTTPDNS_NEW_OBJECT_IN_HEAP(signature, httpdns_signature_t);
     char hex_sign_str[33];
     uchar_to_hex_str((unsigned char *) raw_sign_str, hex_sign_str);
-    signature->sign = sdsnew(hex_sign_str);
-    signature->timestamp = sdsnew(ts_str);
+    signature->sign = httpdns_sds_new(hex_sign_str);
+    signature->timestamp = httpdns_sds_new(ts_str);
     signature->raw = raw_str;
     log_debug("httpdns_signature_t(raw=%s,timestamp=%s,sign=%s)", signature->raw, signature->timestamp, signature->sign);
     return signature;
@@ -49,13 +49,13 @@ void httpdns_signature_free(httpdns_signature_t *signature) {
         return;
     }
     if (NULL != signature->sign) {
-        sdsfree(signature->timestamp);
+        httpdns_sds_free(signature->timestamp);
     }
     if (NULL != signature->sign) {
-        sdsfree(signature->sign);
+        httpdns_sds_free(signature->sign);
     }
     if (NULL != signature->raw) {
-        sdsfree(signature->raw);
+        httpdns_sds_free(signature->raw);
     }
     free(signature);
 }

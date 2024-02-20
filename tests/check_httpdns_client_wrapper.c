@@ -22,18 +22,18 @@ void httpdns_complete_callback_func(const httpdns_resolve_result_t *result, void
     }
 
 
-    sds result_str = httpdns_resolve_result_to_string(result);
+    httpdns_sds_t result_str = httpdns_resolve_result_to_string(result);
     log_trace("callback result=%s", result_str);
-    sdsfree(result_str);
+    httpdns_sds_free(result_str);
 }
 
 START_TEST(test_get_httpdns_result_for_host_sync) {
     httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_cache("www.aliyun.com",
                                                                                    HTTPDNS_QUERY_TYPE_AUTO,
                                                                                    NULL);
-    sds result_str = httpdns_resolve_result_to_string(result);
+    httpdns_sds_t result_str = httpdns_resolve_result_to_string(result);
     log_trace("test_get_httpdns_result_for_host_sync_with_cache, result %s", result_str);
-    sdsfree(result_str);
+    httpdns_sds_free(result_str);
 
     bool is_success = NULL != result && httpdns_list_is_not_empty(&result->ips);
     httpdns_resolve_result_free(result);
@@ -50,9 +50,9 @@ START_TEST(test_process_pre_resolve_hosts) {
     httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_cache("www.aliyun.com",
                                                                                    HTTPDNS_QUERY_TYPE_AUTO,
                                                                                    NULL);
-    sds result_str = httpdns_resolve_result_to_string(result);
+    httpdns_sds_t result_str = httpdns_resolve_result_to_string(result);
     log_trace("test_process_pre_resolve_hosts, result %s", result_str);
-    sdsfree(result_str);
+    httpdns_sds_free(result_str);
 
     bool is_success = NULL != result && result->hit_cache;
     httpdns_resolve_result_free(result);
@@ -70,9 +70,9 @@ START_TEST(test_httpdns_sdns) {
     httpdns_resolve_request_append_sdns_params(request, "a", "a");
     httpdns_resolve_result_t *result = get_httpdns_result_for_host_sync_with_custom_request(request);
 
-    sds result_str = httpdns_resolve_result_to_string(result);
+    httpdns_sds_t result_str = httpdns_resolve_result_to_string(result);
     log_trace("test_httpdns_sdns, result %s", result_str);
-    sdsfree(result_str);
+    httpdns_sds_free(result_str);
 
     bool is_success = NULL != result && IS_NOT_BLANK_STRING(result->extra);
     httpdns_resolve_result_free(result);
@@ -110,9 +110,9 @@ START_TEST(test_get_httpdns_results_for_hosts_sync) {
     httpdns_list_new_empty_in_stack(results);
     int ret = get_httpdns_results_for_hosts_sync_with_cache(&hosts, HTTPDNS_QUERY_TYPE_AUTO, NULL, &results);
 
-    sds results_str = httpdns_list_to_string(&results, to_httpdns_data_to_string_func(httpdns_resolve_result_to_string));
+    httpdns_sds_t results_str = httpdns_list_to_string(&results, to_httpdns_data_to_string_func(httpdns_resolve_result_to_string));
     log_trace("test_get_httpdns_results_for_hosts_sync_with_cache, results %s", results_str);
-    sdsfree(results_str);
+    httpdns_sds_free(results_str);
 
     bool is_success = HTTPDNS_SUCCESS == ret && httpdns_list_size(&results) == httpdns_list_size(&hosts);
     httpdns_list_free(&results, to_httpdns_data_free_func(httpdns_resolve_result_free));

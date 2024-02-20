@@ -51,15 +51,15 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         httpdns_resolve_param_t *resolve_param = param_cursor->data;
         httpdns_resolve_request_t *request = resolve_param->request;
 
-        sds request_str = httpdns_resolve_request_to_string(request);
+        httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
         log_debug("multi resolve request %s", request_str);
-        sdsfree(request_str);
+        httpdns_sds_free(request_str);
 
         const char *http_scheme = request->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
         const bool using_sign = (request->using_sign && NULL != request->secret_key);
         const char *http_api = request->using_multi ? (using_sign ? HTTPDNS_API_SIGN_RESOLVE : HTTPDNS_API_RESOLVE)
                                                     : (using_sign ? HTTPDNS_API_SIGN_D : HTTPDNS_API_D);
-        sds url = sdsnew(http_scheme);
+        httpdns_sds_t url = httpdns_sds_new(http_scheme);
         if (is_valid_ipv6(request->resolver)) {
             SDS_CAT(url, "[");
         }
@@ -101,7 +101,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         httpdns_list_add(&http_contexts, http_context, NULL);
 
         log_debug("multi resolve url %s", url);
-        sdsfree(url);
+        httpdns_sds_free(url);
 
         http_context_size++;
     }

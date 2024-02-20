@@ -17,9 +17,9 @@ extern "C"
 #define HTTPDNS_SET_STRING_FIELD(object, field, value) \
     if (NULL != object && NULL != value) {         \
         if (NULL != object->field) {    \
-            sdsfree(object->field);     \
+            httpdns_sds_free(object->field);     \
         }                                \
-        object->field = sdsnew(value);    \
+        object->field = httpdns_sds_new(value);    \
     }
 
 

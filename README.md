@@ -86,7 +86,7 @@ HTTPDNS C SDK使用check框架作为自己的单元测试框架，该框架的�
   cmake ..
   make
   make test
-  make install
+  sudo make install
 ```
 
 ## HTTPDNS C SDK的安装使用

@@ -14,19 +14,19 @@ httpdns_schedule_response_t *httpdns_schedule_response_new() {
     return schedule_response;
 }
 
-sds httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response) {
+httpdns_sds_t httpdns_schedule_response_to_string(const httpdns_schedule_response_t *response) {
     if (NULL == response) {
-        return sdsnew("httpdns_schedule_response_t()");
+        return httpdns_sds_new("httpdns_schedule_response_t()");
     }
-    sds dst_str = sdsnew("httpdns_schedule_response_t(");
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_schedule_response_t(");
     SDS_CAT(dst_str, "service_ip=");
-    sds list = httpdns_list_to_string(&response->service_ip, NULL);
+    httpdns_sds_t list = httpdns_list_to_string(&response->service_ip, NULL);
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
     SDS_CAT(dst_str, ",service_ipv6=");
     list = httpdns_list_to_string(&response->service_ipv6, NULL);
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
     SDS_CAT(dst_str, ")");
     return dst_str;
 }
@@ -48,21 +48,21 @@ httpdns_single_resolve_response_t *httpdns_single_resolve_response_new() {
 }
 
 
-sds httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response) {
+httpdns_sds_t httpdns_single_resolve_response_to_string(const httpdns_single_resolve_response_t *response) {
     if (NULL == response) {
-        return sdsnew("httpdns_single_resolve_response_t()");
+        return httpdns_sds_new("httpdns_single_resolve_response_t()");
     }
-    sds dst_str = sdsnew("httpdns_single_resolve_response_t(host=");
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_single_resolve_response_t(host=");
     SDS_CAT(dst_str, response->host);
     SDS_CAT(dst_str, ",ips=");
-    sds list = httpdns_list_to_string(&response->ips, NULL);
+    httpdns_sds_t list = httpdns_list_to_string(&response->ips, NULL);
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
 
     SDS_CAT(dst_str, ",ipsv6=");
     list = httpdns_list_to_string(&response->ipsv6, NULL);
     SDS_CAT(dst_str, list);
-    sdsfree(list);
+    httpdns_sds_free(list);
 
     SDS_CAT(dst_str, ",ttl=");
     SDS_CAT_INT(dst_str, response->ttl)
@@ -85,13 +85,13 @@ void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *res
         return;
     }
     if (NULL != response->host) {
-        sdsfree(response->host);
+        httpdns_sds_free(response->host);
     }
     if (NULL != response->extra) {
-        sdsfree(response->extra);
+        httpdns_sds_free(response->extra);
     }
     if (NULL != response->client_ip) {
-        sdsfree(response->client_ip);
+        httpdns_sds_free(response->client_ip);
     }
     httpdns_list_free(&response->ips, httpdns_string_free_func);
     httpdns_list_free(&response->ipsv6, httpdns_string_free_func);
@@ -104,15 +104,15 @@ httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new() {
     return multi_resolve_result;
 }
 
-sds httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response) {
+httpdns_sds_t httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_response_t *response) {
     if (NULL == response) {
-        return sdsnew("httpdns_multi_resolve_response_t()");
+        return httpdns_sds_new("httpdns_multi_resolve_response_t()");
     }
-    sds dst_str = sdsnew("httpdns_multi_resolve_response_t(");
-    sds list = httpdns_list_to_string(&response->dns, to_httpdns_data_to_string_func(httpdns_single_resolve_response_to_string));
+    httpdns_sds_t dst_str = httpdns_sds_new("httpdns_multi_resolve_response_t(");
+    httpdns_sds_t list = httpdns_list_to_string(&response->dns, to_httpdns_data_to_string_func(httpdns_single_resolve_response_to_string));
     SDS_CAT(dst_str, list);
     SDS_CAT(dst_str, ")");
-    sdsfree(list);
+    httpdns_sds_free(list);
     return dst_str;
 }
 
@@ -160,7 +160,7 @@ httpdns_schedule_response_t *httpdns_response_parse_schedule(const char *body) {
 
 static char *decode_html(char *str) {
     char *src = str;
-    char *dst = sdsempty();
+    char *dst = httpdns_sds_empty();
     size_t length = strlen(str);
     size_t index = 0;
 
@@ -206,11 +206,11 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     }
     cJSON *host_json = cJSON_GetObjectItem(c_json_body, "host");
     if (NULL != host_json) {
-        single_resolve_result->host = sdsnew(host_json->valuestring);
+        single_resolve_result->host = httpdns_sds_new(host_json->valuestring);
     }
     cJSON *client_ip_json = cJSON_GetObjectItem(c_json_body, "client_ip");
     if (NULL != client_ip_json) {
-        single_resolve_result->client_ip = sdsnew(client_ip_json->valuestring);
+        single_resolve_result->client_ip = httpdns_sds_new(client_ip_json->valuestring);
     }
     cJSON *ttl_json = cJSON_GetObjectItem(c_json_body, "ttl");
     if (NULL != ttl_json) {

@@ -27,7 +27,7 @@ extern "C"
 #include <stdbool.h>
 #include <netdb.h>
 #include "httpdns_error_type.h"
-#include "sds.h"
+#include "httpdns_sds.h"
 
 #define IPV4_PROBE_ADDR  "8.8.8.8"
 #define IPV6_PROBE_ADDR  "2000::"

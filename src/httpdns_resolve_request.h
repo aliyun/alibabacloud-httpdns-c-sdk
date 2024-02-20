@@ -80,14 +80,14 @@ httpdns_resolve_request_t *httpdns_resolve_request_new(httpdns_config_t *config,
                                                        const char *resolver,
                                                        const char *query_type);
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
 httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_request_t *origin_resolve_request);
 
 /**
- * must free using sdsfree
+ * must free using httpdns_sds_free
  */
-sds httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request);
+httpdns_sds_t httpdns_resolve_request_to_string(const httpdns_resolve_request_t *request);
 
 int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request);
 

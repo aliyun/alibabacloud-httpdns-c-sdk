@@ -5,17 +5,17 @@
 #include "httpdns_ip.h"
 #include <string.h>
 #include <stdio.h>
-#include "sds.h"
+#include "httpdns_sds.h"
 #include "httpdns_memory.h"
 
 
-sds httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip) {
+httpdns_sds_t httpdns_ip_to_string(const httpdns_ip_t *httpdns_ip) {
     if (NULL == httpdns_ip) {
-        return sdsnew("httpdns_ip_t()");
+        return httpdns_sds_new("httpdns_ip_t()");
     }
     char buffer[64];
     sprintf(buffer, "httpdns_ip_t(ip=%s, rt=%d)", httpdns_ip->ip, httpdns_ip->rt);
-    return sdsnew(buffer);
+    return httpdns_sds_new(buffer);
 }
 
 void httpdns_ip_free(httpdns_ip_t *ip) {
@@ -23,7 +23,7 @@ void httpdns_ip_free(httpdns_ip_t *ip) {
         return;
     }
     if (NULL != ip->ip) {
-        sdsfree(ip->ip);
+        httpdns_sds_free(ip->ip);
     }
     free(ip);
 }
@@ -33,7 +33,7 @@ httpdns_ip_t *httpdns_ip_new(const char *ip) {
         return NULL;
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(http_ip, httpdns_ip_t);
-    http_ip->ip = sdsnew(ip);
+    http_ip->ip = httpdns_sds_new(ip);
     http_ip->rt = DEFAULT_IP_RT;
     return http_ip;
 }
@@ -44,7 +44,7 @@ httpdns_ip_t *httpdns_ip_clone(const httpdns_ip_t *origin_ip) {
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(new_ip, httpdns_ip_t);
     if (NULL != origin_ip->ip) {
-        new_ip->ip = sdsnew(origin_ip->ip);
+        new_ip->ip = httpdns_sds_new(origin_ip->ip);
     }
     new_ip->rt = origin_ip->rt;
     return new_ip;

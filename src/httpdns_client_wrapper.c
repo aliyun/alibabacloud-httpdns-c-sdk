@@ -224,7 +224,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
     char *host_group = NULL;
     httpdns_list_for_each_entry(host_cursor, hosts) {
         if (NULL == host_group) {
-            host_group = sdsempty();
+            host_group = httpdns_sds_empty();
         }
         if (strlen(host_group) > 0) {
             SDS_CAT(host_group, ",");
@@ -248,12 +248,12 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
 
         httpdns_resolve_task_add_request(resolve_task, request);
 
-        sds request_str = httpdns_resolve_request_to_string(request);
+        httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
         log_debug("batch resolve add request %s", request_str);
-        sdsfree(request_str);
+        httpdns_sds_free(request_str);
 
         httpdns_resolve_request_free(request);
-        sdsfree(host_group);
+        httpdns_sds_free(host_group);
         host_group = NULL;
     }
 

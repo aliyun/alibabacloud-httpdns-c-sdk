@@ -40,8 +40,8 @@ httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_res
     new_result->origin_ttl = origin_result->origin_ttl;
     new_result->query_ts = origin_result->query_ts;
     new_result->hit_cache = origin_result->hit_cache;
-    httpdns_list_dup(&new_result->ips, &origin_result->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
-    httpdns_list_dup(&new_result->ipsv6, &origin_result->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
+    httpdns_list_dup(&new_result->ips, &origin_result->ips, to_httpdns_data_clone_func(httpdns_ip_clone));
+    httpdns_list_dup(&new_result->ipsv6, &origin_result->ipsv6, to_httpdns_data_clone_func(httpdns_ip_clone));
     return new_result;
 }
 
@@ -73,12 +73,12 @@ sds httpdns_resolve_result_to_string(const httpdns_resolve_result_t *result) {
     sdsfree(query_ts);
     SDS_CAT(dst_str, ",ips=");
 
-    sds list = httpdns_list_to_string(&result->ips, DATA_TO_STRING_FUNC(httpdns_ip_to_string));
+    sds list = httpdns_list_to_string(&result->ips, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
     sdsfree(list);
 
     SDS_CAT(dst_str, ",ipsv6=");
-    list = httpdns_list_to_string(&result->ipsv6, DATA_TO_STRING_FUNC(httpdns_ip_to_string));
+    list = httpdns_list_to_string(&result->ipsv6, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
     sdsfree(list);
     SDS_CAT(dst_str, ")");
@@ -102,8 +102,8 @@ void httpdns_resolve_result_free(httpdns_resolve_result_t *result) {
     if (NULL != result->cache_key) {
         sdsfree(result->cache_key);
     }
-    httpdns_list_free(&result->ips, DATA_FREE_FUNC(httpdns_ip_free));
-    httpdns_list_free(&result->ipsv6, DATA_FREE_FUNC(httpdns_ip_free));
+    httpdns_list_free(&result->ips, to_httpdns_data_free_func(httpdns_ip_free));
+    httpdns_list_free(&result->ipsv6, to_httpdns_data_free_func(httpdns_ip_free));
     free(result);
 }
 
@@ -131,11 +131,11 @@ int32_t httpdns_resolve_result_cmp(const httpdns_resolve_result_t *result1, cons
     return strcmp(result1->host, result2->host);
 }
 
-void httpdns_resolve_results_merge(struct list_head *raw_results, struct list_head *merged_results) {
+void httpdns_resolve_results_merge(httpdns_list_head_t *raw_results, httpdns_list_head_t *merged_results) {
     if (NULL == raw_results || NULL == merged_results) {
         log_info("results merge failed, raw results or merged results is NULL");
     }
-    httpdns_list_sort(raw_results, DATA_CMP_FUNC(httpdns_resolve_result_cmp));
+    httpdns_list_sort(raw_results, to_httpdns_data_cmp_func(httpdns_resolve_result_cmp));
     httpdns_resolve_result_t *target_result = NULL;
     httpdns_list_for_each_entry(curor, raw_results) {
         httpdns_resolve_result_t *cur_result = curor->data;
@@ -143,11 +143,11 @@ void httpdns_resolve_results_merge(struct list_head *raw_results, struct list_he
             target_result = httpdns_resolve_result_clone(cur_result);
             httpdns_list_add(merged_results, target_result, NULL);
         } else {
-            if (IS_NOT_EMPTY_LIST(&cur_result->ips) && IS_EMPTY_LIST(&target_result->ips)) {
-                httpdns_list_dup(&target_result->ips, &cur_result->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
+            if (httpdns_list_is_not_empty(&cur_result->ips) && httpdns_list_is_empty(&target_result->ips)) {
+                httpdns_list_dup(&target_result->ips, &cur_result->ips, to_httpdns_data_clone_func(httpdns_ip_clone));
             }
-            if (IS_NOT_EMPTY_LIST(&cur_result->ipsv6) && IS_EMPTY_LIST(&target_result->ipsv6)) {
-                httpdns_list_dup(&target_result->ipsv6, &cur_result->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
+            if (httpdns_list_is_not_empty(&cur_result->ipsv6) && httpdns_list_is_empty(&target_result->ipsv6)) {
+                httpdns_list_dup(&target_result->ipsv6, &cur_result->ipsv6, to_httpdns_data_clone_func(httpdns_ip_clone));
             }
             if (cur_result->origin_ttl > target_result->origin_ttl) {
                 target_result->origin_ttl = cur_result->origin_ttl;

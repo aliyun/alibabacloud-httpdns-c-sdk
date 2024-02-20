@@ -32,7 +32,7 @@ START_TEST(test_simple_resolve_without_cache) {
                                                                      HTTPDNS_QUERY_TYPE_BOTH);
     httpdns_client_simple_resolve(client, request, &result);
     httpdns_resolve_request_free(request);
-    bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
+    bool is_success = (NULL != result) && httpdns_list_is_not_empty(&result->ips);
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
     httpdns_client_free(client);
@@ -50,7 +50,7 @@ START_TEST(test_simple_resolve_with_cache) {
     httpdns_resolve_request_set_using_cache(request, true);
     httpdns_client_simple_resolve(client, request, &result);
     httpdns_resolve_request_free(request);
-    bool is_success = (NULL != result) && IS_NOT_EMPTY_LIST(&result->ips);
+    bool is_success = (NULL != result) && httpdns_list_is_not_empty(&result->ips);
     httpdns_resolve_result_free(result);
     sleep(1);
     request = httpdns_resolve_request_new(config,
@@ -60,7 +60,7 @@ START_TEST(test_simple_resolve_with_cache) {
     httpdns_resolve_request_set_using_cache(request, true);
     httpdns_client_simple_resolve(client, request, &result);
     httpdns_resolve_request_free(request);
-    is_success = is_success && (NULL != result && result->hit_cache && IS_NOT_EMPTY_LIST(&result->ips));
+    is_success = is_success && (NULL != result && result->hit_cache && httpdns_list_is_not_empty(&result->ips));
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
     httpdns_client_free(client);
@@ -106,7 +106,7 @@ START_TEST(test_multi_resolve_task) {
     bool is_success = (ctx_size == 3);
     httpdns_list_for_each_entry(resolve_context_cursor, &task->resolve_contexts) {
         httpdns_resolve_context_t *resolve_context = resolve_context_cursor->data;
-        if (NULL == resolve_context || IS_EMPTY_LIST(&resolve_context->result)) {
+        if (NULL == resolve_context || httpdns_list_is_empty(&resolve_context->result)) {
             is_success = false;
         }
     }

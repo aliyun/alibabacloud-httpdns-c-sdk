@@ -35,8 +35,8 @@ void httpdns_schedule_response_free(httpdns_schedule_response_t *response) {
     if (NULL == response) {
         return;
     }
-    httpdns_list_free(&response->service_ip, STRING_FREE_FUNC);
-    httpdns_list_free(&response->service_ipv6, STRING_FREE_FUNC);
+    httpdns_list_free(&response->service_ip, httpdns_string_free_func);
+    httpdns_list_free(&response->service_ipv6, httpdns_string_free_func);
     free(response);
 }
 
@@ -93,8 +93,8 @@ void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *res
     if (NULL != response->client_ip) {
         sdsfree(response->client_ip);
     }
-    httpdns_list_free(&response->ips, STRING_FREE_FUNC);
-    httpdns_list_free(&response->ipsv6, STRING_FREE_FUNC);
+    httpdns_list_free(&response->ips, httpdns_string_free_func);
+    httpdns_list_free(&response->ipsv6, httpdns_string_free_func);
     free(response);
 }
 
@@ -109,7 +109,7 @@ sds httpdns_multi_resolve_response_to_string(const httpdns_multi_resolve_respons
         return sdsnew("httpdns_multi_resolve_response_t()");
     }
     sds dst_str = sdsnew("httpdns_multi_resolve_response_t(");
-    sds list = httpdns_list_to_string(&response->dns, DATA_TO_STRING_FUNC(httpdns_single_resolve_response_to_string));
+    sds list = httpdns_list_to_string(&response->dns, to_httpdns_data_to_string_func(httpdns_single_resolve_response_to_string));
     SDS_CAT(dst_str, list);
     SDS_CAT(dst_str, ")");
     sdsfree(list);
@@ -120,18 +120,18 @@ void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *respo
     if (NULL == response) {
         return;
     }
-    httpdns_list_free(&response->dns, DATA_FREE_FUNC(httpdns_single_resolve_response_free));
+    httpdns_list_free(&response->dns, to_httpdns_data_free_func(httpdns_single_resolve_response_free));
     free(response);
 }
 
-static void parse_ip_array(cJSON *c_json_array, struct list_head *ips) {
+static void parse_ip_array(cJSON *c_json_array, httpdns_list_head_t *ips) {
     size_t array_size = cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
         return;
     }
     for (int i = 0; i < array_size; i++) {
         cJSON *ip_json = cJSON_GetArrayItem(c_json_array, i);
-        httpdns_list_add(ips, ip_json->valuestring, STRING_CLONE_FUNC);
+        httpdns_list_add(ips, ip_json->valuestring, httpdns_string_clone_func);
     }
 }
 
@@ -229,8 +229,8 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     if (NULL != type_json) {
         int32_t type = type_json->valueint;
         if (type == RESOLVE_TYPE_AAAA) {
-            httpdns_list_dup(&single_resolve_result->ipsv6, &single_resolve_result->ips, STRING_CLONE_FUNC);
-            httpdns_list_free(&single_resolve_result->ips, STRING_FREE_FUNC);
+            httpdns_list_dup(&single_resolve_result->ipsv6, &single_resolve_result->ips, httpdns_string_clone_func);
+            httpdns_list_free(&single_resolve_result->ips, httpdns_string_free_func);
         }
     }
     return single_resolve_result;
@@ -247,7 +247,7 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const c
         return NULL;
     }
     httpdns_single_resolve_response_t *single_resolve_result = parse_single_resolve_result_from_json(c_json_body);
-    if (IS_EMPTY_LIST(&single_resolve_result->ips) && IS_EMPTY_LIST(&single_resolve_result->ipsv6)) {
+    if (httpdns_list_is_empty(&single_resolve_result->ips) && httpdns_list_is_empty(&single_resolve_result->ipsv6)) {
         log_info("parse single resolve is empty, body is %s", body);
     }
     cJSON_Delete(c_json_body);

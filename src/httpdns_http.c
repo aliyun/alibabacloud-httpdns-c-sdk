@@ -82,7 +82,7 @@ void httpdns_http_context_free(httpdns_http_context_t *http_context) {
 }
 
 int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context) {
-    NEW_EMPTY_LIST_IN_STACK(http_contexts);
+    httpdns_list_new_empty_in_stack(http_contexts);
     httpdns_list_add(&http_contexts, http_context, NULL);
     int32_t ret = httpdns_http_multiple_exchange(&http_contexts);
     httpdns_list_free(&http_contexts, NULL);
@@ -109,8 +109,8 @@ static int32_t httpdns_http_context_timeout_cmp(httpdns_http_context_t *ctx1, ht
     return ctx1->request_timeout_ms - ctx2->request_timeout_ms;
 }
 
-static int32_t calculate_max_request_timeout(struct list_head *http_contexts) {
-    httpdns_http_context_t *ctx = httpdns_list_max(http_contexts, DATA_CMP_FUNC(httpdns_http_context_timeout_cmp));
+static int32_t calculate_max_request_timeout(httpdns_list_head_t *http_contexts) {
+    httpdns_http_context_t *ctx = httpdns_list_max(http_contexts, to_httpdns_data_cmp_func(httpdns_http_context_timeout_cmp));
     if (ctx->request_timeout_ms < MIN_HTTP_REQUEST_TIMEOUT_MS) {
         log_info("request timeout is too small, use %d", MIN_HTTP_REQUEST_TIMEOUT_MS);
         return MIN_HTTP_REQUEST_TIMEOUT_MS;
@@ -132,7 +132,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
         log_error("get cert information from response failed");
         return HTTPDNS_CERT_VERIFY_FAILED;
     }
-    struct list_head host_names;
+    httpdns_list_head_t host_names;
     httpdns_list_init(&host_names);
     for (int i = 0; i < certinfo->num_of_certs; i++) {
         for (struct curl_slist *slist = certinfo->certinfo[i]; slist; slist = slist->next) {
@@ -160,7 +160,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
                 OPENSSL_free(cn);
                 goto free_cert_bio;
             }
-            httpdns_list_add(&host_names, cn, STRING_CLONE_FUNC);
+            httpdns_list_add(&host_names, cn, httpdns_string_clone_func);
             OPENSSL_free(cn);
 
             // 提取 Subject Alternative Name (SAN)
@@ -182,7 +182,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
                 // 根据 SAN 类型处理不同数据
                 if (san_entry->type == GEN_DNS) {
                     const char *dns_name = (const char *) ASN1_STRING_get0_data(san_entry->d.dNSName);
-                    httpdns_list_add(&host_names, dns_name, STRING_CLONE_FUNC);
+                    httpdns_list_add(&host_names, dns_name, httpdns_string_clone_func);
                     continue;
                 }
                 if (san_entry->type == GEN_IPADD) {
@@ -196,7 +196,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
                         // IPv6 地址
                         inet_ntop(AF_INET6, ip_addr, ip_str, sizeof(ip_str));
                     }
-                    httpdns_list_add(&host_names, ip_str, STRING_CLONE_FUNC);
+                    httpdns_list_add(&host_names, ip_str, httpdns_string_clone_func);
                 }
             }
             sk_GENERAL_NAME_pop_free(san_names, GENERAL_NAME_free);
@@ -207,8 +207,8 @@ static int32_t ssl_cert_verify(CURL *curl) {
     }
     sds host_names_str = httpdns_list_to_string(&host_names, NULL);
     log_debug("get host name from https cert is %s", host_names_str);
-    bool is_domain_matched = httpdns_list_contain(&host_names, SSL_VERIFY_HOST, STRING_CMP_FUNC);
-    httpdns_list_free(&host_names, STRING_FREE_FUNC);
+    bool is_domain_matched = httpdns_list_contain(&host_names, SSL_VERIFY_HOST, httpdns_string_cmp_func);
+    httpdns_list_free(&host_names, httpdns_string_free_func);
     if (!is_domain_matched) {
         log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, SSL_VERIFY_HOST);
     }
@@ -231,8 +231,8 @@ static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     return CURLE_OK;
 }
 
-int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts) {
-    if (IS_EMPTY_LIST(http_contexts)) {
+int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
+    if (httpdns_list_is_empty(http_contexts)) {
         log_info("multiple exchange failed, http_contexts is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }

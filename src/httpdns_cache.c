@@ -63,11 +63,11 @@ int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_c
     httpdns_cache_entry_t *old_cache_entry = httpdns_cache_table_get(cache_table, entry->cache_key, NULL);
     if (NULL != old_cache_entry) {
         log_debug("old entry exist, update entry");
-        if (IS_EMPTY_LIST(&old_cache_entry->ips) && IS_NOT_EMPTY_LIST(&entry->ips)) {
-            httpdns_list_dup(&old_cache_entry->ips, &entry->ips, DATA_CLONE_FUNC(httpdns_ip_clone));
+        if (httpdns_list_is_empty(&old_cache_entry->ips) && httpdns_list_is_not_empty(&entry->ips)) {
+            httpdns_list_dup(&old_cache_entry->ips, &entry->ips, to_httpdns_data_clone_func(httpdns_ip_clone));
         }
-        if (IS_EMPTY_LIST(&old_cache_entry->ipsv6) && IS_NOT_EMPTY_LIST(&entry->ipsv6)) {
-            httpdns_list_dup(&old_cache_entry->ipsv6, &entry->ipsv6, DATA_CLONE_FUNC(httpdns_ip_clone));
+        if (httpdns_list_is_empty(&old_cache_entry->ipsv6) && httpdns_list_is_not_empty(&entry->ipsv6)) {
+            httpdns_list_dup(&old_cache_entry->ipsv6, &entry->ipsv6, to_httpdns_data_clone_func(httpdns_ip_clone));
         }
         old_cache_entry->ttl = entry->ttl;
         old_cache_entry->origin_ttl = entry->origin_ttl;
@@ -105,12 +105,12 @@ httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, con
         return NULL;
     }
     // 类型
-    if (IS_TYPE_A(dns_type) && IS_EMPTY_LIST(&entry->ips)) {
+    if (IS_TYPE_A(dns_type) && httpdns_list_is_empty(&entry->ips)) {
         log_debug("cache table get entry failed, ips is empty");
         pthread_mutex_unlock(&cache_table->lock);
         return NULL;
     }
-    if (IS_TYPE_AAAA(dns_type) && IS_EMPTY_LIST(&entry->ipsv6)) {
+    if (IS_TYPE_AAAA(dns_type) && httpdns_list_is_empty(&entry->ipsv6)) {
         log_debug("cache table get entry failed, ipsv6 is empty");
         pthread_mutex_unlock(&cache_table->lock);
         return NULL;

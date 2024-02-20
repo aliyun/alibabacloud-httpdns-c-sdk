@@ -25,8 +25,8 @@ START_TEST(test_parse_schedule_response) {
                  "\"2401:b180:2000:20::gg\"]"
                  "}";
     httpdns_schedule_response_t *response = httpdns_response_parse_schedule(body);
-    bool is_expected = (NULL != response) && IS_NOT_EMPTY_LIST(&response->service_ip) &&
-                       IS_NOT_EMPTY_LIST(&response->service_ipv6);
+    bool is_expected = (NULL != response) && httpdns_list_is_not_empty(&response->service_ip) &&
+                       httpdns_list_is_not_empty(&response->service_ipv6);
 
     sds parsed_body = httpdns_schedule_response_to_string(response);
     log_trace("test_parse_schedule_response, raw body=%s, parse result=%s", body, parsed_body);
@@ -54,8 +54,8 @@ START_TEST(test_parse_single_resolve_response) {
     sdsfree(parsed_body);
 
     bool is_expected = (NULL != response)
-                       && IS_NOT_EMPTY_LIST(&response->ips)
-                       && IS_NOT_EMPTY_LIST(&response->ipsv6)
+                       && httpdns_list_is_not_empty(&response->ips)
+                       && httpdns_list_is_not_empty(&response->ipsv6)
                        && (strcmp("www.aliyun.com", response->host) == 0)
                        && (response->ttl == 60)
                        && (response->origin_ttl == 60)

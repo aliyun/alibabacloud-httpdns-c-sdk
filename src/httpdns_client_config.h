@@ -12,7 +12,7 @@ extern "C"
 #endif
 
 
-#include "list.h"
+#include "httpdns_list.h"
 #include "net_stack_detector.h"
 #include "httpdns_error_type.h"
 #include <stdint.h>
@@ -41,9 +41,9 @@ typedef struct {
     bool using_cache;  // default true, false without cache, true with cache
     bool using_https;  // default false, false http, true https
     bool using_sign;   // default false, false not sign, true use sign
-    struct list_head pre_resolve_hosts;
-    struct list_head ipv4_boot_servers;
-    struct list_head ipv6_boot_servers;
+    httpdns_list_head_t pre_resolve_hosts;
+    httpdns_list_head_t ipv4_boot_servers;
+    httpdns_list_head_t ipv6_boot_servers;
 } httpdns_config_t;
 
 

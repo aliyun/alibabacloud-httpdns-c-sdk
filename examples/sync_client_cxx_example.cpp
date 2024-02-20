@@ -71,7 +71,7 @@ int main(int argc, char *argv[]) {
                                                                                    NULL);
     struct timeval end_time = httpdns_time_now();
     log_trace("sync client in linux example, httpdns cost %ld ms", httpdns_time_diff(end_time, start_time));
-    if (NULL == result || IS_EMPTY_LIST(&result->ips)) {
+    if (NULL == result || httpdns_list_is_empty(&result->ips)) {
         perror("域名解析失败");
     } else {
         // 4. 根据网络类型获取相应的IP

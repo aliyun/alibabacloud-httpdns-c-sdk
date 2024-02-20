@@ -119,8 +119,8 @@ int32_t httpdns_config_add_pre_resolve_host(httpdns_config_t *config, const char
         log_info("httpdns config set pre-resolve host failed, config or host param is null");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->pre_resolve_hosts, host, STRING_CMP_FUNC)) {
-        httpdns_list_add(&config->pre_resolve_hosts, host, STRING_CLONE_FUNC);
+    if (!httpdns_list_contain(&config->pre_resolve_hosts, host, httpdns_string_cmp_func)) {
+        httpdns_list_add(&config->pre_resolve_hosts, host, httpdns_string_clone_func);
         return HTTPDNS_SUCCESS;
     }
     log_info("httpdns config set pre-resolve host failed, host %s have been exist", host);
@@ -133,8 +133,8 @@ int32_t httpdns_config_add_ipv4_boot_server(httpdns_config_t *config, const char
         log_info("httpdns config set ipv4 boot server failed, config or boot_server param is null");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->ipv4_boot_servers, boot_server, STRING_CMP_FUNC)) {
-        httpdns_list_add(&config->ipv4_boot_servers, boot_server, STRING_CLONE_FUNC);
+    if (!httpdns_list_contain(&config->ipv4_boot_servers, boot_server, httpdns_string_cmp_func)) {
+        httpdns_list_add(&config->ipv4_boot_servers, boot_server, httpdns_string_clone_func);
         return HTTPDNS_SUCCESS;
     }
     log_info("httpdns config set ipv4 boot server failed, boot_server %s have been exist", boot_server);
@@ -146,8 +146,8 @@ int32_t httpdns_config_add_ipv6_boot_server(httpdns_config_t *config, const char
         log_info("httpdns config set ipv6 boot server failed, config or boot_server param is null");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (!httpdns_list_contain(&config->ipv6_boot_servers, boot_server, STRING_CMP_FUNC)) {
-        httpdns_list_add(&config->ipv6_boot_servers, boot_server, STRING_CLONE_FUNC);
+    if (!httpdns_list_contain(&config->ipv6_boot_servers, boot_server, httpdns_string_cmp_func)) {
+        httpdns_list_add(&config->ipv6_boot_servers, boot_server, httpdns_string_clone_func);
         return HTTPDNS_SUCCESS;
     }
     log_info("httpdns config set ipv6 boot server failed, boot_server %s have been exist", boot_server);
@@ -177,7 +177,7 @@ int32_t httpdns_config_valid(httpdns_config_t *config) {
         log_info("httpdns config valid failed, using sign but secret_key is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_EMPTY_LIST(&config->ipv4_boot_servers) && IS_EMPTY_LIST(&config->ipv6_boot_servers)) {
+    if (httpdns_list_is_empty(&config->ipv4_boot_servers) && httpdns_list_is_empty(&config->ipv6_boot_servers)) {
         log_info("httpdns config valid failed, ipv4 boot servers and ipv6 boot servers is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -222,9 +222,9 @@ void httpdns_config_free(httpdns_config_t *config) {
     if (NULL != config->user_agent) {
         sdsfree(config->user_agent);
     }
-    httpdns_list_free(&config->ipv4_boot_servers, (data_free_function_ptr_t) sdsfree);
-    httpdns_list_free(&config->ipv6_boot_servers, (data_free_function_ptr_t) sdsfree);
-    httpdns_list_free(&config->pre_resolve_hosts, (data_free_function_ptr_t) sdsfree);
+    httpdns_list_free(&config->ipv4_boot_servers, (httpdns_data_free_func_t) sdsfree);
+    httpdns_list_free(&config->ipv6_boot_servers, (httpdns_data_free_func_t) sdsfree);
+    httpdns_list_free(&config->pre_resolve_hosts, (httpdns_data_free_func_t) sdsfree);
     free(config);
 }
 

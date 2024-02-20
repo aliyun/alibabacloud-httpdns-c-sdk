@@ -31,11 +31,11 @@ sds httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
     }
     pthread_mutex_lock(&scheduler->lock);
     sds dst_str = sdsnew("httpdns_scheduler_t(ipv4_resolve_servers=");
-    sds list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, DATA_TO_STRING_FUNC(httpdns_ip_to_string));
+    sds list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
     sdsfree(list);
     SDS_CAT(dst_str, ",ipv6_resolve_servers=");
-    list = httpdns_list_to_string(&scheduler->ipv6_resolve_servers, DATA_TO_STRING_FUNC(httpdns_ip_to_string));
+    list = httpdns_list_to_string(&scheduler->ipv6_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
     SDS_CAT(dst_str, list);
     sdsfree(list);
     SDS_CAT(dst_str, ")");
@@ -47,8 +47,8 @@ void httpdns_scheduler_free(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler) {
         return;
     }
-    httpdns_list_free(&scheduler->ipv4_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
-    httpdns_list_free(&scheduler->ipv6_resolve_servers, DATA_FREE_FUNC(httpdns_ip_free));
+    httpdns_list_free(&scheduler->ipv4_resolve_servers, to_httpdns_data_free_func(httpdns_ip_free));
+    httpdns_list_free(&scheduler->ipv6_resolve_servers, to_httpdns_data_free_func(httpdns_ip_free));
     pthread_mutex_destroy(&scheduler->lock);
     pthread_mutexattr_destroy(&scheduler->lock_attr);
     free(scheduler);
@@ -102,7 +102,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     }
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_config_t *config = scheduler->config;
-    struct list_head *boot_servers;
+    httpdns_list_head_t *boot_servers;
     if (IPV6_ONLY == net_stack_type) {
         boot_servers = &config->ipv6_boot_servers;
     } else {
@@ -115,7 +115,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     }
     const char *http_scheme = config->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
 
-    httpdns_list_node_t *first_entry = list_first_entry(boot_servers, httpdns_list_node_t, list);
+    httpdns_list_node_t *first_entry = httpdns_list_first_entry(boot_servers);
     httpdns_list_node_t *cur_entry = first_entry;
     if (NULL == cur_entry) {
         log_info("refresh resolver list failed, first entry is NULL");
@@ -165,7 +165,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         }
         log_info("try %s fetch resolve server failed", cur_entry->data);
         httpdns_list_rotate(boot_servers);
-        cur_entry = list_first_entry(boot_servers, httpdns_list_node_t, list);
+        cur_entry = httpdns_list_first_entry(boot_servers);
         log_info("try server %s fetch resolve server", cur_entry->data);
     } while (cur_entry != first_entry);
     log_error("all boot server fetch resolve servers failed");
@@ -190,10 +190,10 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server
     }
     pthread_mutex_lock(&scheduler->lock);
     httpdns_ip_t *resolve_server = httpdns_list_search(&scheduler->ipv4_resolve_servers, server,
-                                                       DATA_SEARCH_FUNC(httpdns_ip_search));
+                                                       to_httpdns_data_search_func(httpdns_ip_search));
     if (NULL == resolve_server) {
         resolve_server = httpdns_list_search(&scheduler->ipv6_resolve_servers, server,
-                                             DATA_SEARCH_FUNC(httpdns_ip_search));
+                                             to_httpdns_data_search_func(httpdns_ip_search));
     }
     if (NULL != resolve_server) {
         int32_t old_rt = resolve_server->rt;
@@ -215,14 +215,14 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
         return NULL;
     }
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
-    struct list_head *resolve_servers;
+    httpdns_list_head_t *resolve_servers;
     pthread_mutex_lock(&scheduler->lock);
     if (IPV6_ONLY == net_stack_type) {
         resolve_servers = &scheduler->ipv6_resolve_servers;
     } else {
         resolve_servers = &scheduler->ipv4_resolve_servers;
     }
-    httpdns_ip_t *resolve_server = httpdns_list_min(resolve_servers, DATA_CMP_FUNC(httpdns_ip_cmp));
+    httpdns_ip_t *resolve_server = httpdns_list_min(resolve_servers, to_httpdns_data_cmp_func(httpdns_ip_cmp));
     if (NULL != resolve_server) {
         sds httpdns_ip_str = httpdns_ip_to_string(resolve_server);
         log_debug("get resolve server %s", httpdns_ip_str);
@@ -253,9 +253,9 @@ void httpdns_scheduler_add_ipv4_resolve_server(httpdns_scheduler_t *scheduler,
         log_info("httpdns scheduler add ipv4 resolve server failed, scheduler or resolve_server is null");
         return;
     }
-    if (!httpdns_list_search(&scheduler->ipv4_resolve_servers, resolve_server, DATA_SEARCH_FUNC(httpdns_ip_search))) {
+    if (!httpdns_list_search(&scheduler->ipv4_resolve_servers, resolve_server, to_httpdns_data_search_func(httpdns_ip_search))) {
         log_debug("httpdns scheduler add ipv4 resolve server %s success", resolve_server);
-        httpdns_list_add(&scheduler->ipv4_resolve_servers, resolve_server, DATA_CLONE_FUNC(httpdns_ip_new));
+        httpdns_list_add(&scheduler->ipv4_resolve_servers, resolve_server, to_httpdns_data_clone_func(httpdns_ip_new));
     }
 }
 
@@ -265,8 +265,8 @@ void httpdns_scheduler_add_ipv6_resolve_server(httpdns_scheduler_t *scheduler,
         log_info("httpdns scheduler add ipv6 resolve server failed, scheduler or resolve_server is null");
         return;
     }
-    if (!httpdns_list_search(&scheduler->ipv6_resolve_servers, resolve_server, DATA_SEARCH_FUNC(httpdns_ip_search))) {
+    if (!httpdns_list_search(&scheduler->ipv6_resolve_servers, resolve_server, to_httpdns_data_search_func(httpdns_ip_search))) {
         log_debug("httpdns scheduler add ipv6 resolve server %s success", resolve_server);
-        httpdns_list_add(&scheduler->ipv6_resolve_servers, resolve_server, DATA_CLONE_FUNC(httpdns_ip_new));
+        httpdns_list_add(&scheduler->ipv6_resolve_servers, resolve_server, to_httpdns_data_clone_func(httpdns_ip_new));
     }
 }

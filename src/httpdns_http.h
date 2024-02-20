@@ -56,7 +56,7 @@ void httpdns_http_context_free(httpdns_http_context_t *http_context);
 
 int32_t httpdns_http_single_exchange(httpdns_http_context_t *http_context);
 
-int32_t httpdns_http_multiple_exchange(struct list_head *http_contexts);
+int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts);
 
 
 #ifdef __cplusplus

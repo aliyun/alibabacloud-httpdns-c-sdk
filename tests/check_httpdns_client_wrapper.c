@@ -15,7 +15,7 @@ static void teardown(void) {
 }
 
 void httpdns_complete_callback_func(const httpdns_resolve_result_t *result, void *user_callback_param) {
-    bool is_succes = NULL != result && IS_NOT_EMPTY_LIST(&result->ips);
+    bool is_succes = NULL != result && httpdns_list_is_not_empty(&result->ips);
     int32_t *success_num = user_callback_param;
     if (is_succes) {
         *success_num = *success_num + 1;
@@ -35,7 +35,7 @@ START_TEST(test_get_httpdns_result_for_host_sync) {
     log_trace("test_get_httpdns_result_for_host_sync_with_cache, result %s", result_str);
     sdsfree(result_str);
 
-    bool is_success = NULL != result && IS_NOT_EMPTY_LIST(&result->ips);
+    bool is_success = NULL != result && httpdns_list_is_not_empty(&result->ips);
     httpdns_resolve_result_free(result);
     ck_assert_msg(is_success, "同步且使用缓存的单解析失败");
 }
@@ -99,37 +99,37 @@ END_TEST
 
 
 START_TEST(test_get_httpdns_results_for_hosts_sync) {
-    NEW_EMPTY_LIST_IN_STACK(hosts);
-    httpdns_list_add(&hosts, "www.aliyun.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.taobao.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.baidu.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.google.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.freshippo.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.tmall.com", STRING_CLONE_FUNC);
+    httpdns_list_new_empty_in_stack(hosts);
+    httpdns_list_add(&hosts, "www.aliyun.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.taobao.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.baidu.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.google.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.freshippo.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.tmall.com", httpdns_string_clone_func);
 
-    NEW_EMPTY_LIST_IN_STACK(results);
+    httpdns_list_new_empty_in_stack(results);
     int ret = get_httpdns_results_for_hosts_sync_with_cache(&hosts, HTTPDNS_QUERY_TYPE_AUTO, NULL, &results);
 
-    sds results_str = httpdns_list_to_string(&results, DATA_TO_STRING_FUNC(httpdns_resolve_result_to_string));
+    sds results_str = httpdns_list_to_string(&results, to_httpdns_data_to_string_func(httpdns_resolve_result_to_string));
     log_trace("test_get_httpdns_results_for_hosts_sync_with_cache, results %s", results_str);
     sdsfree(results_str);
 
     bool is_success = HTTPDNS_SUCCESS == ret && httpdns_list_size(&results) == httpdns_list_size(&hosts);
-    httpdns_list_free(&results, DATA_FREE_FUNC(httpdns_resolve_result_free));
-    httpdns_list_free(&hosts, STRING_FREE_FUNC);
+    httpdns_list_free(&results, to_httpdns_data_free_func(httpdns_resolve_result_free));
+    httpdns_list_free(&hosts, httpdns_string_free_func);
     ck_assert_msg(is_success, "同步批量解析失败");
 }
 
 END_TEST
 
 START_TEST(test_get_httpdns_results_for_hosts_async) {
-    NEW_EMPTY_LIST_IN_STACK(hosts);
-    httpdns_list_add(&hosts, "www.aliyun.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.taobao.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.baidu.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.google.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.freshippo.com", STRING_CLONE_FUNC);
-    httpdns_list_add(&hosts, "www.tmall.com", STRING_CLONE_FUNC);
+    httpdns_list_new_empty_in_stack(hosts);
+    httpdns_list_add(&hosts, "www.aliyun.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.taobao.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.baidu.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.google.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.freshippo.com", httpdns_string_clone_func);
+    httpdns_list_add(&hosts, "www.tmall.com", httpdns_string_clone_func);
     int32_t success_num = 0;
     get_httpdns_results_for_hosts_async_with_cache(&hosts,
                                                    HTTPDNS_QUERY_TYPE_AUTO,
@@ -139,7 +139,7 @@ START_TEST(test_get_httpdns_results_for_hosts_async) {
     );
     sleep(5);
     bool is_success = success_num == httpdns_list_size(&hosts);
-    httpdns_list_free(&hosts, STRING_FREE_FUNC);
+    httpdns_list_free(&hosts, httpdns_string_free_func);
     ck_assert_msg(is_success, "异步批量解析失败");
 }
 

@@ -70,7 +70,7 @@ static void httpdns_complete_callback_func(const httpdns_resolve_result_t *resul
         httpdns_resolve_result_free(result);
         return;
     }
-    if (IS_NOT_EMPTY_LIST(&result->ips) || IS_NOT_EMPTY_LIST(&result->ipsv6)) {
+    if (httpdns_list_is_not_empty(&result->ips) || httpdns_list_is_not_empty(&result->ipsv6)) {
         char dst_ip[INET6_ADDRSTRLEN];
         select_ip_from_httpdns_result(result, dst_ip);
         mock_access_business_web_server(dst_ip);

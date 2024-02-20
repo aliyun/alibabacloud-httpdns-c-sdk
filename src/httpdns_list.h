@@ -10,7 +10,6 @@ extern "C"
 {
 #endif
 
-#include "list.h"
 #include "httpdns_error_type.h"
 #include "httpdns_memory.h"
 #include <stdlib.h>
@@ -20,90 +19,94 @@ extern "C"
 #include <time.h>
 #include "sds.h"
 
-#define NEW_EMPTY_LIST_IN_STACK(var_name) \
-    struct list_head var_name;       \
+#define httpdns_list_new_empty_in_stack(var_name) \
+    httpdns_list_head_t var_name;       \
     httpdns_list_init(&var_name)
 
-#define IS_EMPTY_LIST(list) \
+#define httpdns_list_is_empty(list) \
     (NULL == list || httpdns_list_size(list) <=0)
 
-#define IS_NOT_EMPTY_LIST(list) \
+#define httpdns_list_is_not_empty(list) \
     (NULL != list || httpdns_list_size(list) >0)
 
-#define DATA_CLONE_FUNC(func) \
-   (data_clone_function_ptr_t)func
+#define to_httpdns_data_clone_func(func) \
+   (httpdns_data_clone_func_t)func
 
-#define DATA_CMP_FUNC(func) \
-   (data_cmp_function_ptr_t) func
+#define to_httpdns_data_cmp_func(func) \
+   (httpdns_data_cmp_func_t) func
 
-#define DATA_FREE_FUNC(func) \
-   (data_free_function_ptr_t)func
+#define to_httpdns_data_free_func(func) \
+   (httpdns_data_free_func_t)func
 
-#define DATA_TO_STRING_FUNC(func) \
-   (data_to_string_function_ptr_t)func
+#define to_httpdns_data_to_string_func(func) \
+   (httpdns_data_to_string_func_t)func
 
-#define DATA_SEARCH_FUNC(func) \
-   (data_search_function_ptr_t)func
+#define to_httpdns_data_search_func(func) \
+   (httpdns_data_search_func_t)func
 
-#define STRING_CLONE_FUNC \
-   DATA_CLONE_FUNC(sdsnew)
+#define httpdns_string_clone_func \
+   to_httpdns_data_clone_func(sdsnew)
 
-#define STRING_CMP_FUNC \
-    DATA_CMP_FUNC(strcmp)
+#define httpdns_string_cmp_func \
+    to_httpdns_data_cmp_func(strcmp)
 
-#define STRING_FREE_FUNC \
-  DATA_FREE_FUNC(sdsfree)
+#define httpdns_string_free_func \
+  to_httpdns_data_free_func(sdsfree)
 
 
 #define httpdns_list_for_each_entry(cursor, head) \
-            httpdns_list_node_t *cursor;      \
-            list_for_each_entry(cursor, head, list)
+    for (httpdns_list_node_t *cursor = httpdns_list_first_entry(head); cursor != head; cursor = cursor->next)
 
-typedef struct {
-    struct list_head list;
+
+typedef struct _httpdns_list_node_t {
+    struct _httpdns_list_node_t *next, *prev;
     void *data;
 } httpdns_list_node_t;
 
-typedef void (*data_free_function_ptr_t )(const void *data);
+typedef httpdns_list_node_t httpdns_list_head_t;
 
-typedef void *(*data_clone_function_ptr_t )(const void *data);
+typedef void (*httpdns_data_free_func_t )(const void *data);
 
-typedef int32_t (*data_cmp_function_ptr_t)(const void *data1, const void *data2);
+typedef void *(*httpdns_data_clone_func_t )(const void *data);
 
-typedef bool (*data_search_function_ptr_t)(const void *data, const void *target);
+typedef int32_t (*httpdns_data_cmp_func_t)(const void *data1, const void *data2);
 
-typedef sds (*data_to_string_function_ptr_t )(const void *data);
+typedef bool (*httpdns_data_search_func_t)(const void *data, const void *target);
 
-void httpdns_list_init(struct list_head *head);
+typedef char* (*httpdns_data_to_string_func_t )(const void *data);
 
-int32_t httpdns_list_add(struct list_head *head, const void *data, data_clone_function_ptr_t clone_func);
+void httpdns_list_init(httpdns_list_head_t *head);
 
-int32_t httpdns_list_rotate(struct list_head *head);
+httpdns_list_node_t* httpdns_list_first_entry(httpdns_list_head_t *head);
 
-struct list_head *
-httpdns_list_dup(struct list_head *dst_head, const struct list_head *src_head, data_clone_function_ptr_t clone_func);
+int32_t httpdns_list_add(httpdns_list_head_t *head, const void *data, httpdns_data_clone_func_t clone_func);
 
-void *httpdns_list_get(const struct list_head *head, int index);
+int32_t httpdns_list_rotate(httpdns_list_head_t *head);
 
-size_t httpdns_list_size(const struct list_head *head);
+void httpdns_list_dup(httpdns_list_head_t *dst_head, const httpdns_list_head_t *src_head,
+                      httpdns_data_clone_func_t clone_func);
 
-void httpdns_list_free(struct list_head *head, data_free_function_ptr_t free_func);
+void *httpdns_list_get(const httpdns_list_head_t *head, int index);
 
-void httpdns_list_shuffle(struct list_head *head);
+size_t httpdns_list_size(const httpdns_list_head_t *head);
 
-bool httpdns_list_contain(const struct list_head *head, const void *data, data_cmp_function_ptr_t cmp_func);
+void httpdns_list_free(httpdns_list_head_t *head, httpdns_data_free_func_t free_func);
 
-void *httpdns_list_min(const struct list_head *head, data_cmp_function_ptr_t cmp_func);
+void httpdns_list_shuffle(httpdns_list_head_t *head);
 
-void *httpdns_list_max(const struct list_head *head, data_cmp_function_ptr_t cmp_func);
+bool httpdns_list_contain(const httpdns_list_head_t *head, const void *data, httpdns_data_cmp_func_t cmp_func);
 
-void httpdns_list_sort(struct list_head *head, data_cmp_function_ptr_t cmp_func);
+void *httpdns_list_min(const httpdns_list_head_t *head, httpdns_data_cmp_func_t cmp_func);
 
-sds httpdns_list_to_string(const struct list_head *head, data_to_string_function_ptr_t to_string_func);
+void *httpdns_list_max(const httpdns_list_head_t *head, httpdns_data_cmp_func_t cmp_func);
 
-void *httpdns_list_search(const struct list_head *head, const void *target, data_search_function_ptr_t search_func);
+void httpdns_list_sort(httpdns_list_head_t *head, httpdns_data_cmp_func_t cmp_func);
 
-bool httpdns_list_is_end(const httpdns_list_node_t *node, const struct list_head *head);
+sds httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_data_to_string_func_t to_string_func);
+
+void *httpdns_list_search(const httpdns_list_head_t *head, const void *target, httpdns_data_search_func_t search_func);
+
+bool httpdns_list_is_end_node(const httpdns_list_node_t *node, const httpdns_list_head_t *head);
 
 #ifdef __cplusplus
 }

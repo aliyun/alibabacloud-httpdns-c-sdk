@@ -32,7 +32,7 @@ typedef struct {
 
 typedef struct {
     httpdns_client_t *httpdns_client;
-    struct list_head resolve_contexts;
+    httpdns_list_head_t resolve_contexts;
 } httpdns_resolve_task_t;
 
 typedef struct {

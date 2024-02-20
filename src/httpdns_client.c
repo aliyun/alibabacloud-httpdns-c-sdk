@@ -75,7 +75,7 @@ void httpdns_resolve_task_free(httpdns_resolve_task_t *resolve_task) {
     if (NULL == resolve_task) {
         return;
     }
-    httpdns_list_free(&resolve_task->resolve_contexts, DATA_FREE_FUNC(httpdns_resolve_context_free));
+    httpdns_list_free(&resolve_task->resolve_contexts, to_httpdns_data_free_func(httpdns_resolve_context_free));
     free(resolve_task);
 }
 
@@ -94,8 +94,8 @@ static httpdns_resolve_result_t *single_resolve_response_to_result(httpdns_singl
     if (NULL != response->extra) {
         result->extra = sdsnew(response->extra);
     }
-    httpdns_list_dup(&result->ips, &response->ips, DATA_CLONE_FUNC(httpdns_ip_new));
-    httpdns_list_dup(&result->ipsv6, &response->ipsv6, DATA_CLONE_FUNC(httpdns_ip_new));
+    httpdns_list_dup(&result->ips, &response->ips, to_httpdns_data_clone_func(httpdns_ip_new));
+    httpdns_list_dup(&result->ipsv6, &response->ipsv6, to_httpdns_data_clone_func(httpdns_ip_new));
     result->ttl = response->ttl;
     result->origin_ttl = response->origin_ttl;
     result->query_ts = httpdns_time_now();
@@ -131,10 +131,10 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
         return;
     }
     // 结果收集
-    NEW_EMPTY_LIST_IN_STACK(httpdns_resolve_results);
+    httpdns_list_new_empty_in_stack(httpdns_resolve_results);
     if (resolve_request->using_multi) {
         httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(http_context->response_body);
-        httpdns_list_dup(&httpdns_resolve_results, &response->dns, DATA_CLONE_FUNC(single_resolve_response_to_result));
+        httpdns_list_dup(&httpdns_resolve_results, &response->dns, to_httpdns_data_clone_func(single_resolve_response_to_result));
         httpdns_multi_resolve_response_free(response);
         httpdns_list_for_each_entry(resolve_result_cursor, &httpdns_resolve_results) {
             httpdns_resolve_result_t *result = resolve_result_cursor->data;
@@ -149,15 +149,15 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
         httpdns_single_resolve_response_free(response);
     }
     // 结果合并
-    NEW_EMPTY_LIST_IN_STACK(httpdns_merged_resolve_results);
+    httpdns_list_new_empty_in_stack(httpdns_merged_resolve_results);
     httpdns_resolve_results_merge(&httpdns_resolve_results, &httpdns_merged_resolve_results);
-    httpdns_list_free(&httpdns_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    httpdns_list_free(&httpdns_resolve_results, to_httpdns_data_free_func(httpdns_resolve_result_free));
     // 结果回调
     httpdns_list_for_each_entry(result_cursor, &httpdns_merged_resolve_results) {
         httpdns_resolve_result_t *resolve_result = result_cursor->data;
         //添加结果
         httpdns_list_add(&param->resolve_context->result, resolve_result,
-                         DATA_CLONE_FUNC(httpdns_resolve_result_clone));
+                         to_httpdns_data_clone_func(httpdns_resolve_result_clone));
         //更新缓存
         if (NULL != param->cache_table) {
             httpdns_cache_table_update(param->cache_table, resolve_result);
@@ -169,7 +169,7 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
             resolve_request->complete_callback_func(resolve_result, resolve_request->user_callback_param);
         }
     }
-    httpdns_list_free(&httpdns_merged_resolve_results, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    httpdns_list_free(&httpdns_merged_resolve_results, to_httpdns_data_free_func(httpdns_resolve_result_free));
     param->is_completed = true;
 }
 
@@ -180,10 +180,10 @@ static char *determine_miss_query_type(httpdns_cache_entry_t *cache_entry, char 
         return expected_query_type;
     }
     // 部分命中缓存，查找缺失结果
-    if (IS_TYPE_BOTH(expected_query_type) && IS_EMPTY_LIST(&cache_entry->ips)) {
+    if (IS_TYPE_BOTH(expected_query_type) && httpdns_list_is_empty(&cache_entry->ips)) {
         return HTTPDNS_QUERY_TYPE_A;
     }
-    if (IS_TYPE_BOTH(expected_query_type) && IS_EMPTY_LIST(&cache_entry->ipsv6)) {
+    if (IS_TYPE_BOTH(expected_query_type) && httpdns_list_is_empty(&cache_entry->ipsv6)) {
         return HTTPDNS_QUERY_TYPE_AAAA;
     }
     // 直接使用缓存
@@ -209,7 +209,7 @@ static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
 }
 
 int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
-    if (NULL == task || NULL == task->httpdns_client || IS_EMPTY_LIST(&task->resolve_contexts)) {
+    if (NULL == task || NULL == task->httpdns_client || httpdns_list_is_empty(&task->resolve_contexts)) {
         log_info("httpdns execute resolve task failed, task or client or contexts is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
@@ -217,7 +217,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     httpdns_scheduler_t *scheduler = task->httpdns_client->scheduler;
     httpdns_net_stack_detector_t *net_stack_detector = task->httpdns_client->net_stack_detector;
     httpdns_config_t *config = task->httpdns_client->config;
-    NEW_EMPTY_LIST_IN_STACK(resolve_params);
+    httpdns_list_new_empty_in_stack(resolve_params);
     httpdns_list_for_each_entry(resolve_context_cursor, &task->resolve_contexts) {
         httpdns_resolve_context_t *resolve_context = resolve_context_cursor->data;
         httpdns_resolve_request_t *request = resolve_context->request;
@@ -258,7 +258,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
         on_http_finish_callback_param->is_completed = false;
 
         resolve_param->user_http_complete_callback_param = on_http_finish_callback_param;
-        resolve_param->callback_param_free_func = DATA_FREE_FUNC(on_http_finish_callback_param_free);
+        resolve_param->callback_param_free_func = to_httpdns_data_free_func(on_http_finish_callback_param_free);
         resolve_param->http_complete_callback_func = on_http_complete_callback_func;
 
 
@@ -268,7 +268,7 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
     int32_t query_resolve_param_size;
     do {
         query_resolve_param_size = 0;
-        NEW_EMPTY_LIST_IN_STACK(query_reoslve_params);
+        httpdns_list_new_empty_in_stack(query_reoslve_params);
         httpdns_list_for_each_entry(resolve_param_curosr, &resolve_params) {
             httpdns_resolve_param_t *resolve_param = resolve_param_curosr->data;
             on_http_finish_callback_param_t *on_http_finish_callback_param = resolve_param->user_http_complete_callback_param;
@@ -295,12 +295,12 @@ int32_t httpdns_resolve_task_execute(httpdns_resolve_task_t *task) {
         }
         if (query_resolve_param_size > 0) {
             httpdns_resolver_multi_resolve(&query_reoslve_params);
-            httpdns_list_free(&query_reoslve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+            httpdns_list_free(&query_reoslve_params, to_httpdns_data_free_func(httpdns_resolve_param_free));
         }
     } while (query_resolve_param_size > 0);
 
 
-    httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+    httpdns_list_free(&resolve_params, to_httpdns_data_free_func(httpdns_resolve_param_free));
     return HTTPDNS_SUCCESS;
 }
 

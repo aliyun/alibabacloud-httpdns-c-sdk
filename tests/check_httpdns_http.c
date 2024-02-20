@@ -44,7 +44,7 @@ END_TEST
 
 
 START_TEST(test_exchange_multi_request_with_resolve) {
-    NEW_EMPTY_LIST_IN_STACK(http_contexts);
+    httpdns_list_new_empty_in_stack(http_contexts);
     httpdns_http_context_t *http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/d?host=www.baidu.com", 10000);
     httpdns_list_add(&http_contexts, http_context, NULL);
@@ -73,7 +73,7 @@ START_TEST(test_exchange_multi_request_with_resolve) {
             break;
         }
     }
-    httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_free));
+    httpdns_list_free(&http_contexts, to_httpdns_data_free_func(httpdns_http_context_free));
     ck_assert_msg(is_all_success, "批量HTTP接口访问存在失败");
 }
 

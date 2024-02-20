@@ -106,13 +106,13 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_without_cache(const c
  *  @return 函数调用结果，成功时为HTTPDNS_SUCCESS
  *  @note
  *      解析结果使用完毕后，需要调用
- *      httpdns_list_free(results, DATA_FREE_FUNC(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
+ *      httpdns_list_free(results, to_httpdns_data_free_func(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
  */
 int32_t
-get_httpdns_results_for_hosts_sync_with_cache(struct list_head *hosts,
+get_httpdns_results_for_hosts_sync_with_cache(httpdns_list_head_t *hosts,
                                               const char *query_type,
                                               const char *client_ip,
-                                              struct list_head *results);
+                                              httpdns_list_head_t *results);
 
 /**
  *
@@ -128,11 +128,11 @@ get_httpdns_results_for_hosts_sync_with_cache(struct list_head *hosts,
  *  @param results 存储解析结果的链表指针
  *  @return 函数调用结果，成功时为HTTPDNS_SUCCESS
  *  @note
- *      解析结果使用完毕后，需要调用httpdns_list_free(results, DATA_FREE_FUNC(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
+ *      解析结果使用完毕后，需要调用httpdns_list_free(results, to_httpdns_data_free_func(httpdns_resolve_result_free))进行释放，否则会造成内存泄露
  */
-int32_t get_httpdns_results_for_hosts_sync_without_cache(struct list_head *hosts,
+int32_t get_httpdns_results_for_hosts_sync_without_cache(httpdns_list_head_t *hosts,
                                                          const char *query_type,
-                                                         struct list_head *results,
+                                                         httpdns_list_head_t *results,
                                                          const char *client_ip);
 
 /**
@@ -202,7 +202,7 @@ int32_t get_httpdns_result_for_host_async_without_cache(const char *host,
  *      结果通过回调函数透出
  */
 int32_t
-get_httpdns_results_for_hosts_async_with_cache(struct list_head *hosts,
+get_httpdns_results_for_hosts_async_with_cache(httpdns_list_head_t *hosts,
                                                const char *query_type,
                                                const char *client_ip,
                                                httpdns_complete_callback_func_t cb,
@@ -223,7 +223,7 @@ get_httpdns_results_for_hosts_async_with_cache(struct list_head *hosts,
  *  @note
  *      结果通过回调函数透出
  */
-int32_t get_httpdns_results_for_hosts_async_without_cache(struct list_head *hosts,
+int32_t get_httpdns_results_for_hosts_async_without_cache(httpdns_list_head_t *hosts,
                                                           const char *query_type,
                                                           const char *client_ip,
                                                           httpdns_complete_callback_func_t cb,

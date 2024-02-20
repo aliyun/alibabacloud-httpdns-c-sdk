@@ -22,8 +22,8 @@ typedef struct {
     char *host;
     char *client_ip;
     char *extra;
-    struct list_head ips;
-    struct list_head ipsv6;
+    httpdns_list_head_t ips;
+    httpdns_list_head_t ipsv6;
     int origin_ttl;
     int ttl;
     struct timeval query_ts;
@@ -52,9 +52,9 @@ void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool
 int32_t httpdns_resolve_result_cmp(const httpdns_resolve_result_t *result1, const httpdns_resolve_result_t *result2);
 
 void httpdns_resolve_results_merge(
-        struct list_head *raw_results,
+        httpdns_list_head_t *raw_results,
         //  must free using httpdns_resolve_result_free
-        struct list_head *merged_results);
+        httpdns_list_head_t *merged_results);
 
 
 #ifdef __cplusplus

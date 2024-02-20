@@ -46,19 +46,19 @@ typedef void (*http_complete_callback_func_t)(httpdns_http_context_t *httpdns_co
 
 typedef struct {
     httpdns_resolve_request_t *request;
-    struct list_head result;
+    httpdns_list_head_t result;
 } httpdns_resolve_context_t;
 
 typedef struct {
     httpdns_resolve_request_t *request;
     void *user_http_complete_callback_param;
-    data_free_function_ptr_t callback_param_free_func;
+    httpdns_data_free_func_t callback_param_free_func;
     http_complete_callback_func_t http_complete_callback_func;
 } httpdns_resolve_param_t;
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param);
 
-int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params);
+int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params);
 
 /**
  * must free using httpdns_resolve_context_free

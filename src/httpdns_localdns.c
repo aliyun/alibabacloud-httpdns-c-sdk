@@ -40,13 +40,13 @@ httpdns_resolve_result_t *resolve_host_by_localdns(const char *host) {
             struct sockaddr_in *ipv4 = (struct sockaddr_in *) curr->ai_addr;
             addr = &(ipv4->sin_addr);
             inet_ntop(curr->ai_family, addr, ipstr, sizeof ipstr);
-            httpdns_list_add(&result->ips, ipstr, DATA_CLONE_FUNC(httpdns_ip_new));
+            httpdns_list_add(&result->ips, ipstr, to_httpdns_data_clone_func(httpdns_ip_new));
         }
         if (curr->ai_family == AF_INET6) {
             struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) curr->ai_addr;
             addr = &(ipv6->sin6_addr);
             inet_ntop(curr->ai_family, addr, ipstr, sizeof ipstr);
-            httpdns_list_add(&result->ipsv6, ipstr, DATA_CLONE_FUNC(httpdns_ip_new));
+            httpdns_list_add(&result->ipsv6, ipstr, to_httpdns_data_clone_func(httpdns_ip_new));
         }
     }
     freeaddrinfo(answer);

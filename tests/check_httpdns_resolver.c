@@ -40,7 +40,7 @@ static httpdns_config_t *get_httpdns_config() {
 }
 
 static void append_resolve_params(
-        struct list_head *resolve_params,
+        httpdns_list_head_t *resolve_params,
         httpdns_config_t *config,
         char *host,
         char *resolver,
@@ -87,11 +87,11 @@ END_TEST
 START_TEST(test_multi_resolve_task) {
     httpdns_config_t *config = get_httpdns_config();
     bool is_success = false;
-    NEW_EMPTY_LIST_IN_STACK(resolve_params);
+    httpdns_list_new_empty_in_stack(resolve_params);
     append_resolve_params(&resolve_params, config, "www.taobao.com", "203.107.1.1", &is_success);
     append_resolve_params(&resolve_params, config, "www.aliyun.com", "203.107.1.65", &is_success);
     httpdns_resolver_multi_resolve(&resolve_params);
-    httpdns_list_free(&resolve_params, DATA_FREE_FUNC(httpdns_resolve_param_free));
+    httpdns_list_free(&resolve_params, to_httpdns_data_free_func(httpdns_resolve_param_free));
     httpdns_config_free(config);
     ck_assert_msg(is_success, "批量解析请求执行失败");
 }

@@ -18,7 +18,7 @@ static void teardown(void) {
 
 START_TEST(test_resolve_host_by_localdns) {
     httpdns_resolve_result_t *result = resolve_host_by_localdns("www.aliyun.com");
-    bool is_success = NULL != result && IS_NOT_EMPTY_LIST(&result->ips);
+    bool is_success = NULL != result && httpdns_list_is_not_empty(&result->ips);
     sds resolve_result_str = httpdns_resolve_result_to_string(result);
     log_trace("test_resolve_host_by_localdns result %s", resolve_result_str);
     sdsfree(resolve_result_str);

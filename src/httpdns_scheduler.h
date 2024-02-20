@@ -22,8 +22,8 @@ extern "C"
 #define SCHEDULE_NONCE_SIZE            12
 
 typedef struct {
-    struct list_head ipv4_resolve_servers;
-    struct list_head ipv6_resolve_servers;
+    httpdns_list_head_t ipv4_resolve_servers;
+    httpdns_list_head_t ipv6_resolve_servers;
     httpdns_net_stack_detector_t *net_stack_detector;
     httpdns_config_t *config;
     pthread_mutex_t lock;

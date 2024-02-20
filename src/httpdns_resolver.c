@@ -22,7 +22,7 @@ int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) 
         log_info("single resolve failed, httpdns resolve request is invalid");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    NEW_EMPTY_LIST_IN_STACK(resolve_params);
+    httpdns_list_new_empty_in_stack(resolve_params);
     httpdns_list_add(&resolve_params, resolve_param, NULL);
     int32_t ret = httpdns_resolver_multi_resolve(&resolve_params);
     httpdns_list_free(&resolve_params, NULL);
@@ -34,7 +34,7 @@ static bool is_valid_ipv6(const char *ipv6) {
     return inet_pton(AF_INET6, ipv6, &addr6) == 1;
 }
 
-int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
+int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
     if (NULL == resolve_params) {
         log_info("multi resolve failed, resolve_params is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
@@ -45,9 +45,9 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
         return HTTPDNS_PARAMETER_EMPTY;
     }
     log_debug("multi resolve params size %d", resolve_params_size);
+    httpdns_list_new_empty_in_stack(http_contexts);
     size_t http_context_size = 0;
-    NEW_EMPTY_LIST_IN_STACK(http_contexts);
-    httpdns_list_for_each_entry(param_cursor, resolve_params) {
+    for(httpdns_list_node_t * param_cursor = httpdns_list_first_entry(resolve_params); param_cursor != resolve_params; param_cursor = param_cursor->next) {
         httpdns_resolve_param_t *resolve_param = param_cursor->data;
         httpdns_resolve_request_t *request = resolve_param->request;
 
@@ -118,7 +118,7 @@ int32_t httpdns_resolver_multi_resolve(struct list_head *resolve_params) {
                     resolve_param->user_http_complete_callback_param);
         }
     }
-    httpdns_list_free(&http_contexts, DATA_FREE_FUNC(httpdns_http_context_free));
+    httpdns_list_free(&http_contexts, to_httpdns_data_free_func(httpdns_http_context_free));
     return HTTPDNS_SUCCESS;
 }
 
@@ -140,7 +140,7 @@ void httpdns_resolve_context_free(httpdns_resolve_context_t *resolve_context) {
     if (NULL != resolve_context->request) {
         httpdns_resolve_request_free(resolve_context->request);
     }
-    httpdns_list_free(&resolve_context->result, DATA_FREE_FUNC(httpdns_resolve_result_free));
+    httpdns_list_free(&resolve_context->result, to_httpdns_data_free_func(httpdns_resolve_result_free));
     free(resolve_context);
 }
 

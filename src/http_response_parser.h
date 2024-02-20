@@ -20,14 +20,14 @@ extern "C"
 #define RESOLVE_TYPE_AAAA 28
 
 typedef struct {
-    struct list_head service_ip;
-    struct list_head service_ipv6;
+    httpdns_list_head_t service_ip;
+    httpdns_list_head_t service_ipv6;
 } httpdns_schedule_response_t;
 
 typedef struct {
     char *host;
-    struct list_head ips;
-    struct list_head ipsv6;
+    httpdns_list_head_t ips;
+    httpdns_list_head_t ipsv6;
     int32_t ttl;
     int32_t origin_ttl;
     char *extra;
@@ -35,7 +35,7 @@ typedef struct {
 } httpdns_single_resolve_response_t;
 
 typedef struct {
-    struct list_head dns;
+    httpdns_list_head_t dns;
 } httpdns_multi_resolve_response_t;
 
 /**

@@ -42,10 +42,10 @@ else ()
     set(HTTPDNS_LOG_LEVEL LOG_INFO)
 endif ()
 # 配置日志文件路径
-if (DEFINED LOG_FILE_PATH)
-    set(LOG_FILE_PATH ${LOG_FILE_PATH})
+if (DEFINED HTTPDNS_LOG_FILE_PATH)
+    set(HTTPDNS_LOG_FILE_PATH ${HTTPDNS_LOG_FILE_PATH})
 else ()
-    set(LOG_FILE_PATH "/tmp/httpdns.log")
+    set(HTTPDNS_LOG_FILE_PATH "/tmp/httpdns.log")
 endif ()
 # 配置HTTPDNS集群
 if (DEFINED HTTPDNS_REGION)
@@ -64,7 +64,7 @@ endif ()
 
 configure_file(
         "${CMAKE_SOURCE_DIR}/configuration.h.in"
-        "${CMAKE_SOURCE_DIR}/src/configuration.h"
+        "${CMAKE_SOURCE_DIR}/src/httpdns_env_configuration.h"
 )
 
 ################################# 相关依赖库加载 ############################################

@@ -14,7 +14,7 @@ void httpdns_log_start() {
     }
     log_set_level(HTTPDNS_LOG_LEVEL);
     log_set_quiet(true);
-    char log_file_path[1024] = MICRO_TO_STRING(LOG_FILE_PATH);
+    char log_file_path[1024] = MICRO_TO_STRING(HTTPDNS_LOG_FILE_PATH);
     if (strlen(log_file_path) <= 0) {
         log_info("log file path is not set");
     }

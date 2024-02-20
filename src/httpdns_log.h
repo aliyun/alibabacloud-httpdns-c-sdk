@@ -12,7 +12,7 @@ extern "C"
 
 
 #include "log.h"
-#include "configuration.h"
+#include "httpdns_env_configuration.h"
 /**
  * must free using httpdns_log_stop
  */

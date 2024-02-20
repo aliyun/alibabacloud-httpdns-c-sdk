@@ -1,8 +1,6 @@
+cmake_minimum_required(VERSION 3.5)
 PROJECT(httpdns_c_sdk)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-
-set(CMAKE_VERSION 2.0.0)
 ####################################  编译选项  ###########################################
 # default Release C / CXX flags
 set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
@@ -71,9 +69,11 @@ configure_file(
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
+find_package(cJSON REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${CJSON_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
 ################################# 静态库编译安装 ############################################
@@ -81,6 +81,7 @@ add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static ${OPENSSL_LIBRARIES})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CURL_LIBRARY})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static Threads::Threads)
+target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CJSON_LIBRARIES})
 
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 

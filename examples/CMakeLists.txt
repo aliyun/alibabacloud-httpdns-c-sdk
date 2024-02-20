@@ -1,8 +1,6 @@
+cmake_minimum_required(VERSION 3.5)
 project(alicloud_httpdns_c_sdk_examples LANGUAGES C CXX)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
-
-set(CMAKE_VERSION 2.0.0)
 ####################################  编译选项  ###########################################
 # default Release C / CXX flags
 set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")

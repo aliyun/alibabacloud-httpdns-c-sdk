@@ -30,6 +30,7 @@
 # 安装方法
 
 ## 环境依赖
+HTTPDNS C SDK依赖于openssl、libcurl、cjson、check等库，在构建之前确保本机上已经按照了这些环境，如果没有可以参考以下步骤进行安装。
 
 ### openssl下载及安装
 
@@ -56,6 +57,23 @@ HTTPDNS C SDK使用curl进行网络操作，您需要确认这些库已经安装
   - Red Hat/CentOS/Fedora:```sudo yum install libcurl-devel```
   - [Windows安装](https://curl.se/windows/)
 
+### cjson下载及安装
+
+HTTPDNS C SDK使用cjson进行响应报文的解析，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
+* 源码安装(推荐)
+```shell
+  git clone https://github.com/DaveGamble/cJSON.git
+  cd cJSON
+  mkdir build
+  cd build
+  cmake .. -DENABLE_CJSON_UTILS=On -DENABLE_CJSON_TEST=Off 
+  make
+  sudo make install
+```
+* 二进制安装
+  - Ubuntu/Debian:```sudo apt-get install libcjson1 libcjson-dev```
+  - Red Hat/CentOS/Fedora:```sudo yum install libcjson libcjson-devel```
+
 ### check下载及安装
 
 HTTPDNS C SDK使用check框架作为自己的单元测试框架，该框架的下载及安装如下：
@@ -68,6 +86,7 @@ HTTPDNS C SDK使用check框架作为自己的单元测试框架，该框架的�
   cmake ..
   make
   make test
+  make install
 ```
 
 ## HTTPDNS C SDK的安装使用

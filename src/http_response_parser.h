@@ -12,7 +12,7 @@ extern "C"
 {
 #endif
 
-#include "cJSON.h"
+#include <cjson/cJSON.h>
 #include "sds.h"
 #include "httpdns_list.h"
 

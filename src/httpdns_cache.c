@@ -13,7 +13,7 @@
 
 httpdns_cache_table_t *httpdns_cache_table_new() {
     HTTPDNS_NEW_OBJECT_IN_HEAP(cache_table, httpdns_cache_table_t);
-    cache_table->cache = dictCreate(&dictTypeHeapStrings, NULL);
+    cache_table->cache = httpdns_dict_create(&httpdns_dict_type_heap_strings, NULL);
     // 使用递归锁
     pthread_mutexattr_init(&cache_table->lock_attr);
     pthread_mutexattr_settype(&cache_table->lock_attr, PTHREAD_MUTEX_RECURSIVE);
@@ -27,9 +27,9 @@ int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cach
         return HTTPDNS_PARAMETER_EMPTY;
     }
     pthread_mutex_lock(&cache_table->lock);
-    int ret = dictAdd(cache_table->cache, entry->cache_key, entry);
+    int ret = httpdns_dict_add(cache_table->cache, entry->cache_key, entry);
     pthread_mutex_unlock(&cache_table->lock);
-    if (ret != DICT_OK) {
+    if (ret != HTTPDNS_DICT_OK) {
         log_info("cache table add entry failed");
         return HTTPDNS_FAILURE;
     }
@@ -48,7 +48,7 @@ int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, const cha
         log_info("cache table delete entry failed, entry doesn't exist");
         return HTTPDNS_FAILURE;
     }
-    dictDelete(cache_table->cache, key);
+    httpdns_dict_delete(cache_table->cache, key);
     httpdns_cache_entry_free(cache_entry);
     pthread_mutex_unlock(&cache_table->lock);
     return HTTPDNS_SUCCESS;
@@ -88,7 +88,7 @@ httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, con
     }
     pthread_mutex_lock(&cache_table->lock);
     // 存在
-    dictEntry *dict_entry = dictFind(cache_table->cache, key);
+    httpdns_dict_entry_t *dict_entry = httpdns_dict_find(cache_table->cache, key);
     if (NULL == dict_entry) {
         log_debug("cache table get entry failed, entry doesn't exists");
         pthread_mutex_unlock(&cache_table->lock);
@@ -98,7 +98,7 @@ httpdns_cache_table_get(httpdns_cache_table_t *cache_table, const char *key, con
     httpdns_cache_entry_t *entry = dict_entry->val;
     int ttl = entry->origin_ttl > 0 ? entry->origin_ttl : entry->ttl;
     if (httpdns_time_is_expired(entry->query_ts, ttl)) {
-        dictDelete(cache_table->cache, key);
+        httpdns_dict_delete(cache_table->cache, key);
         httpdns_cache_entry_free(entry);
         log_debug("cache table get entry failed, entry is expired");
         pthread_mutex_unlock(&cache_table->lock);
@@ -124,18 +124,18 @@ void httpdns_cache_table_clean(httpdns_cache_table_t *cache_table) {
         return;
     }
     pthread_mutex_lock(&cache_table->lock);
-    dictIterator *di = dictGetSafeIterator(cache_table->cache);
+    httpdns_dict_iterator_t *di = httpdns_dict_get_safe_iterator(cache_table->cache);
     if (NULL == di) {
         pthread_mutex_unlock(&cache_table->lock);
         return;
     }
-    dictEntry *de = NULL;
-    while ((de = dictNext(di)) != NULL) {
+    httpdns_dict_entry_t *de = NULL;
+    while ((de = httpdns_dict_next(di)) != NULL) {
         char *cache_key = (char *) de->key;
         log_debug("delete cache entry %s", cache_key);
         httpdns_cache_table_delete(cache_table, cache_key);
     }
-    dictReleaseIterator(di);
+    httpdns_dict_release_iterator(di);
     pthread_mutex_unlock(&cache_table->lock);
 }
 
@@ -144,21 +144,21 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
         return sdsnew("cache_table()");
     }
     pthread_mutex_lock(&cache_table->lock);
-    dictIterator *di = dictGetSafeIterator(cache_table->cache);
+    httpdns_dict_iterator_t *di = httpdns_dict_get_safe_iterator(cache_table->cache);
     if (NULL == di) {
         pthread_mutex_unlock(&cache_table->lock);
         return sdsnew("cache_table()");
     }
     sds dst_str = sdsnew("cache_table(");
-    dictEntry *de = NULL;
-    while ((de = dictNext(di)) != NULL) {
+    httpdns_dict_entry_t *de = NULL;
+    while ((de = httpdns_dict_next(di)) != NULL) {
         SDS_CAT(dst_str, "\t");
         httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
         sds entry_str = httpdns_resolve_result_to_string(entry);
         SDS_CAT(dst_str, entry_str);
         sdsfree(entry_str);
     }
-    dictReleaseIterator(di);
+    httpdns_dict_release_iterator(di);
     SDS_CAT(dst_str, ")");
     pthread_mutex_unlock(&cache_table->lock);
     return dst_str;
@@ -167,7 +167,7 @@ sds httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) {
 void httpdns_cache_table_free(httpdns_cache_table_t *cache_table) {
     if (NULL != cache_table) {
         httpdns_cache_table_clean(cache_table);
-        dictRelease(cache_table->cache);
+        httpdns_dict_release(cache_table->cache);
         pthread_mutex_destroy(&cache_table->lock);
         pthread_mutexattr_destroy(&cache_table->lock_attr);
         free(cache_table);

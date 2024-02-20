@@ -12,12 +12,12 @@ extern "C"
 #endif
 
 
-#include "dict.h"
+#include "httpdns_dict.h"
 #include "httpdns_resolver.h"
 #include "httpdns_resolve_result.h"
 
 typedef struct {
-    dict *cache;
+    httpdns_dict_t *cache;
     pthread_mutex_t lock;
     pthread_mutexattr_t lock_attr;
 } httpdns_cache_table_t;

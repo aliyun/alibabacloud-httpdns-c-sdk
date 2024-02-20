@@ -1,5 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/9.
+// 参考linux list.h
 //
 
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_LIST_H
@@ -58,8 +59,8 @@ extern "C"
     for (httpdns_list_node_t *cursor = httpdns_list_first_entry(head); cursor != head; cursor = cursor->next)
 
 
-typedef struct _httpdns_list_node_t {
-    struct _httpdns_list_node_t *next, *prev;
+typedef struct httpdns_list_node_t {
+    struct httpdns_list_node_t *next, *prev;
     void *data;
 } httpdns_list_node_t;
 

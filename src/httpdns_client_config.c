@@ -16,14 +16,14 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     config->using_cache = true;
     config->using_https = false;
     config->using_sign = false;
-    config->timeout_ms = DEFAULT_TIMEOUT_MS;
+    config->timeout_ms = HTTPDNS_DEFAULT_TIMEOUT_MS;
 #ifdef HTTPDNS_RETRY_TIMES
     config->retry_times = HTTPDNS_RETRY_TIMES;
 #else
-    config->retry_times = DEFAULT_RETRY_TIMES;
+    config->retry_times = HTTPDNS_DEFAULT_RETRY_TIMES;
 #endif
-    config->sdk_version = httpdns_sds_new(SDK_VERSION);
-    config->user_agent = httpdns_sds_new(USER_AGENT);
+    config->sdk_version = httpdns_sds_new(HTTPDNS_SDK_VERSION);
+    config->user_agent = httpdns_sds_new(HTTPDNS_USER_AGENT);
     httpdns_list_init(&config->pre_resolve_hosts);
     httpdns_list_init(&config->ipv4_boot_servers);
     httpdns_list_init(&config->ipv6_boot_servers);
@@ -31,26 +31,26 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     char httpdns_region[10] = HTTPDNS_MICRO_TO_STRING(HTTPDNS_REGION);
     config->region = httpdns_sds_new(httpdns_region);
 
-    if (strcmp(httpdns_region, REGION_SINGAPORE) == 0) {
+    if (strcmp(httpdns_region, HTTPDNS_REGION_SINGAPORE) == 0) {
         httpdns_config_add_ipv4_boot_server(config, "161.117.200.122");
         httpdns_config_add_ipv4_boot_server(config, "8.219.89.41");
         httpdns_config_add_ipv6_boot_server(config, "240b:4000:f10::208");
-    } else if (strcmp(httpdns_region, REGION_HONG_KONG) == 0) {
+    } else if (strcmp(httpdns_region, HTTPDNS_REGION_HONG_KONG) == 0) {
         httpdns_config_add_ipv4_boot_server(config, "47.56.234.194");
         httpdns_config_add_ipv6_boot_server(config, "240b:4000:f10::208");
     } else {
-        httpdns_config_add_ipv4_boot_server(config, DEFAULT_IPV4_BOOT_SERVER);
+        httpdns_config_add_ipv4_boot_server(config, HTTPDNS_DEFAULT_IPV4_BOOT_SERVER);
         httpdns_config_add_ipv4_boot_server(config, "203.107.1.33");
         httpdns_config_add_ipv4_boot_server(config, "203.107.1.66");
         httpdns_config_add_ipv4_boot_server(config, "203.107.1.98");
 
-        httpdns_config_add_ipv6_boot_server(config, DEFAULT_IPV6_BOOT_SERVER);
+        httpdns_config_add_ipv6_boot_server(config, HTTPDNS_DEFAULT_IPV6_BOOT_SERVER);
     }
     // 设置默认调度入口
-    httpdns_config_add_ipv4_boot_server(config, DEFAULT_IPV4_BOOT_SERVER);
+    httpdns_config_add_ipv4_boot_server(config, HTTPDNS_DEFAULT_IPV4_BOOT_SERVER);
     httpdns_config_add_ipv4_boot_server(config, "httpdns-sc.aliyuncs.com");
 
-    httpdns_config_add_ipv6_boot_server(config, DEFAULT_IPV6_BOOT_SERVER);
+    httpdns_config_add_ipv6_boot_server(config, HTTPDNS_DEFAULT_IPV6_BOOT_SERVER);
     httpdns_config_add_ipv6_boot_server(config, "httpdns-sc.aliyuncs.com");
 }
 

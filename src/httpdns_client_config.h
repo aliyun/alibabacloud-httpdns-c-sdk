@@ -18,15 +18,15 @@ extern "C"
 #include <stdint.h>
 #include <stdbool.h>
 
-#define SDK_VERSION                "1.0.0"
-#define USER_AGENT                 "emas-httpdns-c-sdk"
-#define DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
-#define DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
-#define DEFAULT_TIMEOUT_MS         2500L
-#define DEFAULT_RETRY_TIMES        1
-#define REGION_CHINA_MAINLAND      "cn"
-#define REGION_HONG_KONG           "hk"
-#define REGION_SINGAPORE           "sg"
+#define HTTPDNS_SDK_VERSION                "1.0.0"
+#define HTTPDNS_USER_AGENT                 "emas-httpdns-c-sdk"
+#define HTTPDNS_DEFAULT_IPV4_BOOT_SERVER   "203.107.1.1"
+#define HTTPDNS_DEFAULT_IPV6_BOOT_SERVER   "2401:b180:2000:20::10"
+#define HTTPDNS_DEFAULT_TIMEOUT_MS         2500L
+#define HTTPDNS_DEFAULT_RETRY_TIMES        1
+#define HTTPDNS_REGION_CHINA_MAINLAND      "cn"
+#define HTTPDNS_REGION_HONG_KONG           "hk"
+#define HTTPDNS_REGION_SINGAPORE           "sg"
 
 
 typedef struct {

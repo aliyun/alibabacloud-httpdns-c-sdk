@@ -23,7 +23,7 @@ httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeou
     } else {
         httpdns_http_ctx->request_timeout_ms = timeout_ms;
     }
-    httpdns_http_ctx->user_agent = httpdns_sds_new(USER_AGENT);
+    httpdns_http_ctx->user_agent = httpdns_sds_new(HTTPDNS_USER_AGENT);
     return httpdns_http_ctx;
 }
 

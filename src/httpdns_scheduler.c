@@ -79,7 +79,7 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
             }
         }
         // 设置默认降级解析服务器
-        httpdns_scheduler_add_ipv4_resolve_server(scheduler, DEFAULT_IPV4_BOOT_SERVER);
+        httpdns_scheduler_add_ipv4_resolve_server(scheduler, HTTPDNS_DEFAULT_IPV4_BOOT_SERVER);
         httpdns_list_for_each_entry(ipv6_resolve_server_cursor, &schedule_response->service_ipv6) {
             httpdns_scheduler_add_ipv6_resolve_server(scheduler, ipv6_resolve_server_cursor->data);
             if (NULL != httpdns_config) {
@@ -87,7 +87,7 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
             }
         }
         // 设置默认降级解析服务器
-        httpdns_scheduler_add_ipv6_resolve_server(scheduler, DEFAULT_IPV6_BOOT_SERVER);
+        httpdns_scheduler_add_ipv6_resolve_server(scheduler, HTTPDNS_DEFAULT_IPV6_BOOT_SERVER);
         pthread_mutex_unlock(&scheduler->lock);
         httpdns_schedule_response_free(schedule_response);
         return;

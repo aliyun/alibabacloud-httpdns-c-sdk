@@ -12,12 +12,12 @@
 #include "httpdns_sds.h"
 
 size_t httpdns_sds_len(const httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh = (struct httpdns_sds_header_t *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (httpdns_sds_header_t *) (s - (sizeof(httpdns_sds_header_t)));
     return sh->len;
 }
 
 size_t httpdns_sds_avail(const httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh = (struct httpdns_sds_header_t *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (httpdns_sds_header_t *) (s - (sizeof(httpdns_sds_header_t)));
     return sh->free;
 }
 
@@ -34,12 +34,12 @@ size_t httpdns_sds_avail(const httpdns_sds_t s) {
  * end of the string. However the string is binary safe and can contain
  * \0 characters in the middle, as the length is stored in the httpdns_sds_t header. */
 httpdns_sds_t httpdns_sds_new_len(const void *init, size_t initlen) {
-    struct httpdns_sds_header_t *sh;
+    httpdns_sds_header_t *sh;
 
     if (init) {
-        sh = malloc(sizeof(struct httpdns_sds_header_t) + initlen + 1);
+        sh = malloc(sizeof(httpdns_sds_header_t) + initlen + 1);
     } else {
-        sh = calloc(sizeof(struct httpdns_sds_header_t) + initlen + 1, 1);
+        sh = calloc(sizeof(httpdns_sds_header_t) + initlen + 1, 1);
     }
     if (sh == NULL) return NULL;
     sh->len = initlen;
@@ -52,9 +52,9 @@ httpdns_sds_t httpdns_sds_new_len(const void *init, size_t initlen) {
 
 
 httpdns_sds_t httpdns_sds_new_empty(size_t preAlloclen) {
-    struct httpdns_sds_header_t *sh;
+    httpdns_sds_header_t *sh;
 
-    sh = malloc(sizeof(struct httpdns_sds_header_t) + preAlloclen + 1);
+    sh = malloc(sizeof(httpdns_sds_header_t) + preAlloclen + 1);
     if (sh == NULL) return NULL;
     sh->len = 0;
     sh->free = preAlloclen;
@@ -84,7 +84,7 @@ httpdns_sds_t httpdns_sds_dup(const httpdns_sds_t s) {
 /* Free an httpdns_sds_t string. No operation is performed if 's' is NULL. */
 void httpdns_sds_free(httpdns_sds_t s) {
     if (s == NULL) return;
-    free(s - sizeof(struct httpdns_sds_header_t));
+    free(s - sizeof(httpdns_sds_header_t));
 }
 
 /* Set the httpdns_sds_t string length to the length as obtained with strlen(), so
@@ -102,7 +102,7 @@ void httpdns_sds_free(httpdns_sds_t s) {
  * the output will be "6" as the string was modified but the logical length
  * remains 6 bytes. */
 void sdsupdatelen(httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     int reallen = strlen(s);
     sh->free += (sh->len - reallen);
     sh->len = reallen;
@@ -113,7 +113,7 @@ void sdsupdatelen(httpdns_sds_t s) {
  * so that next append operations will not require allocations up to the
  * number of bytes previously available. */
 void sdsclear(httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     sh->free += sh->len;
     sh->len = 0;
     sh->buf[0] = '\0';
@@ -126,19 +126,19 @@ void sdsclear(httpdns_sds_t s) {
  * Note: this does not change the *length* of the httpdns_sds_t string as returned
  * by httpdns_sds_len(), but only the free buffer space we have. */
 httpdns_sds_t sdsMakeRoomFor(httpdns_sds_t s, size_t addlen) {
-    struct httpdns_sds_header_t *sh, *newsh;
+    httpdns_sds_header_t *sh, *newsh;
     size_t free = httpdns_sds_avail(s);
     size_t len, newlen;
 
     if (free >= addlen) return s;
     len = httpdns_sds_len(s);
-    sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     newlen = (len + addlen);
     if (newlen < HTTPDNS_SDS_MAX_PREALLOC)
         newlen *= 2;
     else
         newlen += HTTPDNS_SDS_MAX_PREALLOC;
-    newsh = realloc(sh, sizeof(struct httpdns_sds_header_t) + newlen + 1);
+    newsh = realloc(sh, sizeof(httpdns_sds_header_t) + newlen + 1);
     if (newsh == NULL) return NULL;
 
     newsh->free = newlen - len;
@@ -152,10 +152,10 @@ httpdns_sds_t sdsMakeRoomFor(httpdns_sds_t s, size_t addlen) {
  * After the call, the passed httpdns_sds_t string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call. */
 httpdns_sds_t sdsRemoveFreeSpace(httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh;
+    httpdns_sds_header_t *sh;
 
-    sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
-    sh = realloc(sh, sizeof(struct httpdns_sds_header_t) + sh->len + 1);
+    sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
+    sh = realloc(sh, sizeof(httpdns_sds_header_t) + sh->len + 1);
     sh->free = 0;
     return sh->buf;
 }
@@ -168,7 +168,7 @@ httpdns_sds_t sdsRemoveFreeSpace(httpdns_sds_t s) {
  * 4) The implicit null term.
  */
 size_t sdsAllocSize(httpdns_sds_t s) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
 
     return sizeof(*sh) + sh->len + sh->free + 1;
 }
@@ -197,7 +197,7 @@ size_t sdsAllocSize(httpdns_sds_t s) {
  * sdsIncrLen(s, nread);
  */
 void sdsIncrLen(httpdns_sds_t s, int incr) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
 
     if (incr >= 0)
         assert(sh->free >= (unsigned int) incr);
@@ -214,7 +214,7 @@ void sdsIncrLen(httpdns_sds_t s, int incr) {
  * if the specified length is smaller than the current length, no operation
  * is performed. */
 httpdns_sds_t httpdns_sds_grow_zero(httpdns_sds_t s, size_t len) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     size_t totlen, curlen = sh->len;
 
     if (len <= curlen) return s;
@@ -222,7 +222,7 @@ httpdns_sds_t httpdns_sds_grow_zero(httpdns_sds_t s, size_t len) {
     if (s == NULL) return NULL;
 
     /* Make sure added region doesn't contain garbage */
-    sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     memset(s + curlen, 0, (len - curlen + 1)); /* also set trailing \0 byte */
     totlen = sh->len + sh->free;
     sh->len = len;
@@ -236,12 +236,12 @@ httpdns_sds_t httpdns_sds_grow_zero(httpdns_sds_t s, size_t len) {
  * After the call, the passed httpdns_sds_t string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call. */
 httpdns_sds_t httpdns_sds_cat_len(httpdns_sds_t s, const void *t, size_t len) {
-    struct httpdns_sds_header_t *sh;
+    httpdns_sds_header_t *sh;
     size_t curlen = httpdns_sds_len(s);
 
     s = sdsMakeRoomFor(s, len);
     if (s == NULL) return NULL;
-    sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     memcpy(s + curlen, t, len);
     sh->len = curlen + len;
     sh->free = sh->free - len;
@@ -251,12 +251,12 @@ httpdns_sds_t httpdns_sds_cat_len(httpdns_sds_t s, const void *t, size_t len) {
 
 
 httpdns_sds_t httpdns_sds_cat_char(httpdns_sds_t s, char c) {
-    struct httpdns_sds_header_t *sh;
+    httpdns_sds_header_t *sh;
     size_t curlen = httpdns_sds_len(s);
 
     s = sdsMakeRoomFor(s, 1);
     if (s == NULL) return NULL;
-    sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     s[curlen] = c;
     s[curlen + 1] = '\0';
     ++sh->len;
@@ -287,13 +287,13 @@ httpdns_sds_t httpdns_sds_cat_sds(httpdns_sds_t s, const httpdns_sds_t t) {
 /* Destructively modify the httpdns_sds_t string 's' to hold the specified binary
  * safe string pointed by 't' of length 'len' bytes. */
 httpdns_sds_t httpdns_sds_cpy_len(httpdns_sds_t s, const char *t, size_t len) {
-    struct httpdns_sds_header_t *sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+    httpdns_sds_header_t *sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
     size_t totlen = sh->free + sh->len;
 
     if (totlen < len) {
         s = sdsMakeRoomFor(s, len - sh->len);
         if (s == NULL) return NULL;
-        sh = (void *) (s - (sizeof(struct httpdns_sds_header_t)));
+        sh = (void *) (s - (sizeof(httpdns_sds_header_t)));
         totlen = sh->free + sh->len;
     }
     memcpy(s, t, len);

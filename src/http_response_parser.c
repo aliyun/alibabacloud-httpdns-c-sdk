@@ -181,10 +181,9 @@ static char *decode_html(char *str) {
             httpdns_sds_cat_easily(dst, "\'");
             index += 6;
         } else {
-            SDS_CAT_CHAR(dst, src[index++]);
+            httpdns_sds_cat_char_easily(dst, src[index++]);
         }
     }
-    SDS_CAT_CHAR(dst, '\0');
     return dst;
 }
 

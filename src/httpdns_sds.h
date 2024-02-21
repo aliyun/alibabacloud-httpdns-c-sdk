@@ -35,13 +35,16 @@ extern "C"
         httpdns_sds_cat_easily(dst_str, tmp_buffer); \
     }
 
-#define SDS_CAT_CHAR(dst_str, ch_val) \
-    {                                 \
-        char tmp_buffer[2];           \
-        tmp_buffer[0]=ch_val;         \
-        tmp_buffer[1]='\0';         \
-        httpdns_sds_cat_easily(dst_str, tmp_buffer); \
-    }
+#define httpdns_sds_cat_char_easily(dst_str, char_val) \
+     dst_str = httpdns_sds_cat_char(dst_str, char_val)
+
+//#define SDS_CAT_CHAR(dst_str, ch_val) \
+//    {                                 \
+//        char tmp_buffer[2];           \
+//        tmp_buffer[0]=ch_val;         \
+//        tmp_buffer[1]='\0';         \
+//        httpdns_sds_cat_easily(dst_str, tmp_buffer); \
+//    }
 
 #define HTTPDNS_MICRO_STRINGIFY(x) #x
 #define HTTPDNS_MICRO_TO_STRING(x) HTTPDNS_MICRO_STRINGIFY(x)

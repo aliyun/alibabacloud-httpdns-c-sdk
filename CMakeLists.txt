@@ -1,30 +1,17 @@
 cmake_minimum_required(VERSION 3.5)
-PROJECT(httpdns_c_sdk)
+PROJECT(httpdns_c_sdk LANGUAGES C)
 
 ####################################  编译选项  ###########################################
-# default Release C / CXX flags
+# default Release C flags
 set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-
 set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-
 set(CMAKE_C_FLAGS_RELEASE " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_RELEASE " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-
 set(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-
 set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-
 set(CMAKE_C_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
-set(CMAKE_CXX_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverag")
-
 set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
-set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 
 ##################################### C语言标准 ##########################################
 # Follow ISO C99 standard

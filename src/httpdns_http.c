@@ -18,8 +18,8 @@ httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeou
     HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_http_ctx, httpdns_http_context_t);
     httpdns_http_ctx->request_url = httpdns_sds_new(url);
     if (timeout_ms <= 0) {
-        log_debug("request timeout is less than 0, using default %d", MAX_HTTP_REQUEST_TIMEOUT_MS);
-        httpdns_http_ctx->request_timeout_ms = MAX_HTTP_REQUEST_TIMEOUT_MS;
+        log_debug("request timeout is less than 0, using default %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
+        httpdns_http_ctx->request_timeout_ms = HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS;
     } else {
         httpdns_http_ctx->request_timeout_ms = timeout_ms;
     }
@@ -111,13 +111,13 @@ static int32_t httpdns_http_context_timeout_cmp(httpdns_http_context_t *ctx1, ht
 
 static int32_t calculate_max_request_timeout(httpdns_list_head_t *http_contexts) {
     httpdns_http_context_t *ctx = httpdns_list_max(http_contexts, to_httpdns_data_cmp_func(httpdns_http_context_timeout_cmp));
-    if (ctx->request_timeout_ms < MIN_HTTP_REQUEST_TIMEOUT_MS) {
-        log_info("request timeout is too small, use %d", MIN_HTTP_REQUEST_TIMEOUT_MS);
-        return MIN_HTTP_REQUEST_TIMEOUT_MS;
+    if (ctx->request_timeout_ms < HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS) {
+        log_info("request timeout is too small, use %d", HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS);
+        return HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS;
     }
-    if (ctx->request_timeout_ms > MAX_HTTP_REQUEST_TIMEOUT_MS) {
-        log_info("request timeout is too big, use %d", MAX_HTTP_REQUEST_TIMEOUT_MS);
-        return MAX_HTTP_REQUEST_TIMEOUT_MS;
+    if (ctx->request_timeout_ms > HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS) {
+        log_info("request timeout is too big, use %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
+        return HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS;
     }
     return ctx->request_timeout_ms;
 }
@@ -136,10 +136,10 @@ static int32_t ssl_cert_verify(CURL *curl) {
     httpdns_list_init(&host_names);
     for (int i = 0; i < certinfo->num_of_certs; i++) {
         for (struct curl_slist *slist = certinfo->certinfo[i]; slist; slist = slist->next) {
-            if (strncmp(slist->data, CERT_PEM_NAME, strlen(CERT_PEM_NAME)) != 0) {
+            if (strncmp(slist->data, HTTPDNS_CERT_PEM_NAME, strlen(HTTPDNS_CERT_PEM_NAME)) != 0) {
                 continue;
             }
-            const char *pem_cert = slist->data + strlen(CERT_PEM_NAME);
+            const char *pem_cert = slist->data + strlen(HTTPDNS_CERT_PEM_NAME);
             BIO *bio = BIO_new(BIO_s_mem());
             BIO_puts(bio, pem_cert);
             X509 *cert = PEM_read_bio_X509(bio, NULL, 0, NULL);
@@ -156,7 +156,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
             ASN1_STRING *data = X509_NAME_ENTRY_get_data(entry);
             unsigned char *cn;
             ASN1_STRING_to_UTF8(&cn, data);
-            if (strcmp(SSL_VERIFY_HOST, cn) != 0) {
+            if (strcmp(HTTPDNS_SSL_VERIFY_HOST, cn) != 0) {
                 OPENSSL_free(cn);
                 goto free_cert_bio;
             }
@@ -207,10 +207,10 @@ static int32_t ssl_cert_verify(CURL *curl) {
     }
     httpdns_sds_t host_names_str = httpdns_list_to_string(&host_names, NULL);
     log_debug("get host name from https cert is %s", host_names_str);
-    bool is_domain_matched = httpdns_list_contain(&host_names, SSL_VERIFY_HOST, httpdns_string_cmp_func);
+    bool is_domain_matched = httpdns_list_contain(&host_names, HTTPDNS_SSL_VERIFY_HOST, httpdns_string_cmp_func);
     httpdns_list_free(&host_names, httpdns_string_free_func);
     if (!is_domain_matched) {
-        log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, SSL_VERIFY_HOST);
+        log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, HTTPDNS_SSL_VERIFY_HOST);
     }
     httpdns_sds_free(host_names_str);
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
@@ -222,11 +222,11 @@ static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     X509_VERIFY_PARAM *param = SSL_CTX_get0_param(ssl_ctx);
     if (NULL == param) {
         X509_VERIFY_PARAM *new_param = X509_VERIFY_PARAM_new();
-        X509_VERIFY_PARAM_set1_host(new_param, SSL_VERIFY_HOST, strlen(SSL_VERIFY_HOST));
+        X509_VERIFY_PARAM_set1_host(new_param, HTTPDNS_SSL_VERIFY_HOST, strlen(HTTPDNS_SSL_VERIFY_HOST));
         SSL_CTX_set1_param(ssl_ctx, new_param);
         X509_VERIFY_PARAM_free(new_param);
     } else {
-        X509_VERIFY_PARAM_set1_host(param, SSL_VERIFY_HOST, strlen(SSL_VERIFY_HOST));
+        X509_VERIFY_PARAM_set1_host(param, HTTPDNS_SSL_VERIFY_HOST, strlen(HTTPDNS_SSL_VERIFY_HOST));
     }
     return CURLE_OK;
 }
@@ -243,7 +243,7 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
         curl_easy_setopt(handle, CURLOPT_URL, http_context->request_url);
         curl_easy_setopt(handle, CURLOPT_TIMEOUT_MS, http_context->request_timeout_ms);
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
-        bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
+        bool using_https = httpdns_http_is_https_scheme(http_context->request_url);
         if (using_https) {
             curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
             curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
@@ -286,7 +286,7 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
             httpdns_http_context_t *http_context;
             curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &http_context);
             if (NULL != http_context) {
-                bool using_https = IS_HTTPS_SCHEME(http_context->request_url);
+                bool using_https = httpdns_http_is_https_scheme(http_context->request_url);
 #ifdef __APPLE__
                 bool very_https_cert_success = using_https && (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
 #else

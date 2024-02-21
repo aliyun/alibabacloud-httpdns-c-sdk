@@ -19,15 +19,15 @@ extern "C"
 #include "httpdns_list.h"
 #include "httpdns_sds.h"
 
-#define SSL_VERIFY_HOST    "203.107.1.1"
-#define MIN_HTTP_REQUEST_TIMEOUT_MS  10
-#define MAX_HTTP_REQUEST_TIMEOUT_MS  5000
-#define HTTP_SCHEME        "http://"
-#define HTTPS_SCHEME        "https://"
-#define CERT_PEM_NAME       "Cert:"
-#define HTTP_STATUS_OK 200
-#define IS_HTTPS_SCHEME(URL) \
-    (strncmp(URL, HTTPS_SCHEME, strlen(HTTPS_SCHEME)) == 0)
+#define HTTPDNS_SSL_VERIFY_HOST    "203.107.1.1"
+#define HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS  10
+#define HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS  5000
+#define HTTPDNS_HTTP_SCHEME        "http://"
+#define HTTPDNS_HTTPS_SCHEME        "https://"
+#define HTTPDNS_CERT_PEM_NAME       "Cert:"
+#define HTTPDNS_HTTP_STATUS_OK 200
+#define httpdns_http_is_https_scheme(URL) \
+    (strncmp(URL, HTTPDNS_HTTPS_SCHEME, strlen(HTTPDNS_HTTPS_SCHEME)) == 0)
 
 typedef struct {
     char *request_url;

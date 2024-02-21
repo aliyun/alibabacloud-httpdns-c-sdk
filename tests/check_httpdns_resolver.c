@@ -22,7 +22,7 @@ static void on_http_finish_callback(httpdns_http_context_t *http_context,
     httpdns_sds_free(http_context_str);
 
     bool *is_success = (bool *) (user_callback_param);
-    *is_success = (HTTP_STATUS_OK == http_context->response_status);
+    *is_success = (HTTPDNS_HTTP_STATUS_OK == http_context->response_status);
 }
 
 static httpdns_resolve_param_t *build_resolve_param(httpdns_resolve_request_t *request, bool *is_success) {

@@ -29,27 +29,27 @@ extern "C"
 #include "httpdns_error_type.h"
 #include "httpdns_sds.h"
 
-#define IPV4_PROBE_ADDR  "8.8.8.8"
-#define IPV6_PROBE_ADDR  "2000::"
-#define PROBE_DOMAIN     "www.taobao.com"
-#define PROBE_PORT        0xFFFF
+#define HTTPDNS_IPV4_PROBE_ADDR  "8.8.8.8"
+#define HTTPDNS_IPV6_PROBE_ADDR  "2000::"
+#define HTTPDNS_PROBE_DOMAIN     "www.taobao.com"
+#define HTTPDNS_PROBE_PORT        0xFFFF
 
-#define IP_STACK_UNKNOWN 0x0000
-#define IPV4_ONLY        0x0001
-#define IPV6_ONLY        0x0002
-#define IP_DUAL_STACK    0x0003
+#define HTTPDNS_IP_STACK_UNKNOWN 0x0000
+#define HTTPDNS_IPV4_ONLY        0x0001
+#define HTTPDNS_IPV6_ONLY        0x0002
+#define HTTPDNS_IP_DUAL_STACK    0x0003
 
-#define ADD_IPV4_NET_TYPE(net_stack_type) \
-net_stack_type = net_stack_type | (1 << 0)
+#define httpdns_add_ipv4_net_type(net_stack_type) \
+    net_stack_type = net_stack_type | (1 << 0)
 
-#define ADD_IPV6_NET_TYPE(net_stack_type) \
-net_stack_type = net_stack_type | (1 << 1)
+#define httpdns_add_ipv6_net_type(net_stack_type) \
+    net_stack_type = net_stack_type | (1 << 1)
 
-#define HAVE_IPV4_NET_TYPE(net_stack_type) \
-net_stack_type & (1<<0)
+#define httpdns_have_ipv4_net_type(net_stack_type) \
+    net_stack_type & (1<<0)
 
-#define HAVE_IPV6_NET_TYPE(net_stack_type) \
-net_stack_type & (1<<1)
+#define httpdns_have_ipv6_net_type(net_stack_type) \
+    net_stack_type & (1<<1)
 
 typedef u_int32_t net_stack_type_t;
 

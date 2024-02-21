@@ -22,7 +22,7 @@ static httpdns_resolve_result_t *create_localdns_result(const char *host) {
     return result;
 }
 
-httpdns_resolve_result_t *resolve_host_by_localdns(const char *host) {
+httpdns_resolve_result_t *httpdns_localdns_resolve_host(const char *host) {
     struct addrinfo hint, *answer, *curr;
     memset(&hint, 0, sizeof(hint));
     hint.ai_family = AF_UNSPEC;

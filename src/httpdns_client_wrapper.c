@@ -231,7 +231,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
         }
         httpdns_sds_cat_easily(host_group, host_cursor->data);
         host_count++;
-        if (host_count % MULTI_RESOLVE_SIZE != 0 && !httpdns_list_is_end_node(host_cursor, hosts)) {
+        if (host_count % HTTPDNS_MULTI_RESOLVE_SIZE != 0 && !httpdns_list_is_end_node(host_cursor, hosts)) {
             continue;
         }
         httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_client->config,
@@ -377,7 +377,7 @@ int32_t select_ip_from_httpdns_result(httpdns_resolve_result_t *result, char *ds
     httpdns_list_head_t *ip_list;
     httpdns_net_stack_detector_t *detector = httpdns_client->net_stack_detector;
     net_stack_type_t net_stype = httpdns_net_stack_type_get(detector);
-    if (HAVE_IPV4_NET_TYPE(net_stype)) {
+    if (httpdns_have_ipv4_net_type(net_stype)) {
         ip_list = &result->ips;
     } else {
         ip_list = &result->ipsv6;

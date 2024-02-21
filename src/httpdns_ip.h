@@ -16,7 +16,7 @@ extern "C"
 #include "httpdns_sds.h"
 
 
-#define DEFAULT_IP_RT         0
+#define HTTPDNS_DEFAULT_IP_RT         0
 
 typedef struct {
     char *ip;

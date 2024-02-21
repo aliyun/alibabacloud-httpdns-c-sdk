@@ -34,7 +34,7 @@ httpdns_ip_t *httpdns_ip_new(const char *ip) {
     }
     HTTPDNS_NEW_OBJECT_IN_HEAP(http_ip, httpdns_ip_t);
     http_ip->ip = httpdns_sds_new(ip);
-    http_ip->rt = DEFAULT_IP_RT;
+    http_ip->rt = HTTPDNS_DEFAULT_IP_RT;
     return http_ip;
 }
 

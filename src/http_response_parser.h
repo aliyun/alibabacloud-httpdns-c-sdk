@@ -16,8 +16,8 @@ extern "C"
 #include "httpdns_sds.h"
 #include "httpdns_list.h"
 
-#define RESOLVE_TYPE_A 1
-#define RESOLVE_TYPE_AAAA 28
+#define HTTPDNS_RESOLVE_TYPE_A 1
+#define HTTPDNS_RESOLVE_TYPE_AAAA 28
 
 typedef struct {
     httpdns_list_head_t service_ip;

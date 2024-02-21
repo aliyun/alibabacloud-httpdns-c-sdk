@@ -21,7 +21,7 @@ static bool test_exchange_single_request(char *url) {
     httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
     log_trace("test_exchange_single_request, http_context=%s", http_context_str);
     httpdns_sds_free(http_context_str);
-    bool is_success = (NULL != http_context) && (http_context->response_status == HTTP_STATUS_OK);
+    bool is_success = (NULL != http_context) && (http_context->response_status == HTTPDNS_HTTP_STATUS_OK);
     httpdns_http_context_free(http_context);
     return is_success;
 }
@@ -68,7 +68,7 @@ START_TEST(test_exchange_multi_request_with_resolve) {
         httpdns_sds_t http_context_str = httpdns_http_context_to_string(ctx);
         log_trace("test_exchange_multi_request_with_resolve, http_context=%s", http_context_str);
         httpdns_sds_free(http_context_str);
-        if ((NULL == ctx) || (ctx->response_status != HTTP_STATUS_OK)) {
+        if ((NULL == ctx) || (ctx->response_status != HTTPDNS_HTTP_STATUS_OK)) {
             is_all_success = false;
             break;
         }

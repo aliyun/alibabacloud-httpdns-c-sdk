@@ -15,7 +15,7 @@ extern "C"
 #include  "httpdns_resolve_result.h"
 #include "httpdns_client.h"
 
-#define MULTI_RESOLVE_SIZE 5
+#define HTTPDNS_MULTI_RESOLVE_SIZE 5
 
 /**
  * 初始化htptdns client 环境

@@ -13,7 +13,7 @@ extern "C"
 
 
 #include "httpdns_list.h"
-#include "net_stack_detector.h"
+#include "httpdns_net_stack_detector.h"
 #include "httpdns_error_type.h"
 #include <stdint.h>
 #include <stdbool.h>

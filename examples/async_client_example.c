@@ -63,7 +63,7 @@ static void httpdns_complete_callback_func(const httpdns_resolve_result_t *resul
 
     if (NULL == result) {
         log_trace("httpdns resolve failed, fallback to localdns");
-        result = resolve_host_by_localdns(MOCK_BUSINESS_HOST);
+        result = httpdns_localdns_resolve_host(MOCK_BUSINESS_HOST);
         httpdns_sds_t localdns_result_str = httpdns_resolve_result_to_string(result);
         printf("localdns reuslt %s\n", localdns_result_str);
         httpdns_sds_free(localdns_result_str);

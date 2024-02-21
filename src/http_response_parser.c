@@ -227,7 +227,7 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
     cJSON *type_json = cJSON_GetObjectItem(c_json_body, "type");
     if (NULL != type_json) {
         int32_t type = type_json->valueint;
-        if (type == RESOLVE_TYPE_AAAA) {
+        if (type == HTTPDNS_RESOLVE_TYPE_AAAA) {
             httpdns_list_dup(&single_resolve_result->ipsv6, &single_resolve_result->ips, httpdns_string_clone_func);
             httpdns_list_free(&single_resolve_result->ips, httpdns_string_free_func);
         }

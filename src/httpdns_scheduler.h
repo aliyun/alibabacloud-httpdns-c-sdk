@@ -18,8 +18,8 @@ extern "C"
 #include <stdint.h>
 
 
-#define DELTA_WEIGHT_UPDATE_RATION     0.3
-#define SCHEDULE_NONCE_SIZE            12
+#define HTTPDNS_DELTA_WEIGHT_UPDATE_RATION     0.3
+#define HTTPDNS_SCHEDULE_NONCE_SIZE            12
 
 typedef struct {
     httpdns_list_head_t ipv4_resolve_servers;

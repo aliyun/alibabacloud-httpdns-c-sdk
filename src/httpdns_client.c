@@ -119,12 +119,12 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
     httpdns_resolve_request_t *resolve_request = resolve_context->request;
     httpdns_scheduler_t *scheduler = param->scheduler;
     param->retry_times = param->retry_times - 1;
-    if (http_context->response_status != HTTP_STATUS_OK) {
+    if (http_context->response_status != HTTPDNS_HTTP_STATUS_OK) {
         httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
         log_info("http response exception, httpdns_conxtext %s", http_context_str);
         httpdns_sds_free(http_context_str);
         char *resolver = resolve_context->request->resolver;
-        httpdns_scheduler_update(param->scheduler, resolver, MAX_HTTP_REQUEST_TIMEOUT_MS);
+        httpdns_scheduler_update(param->scheduler, resolver, HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
         if (NULL != resolve_request->complete_callback_func) {
             resolve_request->complete_callback_func(NULL, resolve_request->user_callback_param);
         }
@@ -199,9 +199,9 @@ static void on_http_finish_callback_param_free(on_http_finish_callback_param_t *
 static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
     net_stack_type_t type = httpdns_net_stack_type_get(detector);
     switch (type) {
-        case IPV4_ONLY:
+        case HTTPDNS_IPV4_ONLY:
             return HTTPDNS_QUERY_TYPE_A;
-        case IPV6_ONLY:
+        case HTTPDNS_IPV6_ONLY:
             return HTTPDNS_QUERY_TYPE_AAAA;
         default:
             return HTTPDNS_QUERY_TYPE_BOTH;

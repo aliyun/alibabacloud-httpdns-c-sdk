@@ -55,7 +55,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         log_debug("multi resolve request %s", request_str);
         httpdns_sds_free(request_str);
 
-        const char *http_scheme = request->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
+        const char *http_scheme = request->using_https ? HTTPDNS_HTTPS_SCHEME : HTTPDNS_HTTP_SCHEME;
         const bool using_sign = (request->using_sign && NULL != request->secret_key);
         const char *http_api = request->using_multi ? (using_sign ? HTTPDNS_API_SIGN_RESOLVE : HTTPDNS_API_RESOLVE)
                                                     : (using_sign ? HTTPDNS_API_SIGN_D : HTTPDNS_API_D);
@@ -77,7 +77,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         if (using_sign) {
             httpdns_signature_t *signature = httpdns_signature_new(request->host,
                                                                    request->secret_key,
-                                                                   MAX_RESOLVE_SIGNATURE_OFFSET_TIME,
+                                                                   HTTPDNS_MAX_RESOLVE_SIGNATURE_OFFSET_TIME,
                                                                    httpdns_time_now());
             httpdns_sds_cat_easily(url, "&s=");
             httpdns_sds_cat_easily(url, signature->sign);

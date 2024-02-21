@@ -2,7 +2,7 @@
 // Created by caogaoshuai on 2024/1/14.
 //
 
-#include "net_stack_detector.h"
+#include "httpdns_net_stack_detector.h"
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
@@ -22,13 +22,13 @@ static void teardown(void) {
 
 START_TEST(test_net_detect_ipv4) {
     net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
-    ck_assert_msg(HAVE_IPV4_NET_TYPE(net_type), "本地未发现ipv4网络");
+    ck_assert_msg(httpdns_have_ipv4_net_type(net_type), "本地未发现ipv4网络");
 }
 END_TEST
 
 START_TEST(test_net_detect_ipv6) {
     net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
-    ck_assert_msg(HAVE_IPV6_NET_TYPE(net_type), "本地未发现ipv6网络");
+    ck_assert_msg(httpdns_have_ipv6_net_type(net_type), "本地未发现ipv6网络");
 }
 END_TEST
 

@@ -104,7 +104,7 @@ START_TEST(test_scheduler_update) {
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
     log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
     httpdns_sds_free(scheduler_str);
-    bool is_success = (ip3.rt == (int32_t) (DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - DELTA_WEIGHT_UPDATE_RATION) * 35));
+    bool is_success = (ip3.rt == (int32_t) (HTTPDNS_DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - HTTPDNS_DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     pthread_mutex_destroy(&scheduler.lock);
     pthread_mutexattr_init(&scheduler.lock_attr);

@@ -103,7 +103,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_config_t *config = scheduler->config;
     httpdns_list_head_t *boot_servers;
-    if (IPV6_ONLY == net_stack_type) {
+    if (HTTPDNS_IPV6_ONLY == net_stack_type) {
         boot_servers = &config->ipv6_boot_servers;
     } else {
         boot_servers = &config->ipv4_boot_servers;
@@ -113,7 +113,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         log_info("refresh resolver list failed, boot server number is 0");
         return HTTPDNS_BOOT_SERVER_EMPTY;
     }
-    const char *http_scheme = config->using_https ? HTTPS_SCHEME : HTTP_SCHEME;
+    const char *http_scheme = config->using_https ? HTTPDNS_HTTPS_SCHEME : HTTPDNS_HTTP_SCHEME;
 
     httpdns_list_node_t *first_entry = httpdns_list_first_entry(boot_servers);
     httpdns_list_node_t *cur_entry = first_entry;
@@ -132,11 +132,11 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         url = httpdns_sds_cat(url, "&region=");
         url = httpdns_sds_cat(url, config->region);
         if (config->using_sign && NULL != config->secret_key) {
-            char nonce[SCHEDULE_NONCE_SIZE + 1];
+            char nonce[HTTPDNS_SCHEDULE_NONCE_SIZE + 1];
             generate_nonce(nonce);
             httpdns_signature_t *signature = httpdns_signature_new(nonce,
                                                                    config->secret_key,
-                                                                   MAX_SCHEDULE_SIGNATURE_OFFSET_TIME,
+                                                                   HTTPDNS_MAX_SCHEDULE_SIGNATURE_OFFSET_TIME,
                                                                    httpdns_time_now());
             url = httpdns_sds_cat(url, "&s=");
             url = httpdns_sds_cat(url, signature->sign);
@@ -150,7 +150,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         log_debug("exchange http request url %s", url);
         httpdns_sds_free(url);
         httpdns_http_single_exchange(http_context);
-        bool success = (http_context->response_status == HTTP_STATUS_OK);
+        bool success = (http_context->response_status == HTTPDNS_HTTP_STATUS_OK);
         if (success) {
             httpdns_parse_body(http_context->response_body, scheduler);
             log_info("try server %s fetch resolve server success", cur_entry->data);
@@ -174,13 +174,13 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
 
 
 static int32_t update_server_rt(int32_t old_rt_val, int32_t new_rt_val) {
-    if (old_rt_val == DEFAULT_IP_RT) {
+    if (old_rt_val == HTTPDNS_DEFAULT_IP_RT) {
         return new_rt_val;
     }
-    if (new_rt_val * DELTA_WEIGHT_UPDATE_RATION > old_rt_val) {
+    if (new_rt_val * HTTPDNS_DELTA_WEIGHT_UPDATE_RATION > old_rt_val) {
         return old_rt_val;
     }
-    return (int32_t) (new_rt_val * DELTA_WEIGHT_UPDATE_RATION + old_rt_val * (1.0 - DELTA_WEIGHT_UPDATE_RATION));
+    return (int32_t) (new_rt_val * HTTPDNS_DELTA_WEIGHT_UPDATE_RATION + old_rt_val * (1.0 - HTTPDNS_DELTA_WEIGHT_UPDATE_RATION));
 }
 
 void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt) {
@@ -217,7 +217,7 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_list_head_t *resolve_servers;
     pthread_mutex_lock(&scheduler->lock);
-    if (IPV6_ONLY == net_stack_type) {
+    if (HTTPDNS_IPV6_ONLY == net_stack_type) {
         resolve_servers = &scheduler->ipv6_resolve_servers;
     } else {
         resolve_servers = &scheduler->ipv4_resolve_servers;

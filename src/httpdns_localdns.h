@@ -16,7 +16,7 @@ extern "C"
 /**
  *    must free using httpdns_resolve_result_free
  */
-httpdns_resolve_result_t *resolve_host_by_localdns(const char *host);
+httpdns_resolve_result_t *httpdns_localdns_resolve_host(const char *host);
 
 
 #ifdef __cplusplus

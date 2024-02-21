@@ -17,8 +17,8 @@ extern "C"
 #include <stdint.h>
 #include "httpdns_time.h"
 
-#define MAX_RESOLVE_SIGNATURE_OFFSET_TIME (30 * 60)
-#define MAX_SCHEDULE_SIGNATURE_OFFSET_TIME 0
+#define HTTPDNS_MAX_RESOLVE_SIGNATURE_OFFSET_TIME (30 * 60)
+#define HTTPDNS_MAX_SCHEDULE_SIGNATURE_OFFSET_TIME 0
 
 typedef struct {
     char *raw;

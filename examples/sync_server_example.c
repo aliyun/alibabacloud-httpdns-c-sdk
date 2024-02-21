@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
     get_httpdns_results_for_hosts_sync_with_cache(&hosts, HTTPDNS_QUERY_TYPE_AUTO, NULL, &results);
     struct timeval end_time = httpdns_time_now();
     // 请求100次，合并后20个请求，20个结果
-    log_trace("sync server in linux example, httpdns cost %ld ms/个, request number %d, result number %d",
+    httpdns_log_trace("sync server in linux example, httpdns cost %ld ms/个, request number %d, result number %d",
               httpdns_time_diff(end_time, start_time) / MOCK_BATCH_REQUEST_SIZE,
               MOCK_BATCH_REQUEST_SIZE,
               httpdns_list_size(&results));

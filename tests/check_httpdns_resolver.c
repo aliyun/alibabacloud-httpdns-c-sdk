@@ -18,7 +18,7 @@ static void teardown(void) {
 static void on_http_finish_callback(httpdns_http_context_t *http_context,
                                     void *user_callback_param) {
     httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
-    log_trace("on_http_finish_callback, %s", http_context_str);
+    httpdns_log_trace("on_http_finish_callback, %s", http_context_str);
     httpdns_sds_free(http_context_str);
 
     bool *is_success = (bool *) (user_callback_param);
@@ -53,7 +53,7 @@ static void append_resolve_params(
     httpdns_resolve_request_set_using_multi(request, true);
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, is_success);
     httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
-    log_trace("test_multi_resolve_task, request=%s", request_str);
+    httpdns_log_trace("test_multi_resolve_task, request=%s", request_str);
     httpdns_sds_free(request_str);
     httpdns_resolve_request_free(request);
     httpdns_list_add(resolve_params, resolve_param, NULL);
@@ -70,7 +70,7 @@ START_TEST(test_single_resolve_task) {
     httpdns_resolve_param_t *resolve_param = build_resolve_param(request, &is_success);
 
     httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
-    log_trace("test_single_resolve_task, request=%s", request_str);
+    httpdns_log_trace("test_single_resolve_task, request=%s", request_str);
     httpdns_sds_free(request_str);
 
     httpdns_resolver_single_resolve(resolve_param);

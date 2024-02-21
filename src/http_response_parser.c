@@ -4,11 +4,11 @@
 #include "http_response_parser.h"
 #include "httpdns_memory.h"
 #include <stdio.h>
-#include "log.h"
+#include "httpdns_log.h"
 #include "httpdns_sds.h"
 
 httpdns_schedule_response_t *httpdns_schedule_response_new() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(schedule_response, httpdns_schedule_response_t);
+    httpdns_new_object_in_heap(schedule_response, httpdns_schedule_response_t);
     httpdns_list_init(&schedule_response->service_ip);
     httpdns_list_init(&schedule_response->service_ipv6);
     return schedule_response;
@@ -41,7 +41,7 @@ void httpdns_schedule_response_free(httpdns_schedule_response_t *response) {
 }
 
 httpdns_single_resolve_response_t *httpdns_single_resolve_response_new() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(single_resolve_response, httpdns_single_resolve_response_t);
+    httpdns_new_object_in_heap(single_resolve_response, httpdns_single_resolve_response_t);
     httpdns_list_init(&single_resolve_response->ips);
     httpdns_list_init(&single_resolve_response->ipsv6);
     return single_resolve_response;
@@ -99,7 +99,7 @@ void httpdns_single_resolve_response_free(httpdns_single_resolve_response_t *res
 }
 
 httpdns_multi_resolve_response_t *httpdns_multi_resolve_response_new() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(multi_resolve_result, httpdns_multi_resolve_response_t);
+    httpdns_new_object_in_heap(multi_resolve_result, httpdns_multi_resolve_response_t);
     httpdns_list_init(&multi_resolve_result->dns);
     return multi_resolve_result;
 }
@@ -237,17 +237,17 @@ static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(
 
 httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const char *body) {
     if (httpdns_string_is_blank(body)) {
-        log_info("parse single resolve failed, body is empty");
+        httpdns_log_info("parse single resolve failed, body is empty");
         return NULL;
     }
     cJSON *c_json_body = cJSON_Parse(body);
     if (NULL == c_json_body) {
-        log_info("parse single resolve failed, body may be not json");
+        httpdns_log_info("parse single resolve failed, body may be not json");
         return NULL;
     }
     httpdns_single_resolve_response_t *single_resolve_result = parse_single_resolve_result_from_json(c_json_body);
     if (httpdns_list_is_empty(&single_resolve_result->ips) && httpdns_list_is_empty(&single_resolve_result->ipsv6)) {
-        log_info("parse single resolve is empty, body is %s", body);
+        httpdns_log_info("parse single resolve is empty, body is %s", body);
     }
     cJSON_Delete(c_json_body);
     return single_resolve_result;
@@ -255,12 +255,12 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const c
 
 httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const char *body) {
     if (httpdns_string_is_blank(body)) {
-        log_info("parse multi resolve failed, body is empty");
+        httpdns_log_info("parse multi resolve failed, body is empty");
         return NULL;
     }
     cJSON *c_json_body = cJSON_Parse(body);
     if (NULL == c_json_body) {
-        log_info("parse multi resolve failed, body may be not json");
+        httpdns_log_info("parse multi resolve failed, body may be not json");
         return NULL;
     }
     httpdns_multi_resolve_response_t *mul_resolve_result = httpdns_multi_resolve_response_new();
@@ -277,7 +277,7 @@ httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const cha
         }
         httpdns_list_shuffle(&mul_resolve_result->dns);
     } else {
-        log_info("parse multi resolve failed, body is %s", body);
+        httpdns_log_info("parse multi resolve failed, body is %s", body);
     }
     cJSON_Delete(c_json_body);
     return mul_resolve_result;

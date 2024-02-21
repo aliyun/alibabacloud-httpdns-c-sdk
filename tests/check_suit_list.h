@@ -7,7 +7,7 @@
 
 #include<check.h>
 #include<stdbool.h>
-#include "log.h"
+#include "httpdns_log.h"
 
 Suite *make_httpdns_time_suite(void);
 

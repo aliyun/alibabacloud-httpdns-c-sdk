@@ -3,7 +3,7 @@
 //
 #include "httpdns_client_wrapper.h"
 #include "httpdns_global_config.h"
-#include "log.h"
+#include "httpdns_log.h"
 #include "httpdns_sds.h"
 #include <pthread.h>
 #include "httpdns_memory.h"
@@ -65,11 +65,11 @@ int32_t httpdns_client_env_cleanup() {
 
 httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_custom_request(httpdns_resolve_request_t *request) {
     if (!is_initialized) {
-        log_info("get_httpdns_result_for_host_sync_with_custom_request failed, httpdns client is not initialized");
+        httpdns_log_info("get_httpdns_result_for_host_sync_with_custom_request failed, httpdns client is not initialized");
         return NULL;
     }
     if (NULL != request && NULL != request->complete_callback_func) {
-        log_info("get_httpdns_result_for_host_sync_with_custom_request failed, callback should be NULL");
+        httpdns_log_info("get_httpdns_result_for_host_sync_with_custom_request failed, callback should be NULL");
         return NULL;
     }
     httpdns_resolve_result_t *result = NULL;
@@ -83,7 +83,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_cache(const char
                                                                       const char *query_type,
                                                                       const char *client_ip) {
     if (!is_initialized) {
-        log_info("get_httpdns_result_for_host_sync_with_cache failed, httpdns client is not initialized");
+        httpdns_log_info("get_httpdns_result_for_host_sync_with_cache failed, httpdns client is not initialized");
         return NULL;
     }
     httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_config,
@@ -104,7 +104,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_without_cache(const c
                                                                          const char *query_type,
                                                                          const char *client_ip) {
     if (!is_initialized) {
-        log_info("get_httpdns_result_for_host_sync_with_cache failed, httpdns client is not initialized");
+        httpdns_log_info("get_httpdns_result_for_host_sync_with_cache failed, httpdns client is not initialized");
         return NULL;
     }
     httpdns_resolve_request_t *request = httpdns_resolve_request_new(httpdns_config,
@@ -144,13 +144,13 @@ static void *httpdns_single_resolve_routine(void *arg) {
 
 int32_t get_httpdns_result_for_host_async_with_custom_request(httpdns_resolve_request_t *request) {
     if (NULL == request || NULL == request->complete_callback_func) {
-        log_info("get_httpdns_result_for_host_async_with_custom_request failed, request or callback is empty");
+        httpdns_log_info("get_httpdns_result_for_host_async_with_custom_request failed, request or callback is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     pthread_t tid;
     int ret = pthread_create(&tid, NULL, httpdns_single_resolve_routine, request);
     if (0 != ret) {
-        log_info("create thread error, ret %d", ret);
+        httpdns_log_info("create thread error, ret %d", ret);
         return HTTPDNS_THREAD_CREATE_FAIL_ERROR;
     }
     pthread_detach(tid);
@@ -165,11 +165,11 @@ static int32_t get_httpdns_result_for_host_async(const char *host,
                                                  httpdns_complete_callback_func_t cb,
                                                  void *cb_param) {
     if (!is_initialized) {
-        log_info("get_httpdns_result_for_host_sync failed, httpdns client is not initialized");
+        httpdns_log_info("get_httpdns_result_for_host_sync failed, httpdns client is not initialized");
         return HTTPDNS_CLIENT_NOT_INITIALIZE;
     }
     if (httpdns_string_is_blank(host) || httpdns_string_is_blank(query_type) || NULL == cb) {
-        log_info("get_httpdns_result_for_host_async failed, host or query_type or cb is empty");
+        httpdns_log_info("get_httpdns_result_for_host_async failed, host or query_type or cb is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
 
@@ -184,7 +184,7 @@ static int32_t get_httpdns_result_for_host_async(const char *host,
     pthread_t tid;
     int ret = pthread_create(&tid, NULL, httpdns_single_resolve_routine, request);
     if (0 != ret) {
-        log_info("create thread error, ret %d", ret);
+        httpdns_log_info("create thread error, ret %d", ret);
         return HTTPDNS_THREAD_CREATE_FAIL_ERROR;
     }
     pthread_detach(tid);
@@ -216,7 +216,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
                                              void *cb_param,
                                              httpdns_list_head_t *results) {
     if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type) || NULL == results) {
-        log_info("batch get httpdns failed, hosts or query type is NULL");
+        httpdns_log_info("batch get httpdns failed, hosts or query type is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     httpdns_resolve_task_t *resolve_task = httpdns_resolve_task_new(httpdns_client);
@@ -249,7 +249,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
         httpdns_resolve_task_add_request(resolve_task, request);
 
         httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
-        log_debug("batch resolve add request %s", request_str);
+        httpdns_log_debug("batch resolve add request %s", request_str);
         httpdns_sds_free(request_str);
 
         httpdns_resolve_request_free(request);
@@ -323,15 +323,15 @@ static int32_t get_httpdns_results_for_hosts_async(httpdns_list_head_t *hosts,
                                                    httpdns_complete_callback_func_t cb,
                                                    void *cb_param) {
     if (!is_initialized) {
-        log_info("get_httpdns_results_for_hosts_async failed, httpdns client is not initialized");
+        httpdns_log_info("get_httpdns_results_for_hosts_async failed, httpdns client is not initialized");
         return HTTPDNS_CLIENT_NOT_INITIALIZE;
     }
     if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type) || NULL == cb) {
-        log_info("get_httpdns_results_for_hosts_async failed, hosts or query_type or cb is empty");
+        httpdns_log_info("get_httpdns_results_for_hosts_async failed, hosts or query_type or cb is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
 
-    HTTPDNS_NEW_OBJECT_IN_HEAP(batch_routine_arg, private_httpdns_multi_resolve_routine_arg_t);
+    httpdns_new_object_in_heap(batch_routine_arg, private_httpdns_multi_resolve_routine_arg_t);
     batch_routine_arg->hosts = hosts;
     batch_routine_arg->query_type = query_type;
     batch_routine_arg->client_ip = client_ip;
@@ -342,7 +342,7 @@ static int32_t get_httpdns_results_for_hosts_async(httpdns_list_head_t *hosts,
     pthread_t tid;
     int ret = pthread_create(&tid, NULL, httpdns_multi_resolve_routine, batch_routine_arg);
     if (0 != ret) {
-        log_info("create thread error, ret %d", ret);
+        httpdns_log_info("create thread error, ret %d", ret);
         return HTTPDNS_THREAD_CREATE_FAIL_ERROR;
     }
     pthread_detach(tid);

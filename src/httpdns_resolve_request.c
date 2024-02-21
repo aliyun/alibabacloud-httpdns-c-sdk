@@ -3,47 +3,47 @@
 //
 #include "httpdns_resolve_request.h"
 #include "httpdns_error_type.h"
-#include "log.h"
+#include "httpdns_log.h"
 #include "httpdns_sds.h"
 #include "httpdns_memory.h"
 
 
 int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
-        log_info("resolve request valid failed, request is NULL");
+        httpdns_log_info("resolve request valid failed, request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     if (httpdns_string_is_blank(request->host)) {
-        log_info("resolve request valid failed, host is blank");
+        httpdns_log_info("resolve request valid failed, host is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (httpdns_string_is_blank(request->account_id)) {
-        log_info("resolve request valid failed, account_id is blank");
+        httpdns_log_info("resolve request valid failed, account_id is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (httpdns_string_is_blank(request->resolver)) {
-        log_info("resolve request valid failed, resolver is blank");
+        httpdns_log_info("resolve request valid failed, resolver is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (httpdns_string_is_blank(request->query_type)) {
-        log_info("resolve request valid failed, query_type is blank");
+        httpdns_log_info("resolve request valid failed, query_type is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (httpdns_string_is_blank(request->user_agent)) {
-        log_info("resolve request valid failed, user_agent is blank");
+        httpdns_log_info("resolve request valid failed, user_agent is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (httpdns_string_is_blank(request->sdk_version)) {
-        log_info("resolve request valid failed, sdk_version is blank");
+        httpdns_log_info("resolve request valid failed, sdk_version is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (request->using_multi && httpdns_string_is_not_blank(request->cache_key)) {
-        log_info(
+        httpdns_log_info(
                 "resolve request valid failed, when using httpdns api resolve or sign_resolve, cache_key must be blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
     if (request->timeout_ms <= 0) {
-        log_info("resolve request valid failed, timeout_ms is less than 0");
+        httpdns_log_info("resolve request valid failed, timeout_ms is less than 0");
         return HTTPDNS_PARAMETER_ERROR;
     }
     return HTTPDNS_SUCCESS;
@@ -55,7 +55,7 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
     if (HTTPDNS_SUCCESS != httpdns_config_valid(config) || NULL == host) {
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_request, httpdns_resolve_request_t);
+    httpdns_new_object_in_heap(resolve_request, httpdns_resolve_request_t);
     resolve_request->host = httpdns_sds_new(host);
     resolve_request->cache_key = httpdns_sds_new(host);
     resolve_request->account_id = httpdns_sds_new(config->account_id);
@@ -126,10 +126,10 @@ httpdns_sds_t httpdns_resolve_request_to_string(const httpdns_resolve_request_t 
 
 httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_request_t *origin_resolve_request) {
     if (NULL == origin_resolve_request) {
-        log_info("resolve request clone failed, origin resolve reqeust is NULL");
+        httpdns_log_info("resolve request clone failed, origin resolve reqeust is NULL");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(new_resolve_request, httpdns_resolve_request_t);
+    httpdns_new_object_in_heap(new_resolve_request, httpdns_resolve_request_t);
     if (NULL != origin_resolve_request->host) {
         new_resolve_request->host = httpdns_sds_new(origin_resolve_request->host);
     }
@@ -173,7 +173,7 @@ httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_r
 void
 httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, const char *key, const char *value) {
     if (NULL == request || httpdns_string_is_blank(key) || httpdns_string_is_blank(value)) {
-        log_info("append sdns param failed, request or key or value is NULL");
+        httpdns_log_info("append sdns param failed, request or key or value is NULL");
         return;
     }
     if (NULL == request->sdns_params) {
@@ -186,39 +186,39 @@ httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, c
 }
 
 void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, const char *host) {
-    HTTPDNS_SET_STRING_FIELD(request, host, host);
+    httpdns_set_string_field(request, host, host);
 }
 
 void httpdns_resolve_request_set_account_id(httpdns_resolve_request_t *request, const char *account_id) {
-    HTTPDNS_SET_STRING_FIELD(request, account_id, account_id);
+    httpdns_set_string_field(request, account_id, account_id);
 }
 
 void httpdns_resolve_request_set_secret_key(httpdns_resolve_request_t *request, const char *secret_key) {
-    HTTPDNS_SET_STRING_FIELD(request, secret_key, secret_key);
+    httpdns_set_string_field(request, secret_key, secret_key);
 }
 
 void httpdns_resolve_request_set_resolver(httpdns_resolve_request_t *request, const char *resolver) {
-    HTTPDNS_SET_STRING_FIELD(request, resolver, resolver);
+    httpdns_set_string_field(request, resolver, resolver);
 }
 
 void httpdns_resolve_request_set_client_ip(httpdns_resolve_request_t *request, const char *client_ip) {
-    HTTPDNS_SET_STRING_FIELD(request, client_ip, client_ip);
+    httpdns_set_string_field(request, client_ip, client_ip);
 }
 
 void httpdns_resolve_request_set_sdk_version(httpdns_resolve_request_t *request, const char *sdk_version) {
-    HTTPDNS_SET_STRING_FIELD(request, sdk_version, sdk_version);
+    httpdns_set_string_field(request, sdk_version, sdk_version);
 }
 
 void httpdns_resolve_request_set_user_agent(httpdns_resolve_request_t *request, const char *user_agent) {
-    HTTPDNS_SET_STRING_FIELD(request, user_agent, user_agent);
+    httpdns_set_string_field(request, user_agent, user_agent);
 }
 
 void httpdns_resolve_request_set_cache_key(httpdns_resolve_request_t *request, const char *cache_key) {
-    HTTPDNS_SET_STRING_FIELD(request, cache_key, cache_key);
+    httpdns_set_string_field(request, cache_key, cache_key);
 }
 
 void httpdns_resolve_request_set_query_type(httpdns_resolve_request_t *request, const char *query_type) {
-    HTTPDNS_SET_STRING_FIELD(request, query_type, query_type);
+    httpdns_set_string_field(request, query_type, query_type);
 }
 
 void httpdns_resolve_request_set_timeout_ms(httpdns_resolve_request_t *request, int32_t timeout_ms) {

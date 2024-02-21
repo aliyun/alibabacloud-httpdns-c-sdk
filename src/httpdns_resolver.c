@@ -8,18 +8,18 @@
 #include "httpdns_memory.h"
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
-#include "log.h"
+#include "httpdns_log.h"
 #include "httpdns_resolve_result.h"
 #include "httpdns_sds.h"
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) {
     if (NULL == resolve_param || NULL == resolve_param->request) {
-        log_info("single resolve failed, resolve_param or request is NULL");
+        httpdns_log_info("single resolve failed, resolve_param or request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     httpdns_resolve_request_t *request = resolve_param->request;
     if (httpdns_resolve_request_valid(request) != HTTPDNS_SUCCESS) {
-        log_info("single resolve failed, httpdns resolve request is invalid");
+        httpdns_log_info("single resolve failed, httpdns resolve request is invalid");
         return HTTPDNS_PARAMETER_ERROR;
     }
     httpdns_list_new_empty_in_stack(resolve_params);
@@ -36,15 +36,15 @@ static bool is_valid_ipv6(const char *ipv6) {
 
 int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
     if (NULL == resolve_params) {
-        log_info("multi resolve failed, resolve_params is NULL");
+        httpdns_log_info("multi resolve failed, resolve_params is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     size_t resolve_params_size = httpdns_list_size(resolve_params);
     if (resolve_params_size <= 0) {
-        log_info("multi resolve failed, resolve_params is empty");
+        httpdns_log_info("multi resolve failed, resolve_params is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    log_debug("multi resolve params size %d", resolve_params_size);
+    httpdns_log_debug("multi resolve params size %d", resolve_params_size);
     httpdns_list_new_empty_in_stack(http_contexts);
     size_t http_context_size = 0;
     for(httpdns_list_node_t * param_cursor = httpdns_list_first_entry(resolve_params); param_cursor != resolve_params; param_cursor = param_cursor->next) {
@@ -52,7 +52,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         httpdns_resolve_request_t *request = resolve_param->request;
 
         httpdns_sds_t request_str = httpdns_resolve_request_to_string(request);
-        log_debug("multi resolve request %s", request_str);
+        httpdns_log_debug("multi resolve request %s", request_str);
         httpdns_sds_free(request_str);
 
         const char *http_scheme = request->using_https ? HTTPDNS_HTTPS_SCHEME : HTTPDNS_HTTP_SCHEME;
@@ -100,7 +100,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
         httpdns_http_context_set_private_data(http_context, resolve_param);
         httpdns_list_add(&http_contexts, http_context, NULL);
 
-        log_debug("multi resolve url %s", url);
+        httpdns_log_debug("multi resolve url %s", url);
         httpdns_sds_free(url);
 
         http_context_size++;
@@ -108,7 +108,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
 
     httpdns_http_multiple_exchange(&http_contexts);
 
-    log_debug("http context size is %d", http_context_size);
+    httpdns_log_debug("http context size is %d", http_context_size);
     httpdns_list_for_each_entry(http_context_cursor, &http_contexts) {
         httpdns_http_context_t *http_context = http_context_cursor->data;
         httpdns_resolve_param_t *resolve_param = http_context->private_data;
@@ -124,10 +124,10 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
 
 httpdns_resolve_context_t *httpdns_resolve_context_new(const httpdns_resolve_request_t *request) {
     if (NULL == request) {
-        log_info("create resolve context failed, request is NULL");
+        httpdns_log_info("create resolve context failed, request is NULL");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_context, httpdns_resolve_context_t);
+    httpdns_new_object_in_heap(resolve_context, httpdns_resolve_context_t);
     resolve_context->request = httpdns_resolve_request_clone(request);
     httpdns_list_init(&resolve_context->result);
     return resolve_context;
@@ -146,10 +146,10 @@ void httpdns_resolve_context_free(httpdns_resolve_context_t *resolve_context) {
 
 httpdns_resolve_param_t *httpdns_resolve_param_new(httpdns_resolve_request_t *request) {
     if (NULL == request) {
-        log_info("create resolve param failed, request is NULL");
+        httpdns_log_info("create resolve param failed, request is NULL");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(resolve_param, httpdns_resolve_param_t);
+    httpdns_new_object_in_heap(resolve_param, httpdns_resolve_param_t);
     resolve_param->request = httpdns_resolve_request_clone(request);
     return resolve_param;
 }

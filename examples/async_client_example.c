@@ -62,7 +62,7 @@ static void httpdns_complete_callback_func(const httpdns_resolve_result_t *resul
                                            void *user_callback_param) {
 
     if (NULL == result) {
-        log_trace("httpdns resolve failed, fallback to localdns");
+        httpdns_log_trace("httpdns resolve failed, fallback to localdns");
         result = httpdns_localdns_resolve_host(MOCK_BUSINESS_HOST);
         httpdns_sds_t localdns_result_str = httpdns_resolve_result_to_string(result);
         printf("localdns reuslt %s\n", localdns_result_str);
@@ -106,7 +106,7 @@ int main(int argc, char *argv[]) {
         usleep(1000);
         end_time = httpdns_time_now();
     }
-    log_trace("async client in linux example, access business cost %ld ms/次, success number %d",
+    httpdns_log_trace("async client in linux example, access business cost %ld ms/次, success number %d",
               httpdns_time_diff(end_time, start_time) / MOCK_ASYNC_REQUEST_NUM, success_num);
     // 5. HTTPDNS SDK 环境释放
     httpdns_client_env_cleanup();

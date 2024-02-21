@@ -37,7 +37,7 @@ set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 if (DEFINED HTTPDNS_LOG_LEVEL)
     set(HTTPDNS_LOG_LEVEL ${HTTPDNS_LOG_LEVEL})
 else ()
-    set(HTTPDNS_LOG_LEVEL LOG_INFO)
+    set(HTTPDNS_LOG_LEVEL HTTPDNS_LOG_INFO)
 endif ()
 # 配置日志文件路径
 if (DEFINED HTTPDNS_LOG_FILE_PATH)

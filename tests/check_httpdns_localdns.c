@@ -20,7 +20,7 @@ START_TEST(test_resolve_host_by_localdns) {
     httpdns_resolve_result_t *result = httpdns_localdns_resolve_host("www.aliyun.com");
     bool is_success = NULL != result && httpdns_list_is_not_empty(&result->ips);
     httpdns_sds_t resolve_result_str = httpdns_resolve_result_to_string(result);
-    log_trace("test_resolve_host_by_localdns result %s", resolve_result_str);
+    httpdns_log_trace("test_resolve_host_by_localdns result %s", resolve_result_str);
     httpdns_sds_free(resolve_result_str);
     httpdns_resolve_result_free(result);
     ck_assert_msg(is_success, "LocalDNS解析失败");

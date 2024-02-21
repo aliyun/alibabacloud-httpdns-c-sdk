@@ -8,17 +8,17 @@
 #include "httpdns_memory.h"
 #include "httpdns_client_config.h"
 #include "httpdns_sds.h"
-#include "log.h"
+#include "httpdns_log.h"
 
 httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeout_ms) {
     if (httpdns_string_is_blank(url)) {
-        log_info("create httpdns http context failed, url is blank");
+        httpdns_log_info("create httpdns http context failed, url is blank");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(httpdns_http_ctx, httpdns_http_context_t);
+    httpdns_new_object_in_heap(httpdns_http_ctx, httpdns_http_context_t);
     httpdns_http_ctx->request_url = httpdns_sds_new(url);
     if (timeout_ms <= 0) {
-        log_debug("request timeout is less than 0, using default %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
+        httpdns_log_debug("request timeout is less than 0, using default %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
         httpdns_http_ctx->request_timeout_ms = HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS;
     } else {
         httpdns_http_ctx->request_timeout_ms = timeout_ms;
@@ -29,7 +29,7 @@ httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeou
 
 int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_context, void *private_data) {
     if (NULL == http_context || NULL == private_data) {
-        log_info("set private data failed, http context or private data is NULL");
+        httpdns_log_info("set private data failed, http context or private data is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     http_context->private_data = private_data;
@@ -38,10 +38,10 @@ int32_t httpdns_http_context_set_private_data(httpdns_http_context_t *http_conte
 
 int32_t httpdns_http_context_set_user_agent(httpdns_http_context_t *http_context, const char *user_agent) {
     if (NULL == http_context || NULL == user_agent) {
-        log_info("set user agent failed, http context or user agent is NULL");
+        httpdns_log_info("set user agent failed, http context or user agent is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    HTTPDNS_SET_STRING_FIELD(http_context, user_agent, user_agent);
+    httpdns_set_string_field(http_context, user_agent, user_agent);
     return HTTPDNS_SUCCESS;
 }
 
@@ -112,11 +112,11 @@ static int32_t httpdns_http_context_timeout_cmp(httpdns_http_context_t *ctx1, ht
 static int32_t calculate_max_request_timeout(httpdns_list_head_t *http_contexts) {
     httpdns_http_context_t *ctx = httpdns_list_max(http_contexts, to_httpdns_data_cmp_func(httpdns_http_context_timeout_cmp));
     if (ctx->request_timeout_ms < HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS) {
-        log_info("request timeout is too small, use %d", HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS);
+        httpdns_log_info("request timeout is too small, use %d", HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS);
         return HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS;
     }
     if (ctx->request_timeout_ms > HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS) {
-        log_info("request timeout is too big, use %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
+        httpdns_log_info("request timeout is too big, use %d", HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS);
         return HTTPDNS_MAX_HTTP_REQUEST_TIMEOUT_MS;
     }
     return ctx->request_timeout_ms;
@@ -129,7 +129,7 @@ static int32_t ssl_cert_verify(CURL *curl) {
     struct curl_certinfo *certinfo;
     CURLcode res = curl_easy_getinfo(curl, CURLINFO_CERTINFO, &certinfo);
     if (res || !certinfo) {
-        log_error("get cert information from response failed");
+        httpdns_log_error("get cert information from response failed");
         return HTTPDNS_CERT_VERIFY_FAILED;
     }
     httpdns_list_head_t host_names;
@@ -206,11 +206,11 @@ static int32_t ssl_cert_verify(CURL *curl) {
         }
     }
     httpdns_sds_t host_names_str = httpdns_list_to_string(&host_names, NULL);
-    log_debug("get host name from https cert is %s", host_names_str);
+    httpdns_log_debug("get host name from https cert is %s", host_names_str);
     bool is_domain_matched = httpdns_list_contain(&host_names, HTTPDNS_SSL_VERIFY_HOST, httpdns_string_cmp_func);
     httpdns_list_free(&host_names, httpdns_string_free_func);
     if (!is_domain_matched) {
-        log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, HTTPDNS_SSL_VERIFY_HOST);
+        httpdns_log_error("verify https cert failed, cert hosts is %s, expected host is %s", host_names_str, HTTPDNS_SSL_VERIFY_HOST);
     }
     httpdns_sds_free(host_names_str);
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
@@ -233,7 +233,7 @@ static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
 
 int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
     if (httpdns_list_is_empty(http_contexts)) {
-        log_info("multiple exchange failed, http_contexts is empty");
+        httpdns_log_info("multiple exchange failed, http_contexts is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }
     CURLM *multi_handle = curl_multi_init();
@@ -273,7 +273,7 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
     do {
         CURLMcode mc = curl_multi_perform(multi_handle, &running_handles);
         if (mc != CURLM_OK) {
-            log_info("curl_multi_perform exception, CURLMcode is %d", mc);
+            httpdns_log_info("curl_multi_perform exception, CURLMcode is %d", mc);
             break;
         }
         curl_multi_wait(multi_handle, NULL, 0, max_timeout_ms, NULL);
@@ -299,7 +299,7 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
                     http_context->response_rt_ms = (int32_t) (total_time_sec * 1000.0);
                 } else {
                     curl_multi_cleanup(multi_handle);
-                    log_error("multiple exchange failed, verify https cert failed");
+                    httpdns_log_error("multiple exchange failed, verify https cert failed");
                     return HTTPDNS_CERT_VERIFY_FAILED;
                 }
             }

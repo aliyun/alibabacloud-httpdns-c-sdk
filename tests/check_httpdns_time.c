@@ -23,7 +23,7 @@ START_TEST(test_to_string) {
     };
 
     httpdns_sds_t ts_str = httpdns_time_to_string(tv);
-    log_trace("test_to_string, time:%s", ts_str);
+    httpdns_log_trace("test_to_string, time:%s", ts_str);
     bool is_matched = strcmp(ts_str, "2024-01-25 10:23:44") == 0;
     httpdns_sds_free(ts_str);
     ck_assert_msg(is_matched, "日期格式化结果不符合预期");
@@ -36,7 +36,7 @@ START_TEST(test_now) {
     struct timeval now2 = httpdns_time_now();
     httpdns_sds_t now1_str = httpdns_time_to_string(now1);
     httpdns_sds_t now2_str = httpdns_time_to_string(now1);
-    log_trace("test_now, now1_str=%s, now2_str=%s", now1_str, now2_str);
+    httpdns_log_trace("test_now, now1_str=%s, now2_str=%s", now1_str, now2_str);
     httpdns_sds_free(now1_str);
     httpdns_sds_free(now2_str);
     ck_assert_msg(now2.tv_sec - now1.tv_sec < 1, "时间差异过大");

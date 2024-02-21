@@ -28,7 +28,7 @@ START_TEST(test_refresh_resolve_servers) {
     bool is_success = httpdns_list_size(&scheduler->ipv4_resolve_servers) > 1
                       && httpdns_list_size(&scheduler->ipv6_resolve_servers) > 1;
     httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(scheduler);
-    log_trace("test_refresh_resolve_servers, scheduler=%s", scheduler_str);
+    httpdns_log_trace("test_refresh_resolve_servers, scheduler=%s", scheduler_str);
     httpdns_sds_free(scheduler_str);
     httpdns_config_free(config);
     httpdns_scheduler_free(scheduler);
@@ -63,7 +63,7 @@ START_TEST(test_get_resolve_server) {
     char *schedule_ip = httpdns_scheduler_get(&scheduler);
     bool is_success = strcmp("2.2.2.2", schedule_ip) == 0;
     httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(&scheduler);
-    log_trace("test_get_resolve_server, get resolver %s from scheduler=%s", schedule_ip, scheduler_str);
+    httpdns_log_trace("test_get_resolve_server, get resolver %s from scheduler=%s", schedule_ip, scheduler_str);
     httpdns_sds_free(scheduler_str);
     httpdns_net_stack_detector_free(scheduler.net_stack_detector);
     httpdns_sds_free(schedule_ip);
@@ -98,11 +98,11 @@ START_TEST(test_scheduler_update) {
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip2, NULL);
     httpdns_list_add(&scheduler.ipv4_resolve_servers, &ip3, NULL);
     httpdns_sds_t scheduler_str = httpdns_scheduler_to_string(&scheduler);
-    log_trace("test_scheduler_update, before update %s, scheduler=%s", ip3.ip, scheduler_str);
+    httpdns_log_trace("test_scheduler_update, before update %s, scheduler=%s", ip3.ip, scheduler_str);
     httpdns_sds_free(scheduler_str);
     httpdns_scheduler_update(&scheduler, "3.3.3.3", 100);
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
-    log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
+    httpdns_log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
     httpdns_sds_free(scheduler_str);
     bool is_success = (ip3.rt == (int32_t) (HTTPDNS_DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - HTTPDNS_DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);

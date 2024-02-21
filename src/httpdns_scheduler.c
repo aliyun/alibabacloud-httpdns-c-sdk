@@ -7,15 +7,15 @@
 #include "httpdns_ip.h"
 #include "httpdns_sign.h"
 #include "httpdns_sds.h"
-#include "log.h"
+#include "httpdns_log.h"
 #include <pthread.h>
 
 httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config) {
     if (httpdns_config_valid(config) != HTTPDNS_SUCCESS) {
-        log_info("create httpdns scheduler failed, config is invalid");
+        httpdns_log_info("create httpdns scheduler failed, config is invalid");
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(scheduler, httpdns_scheduler_t);
+    httpdns_new_object_in_heap(scheduler, httpdns_scheduler_t);
     httpdns_list_init(&scheduler->ipv4_resolve_servers);
     httpdns_list_init(&scheduler->ipv6_resolve_servers);
     scheduler->config = config;
@@ -65,7 +65,7 @@ static void generate_nonce(char *nonce) {
 
 static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *scheduler) {
     if (NULL == response_body) {
-        log_error("can't parse schedule response body, body is NULL");
+        httpdns_log_error("can't parse schedule response body, body is NULL");
         return;
     }
     httpdns_schedule_response_t *schedule_response = httpdns_response_parse_schedule(response_body);
@@ -92,12 +92,12 @@ static void httpdns_parse_body(void *response_body, httpdns_scheduler_t *schedul
         httpdns_schedule_response_free(schedule_response);
         return;
     }
-    log_info("parse schedule response body failed, response body is %s", response_body);
+    httpdns_log_info("parse schedule response body failed, response body is %s", response_body);
 }
 
 int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler || NULL == scheduler->config) {
-        log_info("refresh resolver list failed, scheduler or config is NULL");
+        httpdns_log_info("refresh resolver list failed, scheduler or config is NULL");
         return HTTPDNS_PARAMETER_ERROR;
     }
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
@@ -110,7 +110,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     }
     size_t boot_server_num = httpdns_list_size(boot_servers);
     if (boot_server_num <= 0) {
-        log_info("refresh resolver list failed, boot server number is 0");
+        httpdns_log_info("refresh resolver list failed, boot server number is 0");
         return HTTPDNS_BOOT_SERVER_EMPTY;
     }
     const char *http_scheme = config->using_https ? HTTPDNS_HTTPS_SCHEME : HTTPDNS_HTTP_SCHEME;
@@ -118,7 +118,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
     httpdns_list_node_t *first_entry = httpdns_list_first_entry(boot_servers);
     httpdns_list_node_t *cur_entry = first_entry;
     if (NULL == cur_entry) {
-        log_info("refresh resolver list failed, first entry is NULL");
+        httpdns_log_info("refresh resolver list failed, first entry is NULL");
         return HTTPDNS_BOOT_SERVER_EMPTY;
     }
     // 轮询启动IP， 更新IP
@@ -147,28 +147,28 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
             httpdns_signature_free(signature);
         }
         httpdns_http_context_t *http_context = httpdns_http_context_new(url, config->timeout_ms);
-        log_debug("exchange http request url %s", url);
+        httpdns_log_debug("exchange http request url %s", url);
         httpdns_sds_free(url);
         httpdns_http_single_exchange(http_context);
         bool success = (http_context->response_status == HTTPDNS_HTTP_STATUS_OK);
         if (success) {
             httpdns_parse_body(http_context->response_body, scheduler);
-            log_info("try server %s fetch resolve server success", cur_entry->data);
+            httpdns_log_info("try server %s fetch resolve server success", cur_entry->data);
         } else {
             httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
-            log_info("httpdns scheduler exchange http request failed, http context is %s ", http_context_str);
+            httpdns_log_info("httpdns scheduler exchange http request failed, http context is %s ", http_context_str);
             httpdns_sds_free(http_context_str);
         }
         httpdns_http_context_free(http_context);
         if (success) {
             return HTTPDNS_SUCCESS;
         }
-        log_info("try %s fetch resolve server failed", cur_entry->data);
+        httpdns_log_info("try %s fetch resolve server failed", cur_entry->data);
         httpdns_list_rotate(boot_servers);
         cur_entry = httpdns_list_first_entry(boot_servers);
-        log_info("try server %s fetch resolve server", cur_entry->data);
+        httpdns_log_info("try server %s fetch resolve server", cur_entry->data);
     } while (cur_entry != first_entry);
-    log_error("all boot server fetch resolve servers failed");
+    httpdns_log_error("all boot server fetch resolve servers failed");
     return HTTPDNS_FAILURE;
 }
 
@@ -185,7 +185,7 @@ static int32_t update_server_rt(int32_t old_rt_val, int32_t new_rt_val) {
 
 void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt) {
     if (httpdns_string_is_blank(server) || NULL == scheduler || rt <= 0) {
-        log_info("httpdns scheduler upate failed, server or scheduler or rt is invalid");
+        httpdns_log_info("httpdns scheduler upate failed, server or scheduler or rt is invalid");
         return;
     }
     pthread_mutex_lock(&scheduler->lock);
@@ -198,20 +198,20 @@ void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server
     if (NULL != resolve_server) {
         int32_t old_rt = resolve_server->rt;
         resolve_server->rt = update_server_rt(resolve_server->rt, rt);
-        log_debug("update resolve server %s rt success, old rt=%d, sample rt=%d, new rt=%d",
+        httpdns_log_debug("update resolve server %s rt success, old rt=%d, sample rt=%d, new rt=%d",
                   server,
                   old_rt,
                   rt,
                   resolve_server->rt);
     } else {
-        log_info("update resolve server failed, can't find server %s", server);
+        httpdns_log_info("update resolve server failed, can't find server %s", server);
     }
     pthread_mutex_unlock(&scheduler->lock);
 }
 
 char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     if (NULL == scheduler) {
-        log_info("scheduler is NULL");
+        httpdns_log_info("scheduler is NULL");
         return NULL;
     }
     net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
@@ -225,21 +225,21 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
     httpdns_ip_t *resolve_server = httpdns_list_min(resolve_servers, to_httpdns_data_cmp_func(httpdns_ip_cmp));
     if (NULL != resolve_server) {
         httpdns_sds_t httpdns_ip_str = httpdns_ip_to_string(resolve_server);
-        log_debug("get resolve server %s", httpdns_ip_str);
+        httpdns_log_debug("get resolve server %s", httpdns_ip_str);
         httpdns_sds_free(httpdns_ip_str);
         httpdns_sds_t resolve_server_ip = httpdns_sds_new(resolve_server->ip);
         pthread_mutex_unlock(&scheduler->lock);
         return resolve_server_ip;
     }
     pthread_mutex_unlock(&scheduler->lock);
-    log_info("get resolve server from scheduler failed");
+    httpdns_log_info("get resolve server from scheduler failed");
     return NULL;
 }
 
 void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
                                               httpdns_net_stack_detector_t *net_stack_detector) {
     if (NULL == scheduler || NULL == net_stack_detector) {
-        log_info("scheduler or net stack detector is NULL");
+        httpdns_log_info("scheduler or net stack detector is NULL");
         return;
     }
     pthread_mutex_lock(&scheduler->lock);
@@ -250,11 +250,11 @@ void httpdns_scheduler_set_net_stack_detector(httpdns_scheduler_t *scheduler,
 void httpdns_scheduler_add_ipv4_resolve_server(httpdns_scheduler_t *scheduler,
                                                const char *resolve_server) {
     if (NULL == scheduler || NULL == resolve_server) {
-        log_info("httpdns scheduler add ipv4 resolve server failed, scheduler or resolve_server is null");
+        httpdns_log_info("httpdns scheduler add ipv4 resolve server failed, scheduler or resolve_server is null");
         return;
     }
     if (!httpdns_list_search(&scheduler->ipv4_resolve_servers, resolve_server, to_httpdns_data_search_func(httpdns_ip_search))) {
-        log_debug("httpdns scheduler add ipv4 resolve server %s success", resolve_server);
+        httpdns_log_debug("httpdns scheduler add ipv4 resolve server %s success", resolve_server);
         httpdns_list_add(&scheduler->ipv4_resolve_servers, resolve_server, to_httpdns_data_clone_func(httpdns_ip_new));
     }
 }
@@ -262,11 +262,11 @@ void httpdns_scheduler_add_ipv4_resolve_server(httpdns_scheduler_t *scheduler,
 void httpdns_scheduler_add_ipv6_resolve_server(httpdns_scheduler_t *scheduler,
                                                const char *resolve_server) {
     if (NULL == scheduler || NULL == resolve_server) {
-        log_info("httpdns scheduler add ipv6 resolve server failed, scheduler or resolve_server is null");
+        httpdns_log_info("httpdns scheduler add ipv6 resolve server failed, scheduler or resolve_server is null");
         return;
     }
     if (!httpdns_list_search(&scheduler->ipv6_resolve_servers, resolve_server, to_httpdns_data_search_func(httpdns_ip_search))) {
-        log_debug("httpdns scheduler add ipv6 resolve server %s success", resolve_server);
+        httpdns_log_debug("httpdns scheduler add ipv6 resolve server %s success", resolve_server);
         httpdns_list_add(&scheduler->ipv6_resolve_servers, resolve_server, to_httpdns_data_clone_func(httpdns_ip_new));
     }
 }

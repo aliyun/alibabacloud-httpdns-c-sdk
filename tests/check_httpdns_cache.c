@@ -17,7 +17,7 @@ static void teardown(void) {
 }
 
 static httpdns_cache_entry_t *create_test_cache_entry(char *cache_key, int ttl) {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(cache_entry, httpdns_cache_entry_t);
+    httpdns_new_object_in_heap(cache_entry, httpdns_cache_entry_t);
     cache_entry->cache_key = httpdns_sds_new(cache_key);
     cache_entry->ttl = ttl;
     cache_entry->query_ts = httpdns_time_now();
@@ -58,7 +58,7 @@ START_TEST(test_delete_cache_entry) {
     httpdns_cache_table_t *cache_table = httpdns_cache_table_new();
     httpdns_cache_table_add(cache_table, create_test_cache_entry("k1.com", 60));
     httpdns_sds_t cache_str = httpdns_cache_table_to_string(cache_table);
-    log_trace("test_delete_cache_entry, cache table=%s", cache_str);
+    httpdns_log_trace("test_delete_cache_entry, cache table=%s", cache_str);
     httpdns_sds_free(cache_str);
     httpdns_cache_table_delete(cache_table, "k1.com");
     httpdns_cache_entry_t *entry = httpdns_cache_table_get(cache_table, "k1.com", NULL);

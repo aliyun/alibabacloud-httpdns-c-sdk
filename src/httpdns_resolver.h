@@ -28,20 +28,20 @@ extern "C"
 #define  HTTPDNS_QUERY_TYPE_BOTH   "4,6"
 #define  HTTPDNS_QUERY_TYPE_AUTO   "AUTO"
 
-#define IS_TYPE_A(type) \
+#define httpdns_is_query_type_a(type) \
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_A, type) == 0)
 
-#define IS_TYPE_AAAA(type) \
+#define httpdns_is_query_type_aaaa(type) \
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AAAA, type) == 0)
 
-#define IS_TYPE_BOTH(type) \
+#define httpdns_is_query_type_both(type) \
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_BOTH, type) == 0)
 
-#define IS_TYPE_AUTO(type) \
+#define httpdns_is_query_type_auto(type) \
     (NULL != type && strcmp(HTTPDNS_QUERY_TYPE_AUTO, type) == 0)
 
 
-typedef void (*http_complete_callback_func_t)(httpdns_http_context_t *httpdns_context,
+typedef void (*httpdns_http_complete_callback_func_t)(httpdns_http_context_t *httpdns_context,
                                               void *user_callback_param);
 
 typedef struct {
@@ -53,7 +53,7 @@ typedef struct {
     httpdns_resolve_request_t *request;
     void *user_http_complete_callback_param;
     httpdns_data_free_func_t callback_param_free_func;
-    http_complete_callback_func_t http_complete_callback_func;
+    httpdns_http_complete_callback_func_t http_complete_callback_func;
 } httpdns_resolve_param_t;
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param);

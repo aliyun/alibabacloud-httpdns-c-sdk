@@ -29,7 +29,7 @@ httpdns_resolve_result_t *httpdns_localdns_resolve_host(const char *host) {
     hint.ai_socktype = SOCK_STREAM;
     int status = getaddrinfo(host, NULL, &hint, &answer);
     if (status != 0) {
-        log_error("resolve host by localhost failed, getaddrinfo failed, errono=%d", status);
+        httpdns_log_error("resolve host by localhost failed, getaddrinfo failed, errono=%d", status);
         return NULL;
     }
     void *addr;

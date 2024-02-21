@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
                                                                                    HTTPDNS_QUERY_TYPE_AUTO,
                                                                                    NULL);
     struct timeval end_time = httpdns_time_now();
-    log_trace("sync client in linux example, httpdns cost %ld ms", httpdns_time_diff(end_time, start_time));
+    httpdns_log_trace("sync client in linux example, httpdns cost %ld ms", httpdns_time_diff(end_time, start_time));
     if (NULL == result || httpdns_list_is_empty(&result->ips)) {
         perror("域名解析失败");
     } else {
@@ -81,7 +81,7 @@ int main(int argc, char *argv[]) {
         start_time = httpdns_time_now();
         mock_access_business_web_server(dst_ip);
         end_time = httpdns_time_now();
-        log_trace("sync client in linux example, access business cost %ld ms", httpdns_time_diff(end_time, start_time));
+        httpdns_log_trace("sync client in linux example, access business cost %ld ms", httpdns_time_diff(end_time, start_time));
 
     }
     // 6. 解析结果释放

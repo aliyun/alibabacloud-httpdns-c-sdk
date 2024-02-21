@@ -3,13 +3,12 @@
 //
 
 #include "httpdns_sign.h"
-#include "httpdns_time.h"
 #include "httpdns_sds.h"
 #include "openssl/md5.h"
 #include <string.h>
 #include <stdlib.h>
 #include "httpdns_memory.h"
-#include "log.h"
+#include "httpdns_log.h"
 
 
 static void uchar_to_hex_str(const unsigned char *in, char *out) {
@@ -34,13 +33,13 @@ httpdns_signature_t *httpdns_signature_new(const char *host, const char *secret,
     raw_str = httpdns_sds_cat(raw_str, ts_str);
     char raw_sign_str[16];
     MD5((unsigned char *) raw_str, strlen(raw_str), (unsigned char *) raw_sign_str);
-    HTTPDNS_NEW_OBJECT_IN_HEAP(signature, httpdns_signature_t);
+    httpdns_new_object_in_heap(signature, httpdns_signature_t);
     char hex_sign_str[33];
     uchar_to_hex_str((unsigned char *) raw_sign_str, hex_sign_str);
     signature->sign = httpdns_sds_new(hex_sign_str);
     signature->timestamp = httpdns_sds_new(ts_str);
     signature->raw = raw_str;
-    log_debug("httpdns_signature_t(raw=%s,timestamp=%s,sign=%s)", signature->raw, signature->timestamp, signature->sign);
+    httpdns_log_debug("httpdns_signature_t(raw=%s,timestamp=%s,sign=%s)", signature->raw, signature->timestamp, signature->sign);
     return signature;
 }
 

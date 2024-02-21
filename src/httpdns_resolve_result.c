@@ -4,13 +4,13 @@
 #include "httpdns_resolve_result.h"
 #include "httpdns_sds.h"
 #include "httpdns_memory.h"
-#include "log.h"
+#include "httpdns_log.h"
 #include "httpdns_list.h"
 #include "httpdns_ip.h"
 #include "httpdns_time.h"
 
 httpdns_resolve_result_t *httpdns_resolve_result_new() {
-    HTTPDNS_NEW_OBJECT_IN_HEAP(result, httpdns_resolve_result_t);
+    httpdns_new_object_in_heap(result, httpdns_resolve_result_t);
     httpdns_list_init(&result->ips);
     httpdns_list_init(&result->ipsv6);
     return result;
@@ -19,7 +19,7 @@ httpdns_resolve_result_t *httpdns_resolve_result_new() {
 
 httpdns_resolve_result_t *httpdns_resolve_result_clone(const httpdns_resolve_result_t *origin_result) {
     if (NULL == origin_result) {
-        log_info("clone resolve result failed, origin resolve result is NULL");
+        httpdns_log_info("clone resolve result failed, origin resolve result is NULL");
         return NULL;
     }
     httpdns_resolve_result_t *new_result = httpdns_resolve_result_new();
@@ -109,7 +109,7 @@ void httpdns_resolve_result_free(httpdns_resolve_result_t *result) {
 
 
 void httpdns_resolve_result_set_cache_key(httpdns_resolve_result_t *result, const char *cache_key) {
-    HTTPDNS_SET_STRING_FIELD(result, cache_key, cache_key);
+    httpdns_set_string_field(result, cache_key, cache_key);
 }
 
 void httpdns_resolve_result_set_hit_cache(httpdns_resolve_result_t *result, bool hit_cache) {
@@ -133,7 +133,7 @@ int32_t httpdns_resolve_result_cmp(const httpdns_resolve_result_t *result1, cons
 
 void httpdns_resolve_results_merge(httpdns_list_head_t *raw_results, httpdns_list_head_t *merged_results) {
     if (NULL == raw_results || NULL == merged_results) {
-        log_info("results merge failed, raw results or merged results is NULL");
+        httpdns_log_info("results merge failed, raw results or merged results is NULL");
     }
     httpdns_list_sort(raw_results, to_httpdns_data_cmp_func(httpdns_resolve_result_cmp));
     httpdns_resolve_result_t *target_result = NULL;

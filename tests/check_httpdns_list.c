@@ -97,7 +97,7 @@ START_TEST(test_list_shuffle) {
     bool is_expected = httpdns_list_string_diff(&origin_list, &target_list) > 0;
     httpdns_sds_t origin_list_str = httpdns_list_to_string(&origin_list, NULL);
     httpdns_sds_t target_list_str = httpdns_list_to_string(&target_list, NULL);
-    log_trace("test_list_shuffle, before shuffle list=%s, after shuffle list=%s", origin_list_str, target_list_str);
+    httpdns_log_trace("test_list_shuffle, before shuffle list=%s, after shuffle list=%s", origin_list_str, target_list_str);
     httpdns_sds_free(origin_list_str);
     httpdns_sds_free(target_list_str);
     httpdns_list_free(&origin_list, httpdns_string_free_func);
@@ -121,7 +121,7 @@ START_TEST(test_list_sort) {
     httpdns_sds_t shuffle_list_str = httpdns_list_to_string(&target_list, NULL);
     httpdns_list_sort(&target_list, httpdns_string_cmp_func);
     httpdns_sds_t target_list_str = httpdns_list_to_string(&target_list, NULL);
-    log_trace("test_list_sort, before sort list=%s, after sort list=%s", shuffle_list_str, target_list_str);
+    httpdns_log_trace("test_list_sort, before sort list=%s, after sort list=%s", shuffle_list_str, target_list_str);
     httpdns_sds_free(shuffle_list_str);
     httpdns_sds_free(target_list_str);
     bool is_expected = httpdns_list_string_diff(&origin_list, &target_list) == 0;
@@ -141,7 +141,7 @@ START_TEST(test_list_min) {
     httpdns_list_add(&list_head, "2", httpdns_string_clone_func);
     char *min_val = (char *) httpdns_list_min(&list_head, httpdns_string_cmp_func);
     httpdns_sds_t list_str = httpdns_list_to_string(&list_head, NULL);
-    log_trace("test_list_min, list_str=%s, min_val=%s", list_str, min_val);
+    httpdns_log_trace("test_list_min, list_str=%s, min_val=%s", list_str, min_val);
     httpdns_sds_free(list_str);
     bool is_expected = (strcmp(min_val, excepted_min_val) == 0);
     httpdns_list_free(&list_head, httpdns_string_free_func);
@@ -158,7 +158,7 @@ START_TEST(test_list_max) {
     httpdns_list_add(&list_head, "2", httpdns_string_clone_func);
     char *max_val = (char *) httpdns_list_max(&list_head, httpdns_string_cmp_func);
     httpdns_sds_t list_str = httpdns_list_to_string(&list_head, NULL);
-    log_trace("test_list_max, list_str=%s, max_val=%s", list_str, max_val);
+    httpdns_log_trace("test_list_max, list_str=%s, max_val=%s", list_str, max_val);
     httpdns_sds_free(list_str);
     bool is_expected = (strcmp(max_val, excepted_max_val) == 0);
     httpdns_list_free(&list_head, httpdns_string_free_func);
@@ -175,7 +175,7 @@ START_TEST(test_list_contain) {
     httpdns_list_add(&list_head, "1", httpdns_string_clone_func);
     bool is_expected = httpdns_list_contain(&list_head, excepted_val, httpdns_string_cmp_func);
     httpdns_sds_t list_str = httpdns_list_to_string(&list_head, NULL);
-    log_trace("test_list_contain, list_str=%s, contain_val=%s", list_str, excepted_val);
+    httpdns_log_trace("test_list_contain, list_str=%s, contain_val=%s", list_str, excepted_val);
     httpdns_sds_free(list_str);
     httpdns_list_free(&list_head, httpdns_string_free_func);
     ck_assert_msg(is_expected, "链表包含判定错误");
@@ -195,7 +195,7 @@ START_TEST(test_list_search) {
     char *search_result = httpdns_list_search(&list_head, search_target, to_httpdns_data_search_func(str_search_func));
     bool is_expected = strcmp(expected_val, search_result) == 0;
     httpdns_sds_t list_str = httpdns_list_to_string(&list_head, NULL);
-    log_trace("test_list_search, list_str=%s, search_target=%s, search_result=%s", list_str, search_target,
+    httpdns_log_trace("test_list_search, list_str=%s, search_target=%s, search_result=%s", list_str, search_target,
               search_result);
     httpdns_sds_free(list_str);
     httpdns_list_free(&list_head, httpdns_string_free_func);

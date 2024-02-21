@@ -41,7 +41,7 @@ typedef struct {
     httpdns_scheduler_t *scheduler;
     int32_t retry_times;
     bool is_completed;
-} on_http_finish_callback_param_t;
+} httpdns_on_http_finish_callback_param_t;
 
 /**
  * must free using httpdns_client_free

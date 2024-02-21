@@ -10,11 +10,11 @@ extern "C"
 {
 #endif
 
-#define  HTTPDNS_NEW_OBJECT_IN_HEAP(var_name, type) \
+#define  httpdns_new_object_in_heap(var_name, type) \
     type* var_name = (type*)malloc(sizeof(type)); \
     memset(var_name, 0, sizeof (type))
 
-#define HTTPDNS_SET_STRING_FIELD(object, field, value) \
+#define httpdns_set_string_field(object, field, value) \
     if (NULL != object && NULL != value) {         \
         if (NULL != object->field) {    \
             httpdns_sds_free(object->field);     \

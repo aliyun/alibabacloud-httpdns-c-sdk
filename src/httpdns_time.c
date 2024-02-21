@@ -5,7 +5,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdlib.h>
-#include "log.h"
+#include "httpdns_log.h"
 
 
 httpdns_sds_t httpdns_time_to_string(struct timeval ts) {
@@ -15,14 +15,14 @@ httpdns_sds_t httpdns_time_to_string(struct timeval ts) {
     tzset();
     struct tm *tm_local = localtime(&sec);
     strftime(ts_str, 32, "%Y-%m-%d %H:%M:%S", tm_local);
-    log_debug("timeval(tv_sec=%d,tv_usec=%d) to string is %s", ts.tv_sec, ts.tv_usec, ts_str);
+    httpdns_log_debug("timeval(tv_sec=%d,tv_usec=%d) to string is %s", ts.tv_sec, ts.tv_usec, ts_str);
     return httpdns_sds_new(ts_str);
 }
 
 struct timeval httpdns_time_now() {
     struct timeval tv;
     gettimeofday(&tv, NULL);
-    log_debug("now timeval(tv_sec=%d,tv_usec=%d)", tv.tv_sec, tv.tv_usec);
+    httpdns_log_debug("now timeval(tv_sec=%d,tv_usec=%d)", tv.tv_sec, tv.tv_usec);
     return tv;
 }
 

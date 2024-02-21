@@ -29,7 +29,7 @@ START_TEST(test_parse_schedule_response) {
                        httpdns_list_is_not_empty(&response->service_ipv6);
 
     httpdns_sds_t parsed_body = httpdns_schedule_response_to_string(response);
-    log_trace("test_parse_schedule_response, raw body=%s, parse result=%s", body, parsed_body);
+    httpdns_log_trace("test_parse_schedule_response, raw body=%s, parse result=%s", body, parsed_body);
     httpdns_sds_free(parsed_body);
 
     httpdns_schedule_response_free(response);
@@ -50,7 +50,7 @@ START_TEST(test_parse_single_resolve_response) {
     httpdns_single_resolve_response_t *response = httpdns_response_parse_single_resolve(body);
 
     httpdns_sds_t parsed_body = httpdns_single_resolve_response_to_string(response);
-    log_trace("test_parse_single_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
+    httpdns_log_trace("test_parse_single_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
     httpdns_sds_free(parsed_body);
 
     bool is_expected = (NULL != response)
@@ -89,7 +89,7 @@ START_TEST(test_parse_multi_resolve_response) {
     httpdns_multi_resolve_response_t *response = httpdns_response_parse_multi_resolve(body);
 
     httpdns_sds_t parsed_body = httpdns_multi_resolve_response_to_string(response);
-    log_trace("test_parse_multi_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
+    httpdns_log_trace("test_parse_multi_resolve_response, raw body=%s, parse result=%s", body, parsed_body);
     httpdns_sds_free(parsed_body);
 
     bool is_expected = (NULL != response) && (httpdns_list_size(&response->dns) == 2);

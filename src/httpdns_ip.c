@@ -32,7 +32,7 @@ httpdns_ip_t *httpdns_ip_new(const char *ip) {
     if (NULL == ip) {
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(http_ip, httpdns_ip_t);
+    httpdns_new_object_in_heap(http_ip, httpdns_ip_t);
     http_ip->ip = httpdns_sds_new(ip);
     http_ip->rt = HTTPDNS_DEFAULT_IP_RT;
     return http_ip;
@@ -42,7 +42,7 @@ httpdns_ip_t *httpdns_ip_clone(const httpdns_ip_t *origin_ip) {
     if (NULL == origin_ip) {
         return NULL;
     }
-    HTTPDNS_NEW_OBJECT_IN_HEAP(new_ip, httpdns_ip_t);
+    httpdns_new_object_in_heap(new_ip, httpdns_ip_t);
     if (NULL != origin_ip->ip) {
         new_ip->ip = httpdns_sds_new(origin_ip->ip);
     }

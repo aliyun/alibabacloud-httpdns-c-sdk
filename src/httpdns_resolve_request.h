@@ -12,6 +12,7 @@ extern "C"
 
 #include <stdbool.h>
 #include <stdint.h>
+
 #include "httpdns_client_config.h"
 #include "httpdns_resolve_result.h"
 

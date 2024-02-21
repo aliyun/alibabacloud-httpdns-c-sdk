@@ -1,14 +1,18 @@
 //
 // Created by caogaoshuai on 2024/1/31.
 //
-#include "httpdns_client_wrapper.h"
-#include "httpdns_global_config.h"
-#include "httpdns_log.h"
-#include "httpdns_sds.h"
 #include <pthread.h>
-#include "httpdns_memory.h"
 #include <string.h>
+
+
+#include "httpdns_client.h"
+#include "httpdns_global_config.h"
 #include "httpdns_ip.h"
+#include "httpdns_log.h"
+#include "httpdns_memory.h"
+#include "httpdns_sds.h"
+
+#include "httpdns_client_wrapper.h"
 
 static httpdns_client_t *httpdns_client = NULL;
 

@@ -1,9 +1,12 @@
 //
 // Created by caogaoshuai on 2024/1/10.
 //
-#include "httpdns_list.h"
-#include "httpdns_sds.h"
 #include <stdio.h>
+
+#include "httpdns_sds.h"
+
+#include "httpdns_list.h"
+
 
 void httpdns_list_init(httpdns_list_head_t *head) {
     if (NULL == head) {

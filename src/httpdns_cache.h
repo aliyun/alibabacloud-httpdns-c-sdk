@@ -13,7 +13,6 @@ extern "C"
 
 
 #include "httpdns_dict.h"
-#include "httpdns_resolver.h"
 #include "httpdns_resolve_result.h"
 
 typedef struct {

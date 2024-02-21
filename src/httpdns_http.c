@@ -1,14 +1,18 @@
 //
 // Created by caogaoshuai on 2024/1/12.
 //
-#include "httpdns_http.h"
 #include <arpa/inet.h>
-#include "openssl/ssl.h"
-#include "openssl/x509v3.h"
-#include "httpdns_memory.h"
+
+#include <curl/curl.h>
+#include <openssl/ssl.h>
+#include <openssl/x509v3.h>
+
 #include "httpdns_client_config.h"
-#include "httpdns_sds.h"
 #include "httpdns_log.h"
+#include "httpdns_memory.h"
+#include "httpdns_sds.h"
+
+#include "httpdns_http.h"
 
 httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeout_ms) {
     if (httpdns_string_is_blank(url)) {

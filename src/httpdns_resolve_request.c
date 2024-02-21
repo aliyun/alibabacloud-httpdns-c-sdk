@@ -1,11 +1,13 @@
 //
 // Created by caogaoshuai on 2024/1/29.
 //
-#include "httpdns_resolve_request.h"
+
 #include "httpdns_error_type.h"
 #include "httpdns_log.h"
-#include "httpdns_sds.h"
 #include "httpdns_memory.h"
+#include "httpdns_sds.h"
+
+#include "httpdns_resolve_request.h"
 
 
 int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request) {

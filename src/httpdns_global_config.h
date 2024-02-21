@@ -9,9 +9,6 @@
 extern "C"
 {
 #endif
-
-#include <time.h>
-#include <stdlib.h>
 /**
  * must cleanup using cleanup_httpdns_sdk
  */

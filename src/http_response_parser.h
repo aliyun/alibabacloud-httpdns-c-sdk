@@ -12,8 +12,6 @@ extern "C"
 {
 #endif
 
-#include <cjson/cJSON.h>
-#include "httpdns_sds.h"
 #include "httpdns_list.h"
 
 #define HTTPDNS_RESOLVE_TYPE_A 1

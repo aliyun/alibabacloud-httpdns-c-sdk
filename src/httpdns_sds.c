@@ -3,12 +3,12 @@
 // 参考linux sds.c
 //
 
-
+#include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
+
 #include "httpdns_sds.h"
 
 size_t httpdns_sds_len(const httpdns_sds_t s) {

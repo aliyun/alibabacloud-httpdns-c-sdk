@@ -9,14 +9,11 @@
 extern "C"
 {
 #endif
-
-
-#include "httpdns_list.h"
-#include "httpdns_http.h"
-#include "httpdns_client_config.h"
-#include "httpdns_memory.h"
 #include <stdint.h>
 
+#include "httpdns_client_config.h"
+#include "httpdns_list.h"
+#include "httpdns_net_stack_detector.h"
 
 #define HTTPDNS_DELTA_WEIGHT_UPDATE_RATION     0.3
 #define HTTPDNS_SCHEDULE_NONCE_SIZE            12

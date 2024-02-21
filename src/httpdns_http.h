@@ -12,12 +12,10 @@ extern "C"
 {
 #endif
 
-#include<stdint.h>
 #include <stdbool.h>
-#include <curl/curl.h>
-#include <string.h>
+#include <stdint.h>
+
 #include "httpdns_list.h"
-#include "httpdns_sds.h"
 
 #define HTTPDNS_SSL_VERIFY_HOST    "203.107.1.1"
 #define HTTPDNS_MIN_HTTP_REQUEST_TIMEOUT_MS  10

@@ -1,13 +1,18 @@
 //
 // Created by caogaoshuai on 2024/1/18.
 //
-#include "httpdns_cache.h"
-#include "httpdns_sds.h"
+#include <pthread.h>
+
 #include "httpdns_error_type.h"
-#include "httpdns_time.h"
 #include "httpdns_ip.h"
 #include "httpdns_log.h"
-#include <pthread.h>
+#include "httpdns_resolver.h"
+#include "httpdns_sds.h"
+#include "httpdns_time.h"
+
+#include "httpdns_cache.h"
+
+
 
 
 httpdns_cache_table_t *httpdns_cache_table_new() {

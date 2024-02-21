@@ -2,14 +2,14 @@
 // Created by caogaoshuai on 2024/1/10.
 //
 
+#include <stdlib.h>
+
+#include "httpdns_list.h"
+#include "httpdns_log.h"
+#include "httpdns_memory.h"
+#include "httpdns_sds.h"
 
 #include "httpdns_client_config.h"
-#include "httpdns_list.h"
-#include "httpdns_sds.h"
-#include "httpdns_memory.h"
-#include <string.h>
-#include <stdlib.h>
-#include "httpdns_log.h"
 
 
 static void set_default_httpdns_config(httpdns_config_t *config) {

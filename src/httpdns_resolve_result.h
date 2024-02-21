@@ -9,11 +9,10 @@
 extern "C"
 {
 #endif
-
+#include <sys/time.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
-#include <sys/time.h>
+
 #include "httpdns_list.h"
 #include "httpdns_sds.h"
 

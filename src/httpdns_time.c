@@ -1,11 +1,12 @@
 //
 // Created by caogaoshuai on 2024/1/18.
 //
-#include "httpdns_time.h"
-#include <stdio.h>
-#include <stdbool.h>
+
 #include <stdlib.h>
+
 #include "httpdns_log.h"
+
+#include "httpdns_time.h"
 
 
 httpdns_sds_t httpdns_time_to_string(struct timeval ts) {

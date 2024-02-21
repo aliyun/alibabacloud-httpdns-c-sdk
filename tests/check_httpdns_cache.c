@@ -7,6 +7,7 @@
 #include "httpdns_time.h"
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
+#include <unistd.h>
 
 static void setup(void) {
     init_httpdns_sdk();

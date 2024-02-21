@@ -2,15 +2,15 @@
 // Created by caogaoshuai on 2024/1/18.
 //
 
-#include "httpdns_resolver.h"
-#include "httpdns_sign.h"
-#include "http_response_parser.h"
-#include "httpdns_memory.h"
-#include "httpdns_time.h"
-#include "httpdns_ip.h"
 #include "httpdns_log.h"
+#include "httpdns_memory.h"
 #include "httpdns_resolve_result.h"
+#include "http_response_parser.h"
 #include "httpdns_sds.h"
+#include "httpdns_sign.h"
+#include "httpdns_time.h"
+
+#include "httpdns_resolver.h"
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) {
     if (NULL == resolve_param || NULL == resolve_param->request) {

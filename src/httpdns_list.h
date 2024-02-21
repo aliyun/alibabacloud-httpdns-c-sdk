@@ -11,13 +11,13 @@ extern "C"
 {
 #endif
 
-#include "httpdns_error_type.h"
-#include "httpdns_memory.h"
-#include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <time.h>
+#include <stdlib.h>
+#include <string.h>
+
+#include "httpdns_error_type.h"
+#include "httpdns_memory.h"
 #include "httpdns_sds.h"
 
 #define httpdns_list_new_empty_in_stack(var_name) \

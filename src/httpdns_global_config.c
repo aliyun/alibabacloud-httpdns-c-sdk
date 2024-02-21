@@ -1,11 +1,12 @@
 //
 // Created by caogaoshuai on 2024/1/14.
 //
+#include <stdlib.h>
+#include <curl/curl.h>
+
+#include "httpdns_log.h"
 
 #include "httpdns_global_config.h"
-#include <curl/curl.h>
-#include <string.h>
-#include "httpdns_log.h"
 
 static volatile bool is_initialized = false;
 

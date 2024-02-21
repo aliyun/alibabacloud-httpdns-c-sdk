@@ -12,11 +12,11 @@ extern "C"
 {
 #endif
 
-
-#include "httpdns_scheduler.h"
+#include "httpdns_http.h"
 #include "httpdns_client_config.h"
 #include "httpdns_resolve_request.h"
 #include "httpdns_resolve_result.h"
+#include "httpdns_scheduler.h"
 
 #define  HTTPDNS_API_D                   "/d"
 #define  HTTPDNS_API_SIGN_D              "/sign_d"

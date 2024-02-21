@@ -1,15 +1,17 @@
 //
 // Created by caogaoshuai on 2024/2/5.
 //
-#include "httpdns_localdns.h"
-#include <netinet/in.h>
-#include <string.h>
 #include <arpa/inet.h>
 #include <netdb.h>
+#include <netinet/in.h>
+#include <stdbool.h>
+#include <string.h>
+
+#include "httpdns_ip.h"
 #include "httpdns_log.h"
 #include "httpdns_time.h"
-#include <stdbool.h>
-#include "httpdns_ip.h"
+
+#include "httpdns_localdns.h"
 
 static httpdns_resolve_result_t *create_localdns_result(const char *host) {
     httpdns_resolve_result_t *result = httpdns_resolve_result_new();

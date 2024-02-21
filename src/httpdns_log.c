@@ -2,8 +2,10 @@
 // Created by caogaoshuai on 2024/1/9.
 // 参考log.c https://github.com/rxi/log.c
 //
-#include "httpdns_log.h"
+
 #include "httpdns_sds.h"
+
+#include "httpdns_log.h"
 
 #define HTTPDNS_MAX_CALLBACKS 32
 

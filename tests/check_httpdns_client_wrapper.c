@@ -4,6 +4,7 @@
 #include "httpdns_client_wrapper.h"
 #include "check_suit_list.h"
 #include "httpdns_sds.h"
+#include "httpdns_resolver.h"
 
 
 static void setup(void) {

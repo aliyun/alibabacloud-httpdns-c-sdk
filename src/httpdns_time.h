@@ -10,11 +10,10 @@ extern "C"
 {
 #endif
 
-
-#include <time.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <sys/time.h>
+
 #include "httpdns_sds.h"
 
 httpdns_sds_t httpdns_time_to_string(struct timeval ts);

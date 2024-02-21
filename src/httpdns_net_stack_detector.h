@@ -17,15 +17,13 @@ extern "C"
  *
 }
  */
-#include <stdlib.h>
-#include <stdint.h>
-#include <netinet/in.h>
-#include <string.h>
 #include <arpa/inet.h>
 #include <errno.h>
-#include <unistd.h>
-#include <stdbool.h>
 #include <netdb.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include "httpdns_error_type.h"
 #include "httpdns_sds.h"
 

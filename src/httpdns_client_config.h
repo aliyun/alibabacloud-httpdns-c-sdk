@@ -11,12 +11,10 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
+#include <stdint.h>
 
 #include "httpdns_list.h"
-#include "httpdns_net_stack_detector.h"
-#include "httpdns_error_type.h"
-#include <stdint.h>
-#include <stdbool.h>
 
 #define HTTPDNS_SDK_VERSION                "1.0.0"
 #define HTTPDNS_USER_AGENT                 "emas-httpdns-c-sdk"

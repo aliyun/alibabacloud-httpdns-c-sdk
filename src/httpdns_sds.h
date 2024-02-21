@@ -13,9 +13,9 @@ extern "C"
 
 #define HTTPDNS_SDS_MAX_PREALLOC (1024*1024)
 
-#include <sys/types.h>
 #include <stdarg.h>
 #include <string.h>
+#include <sys/types.h>
 
 
 #define httpdns_string_is_not_blank(str) \

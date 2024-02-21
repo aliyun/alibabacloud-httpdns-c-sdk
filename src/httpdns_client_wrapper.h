@@ -12,8 +12,10 @@ extern "C"
 {
 #endif
 
+#include "httpdns_client_config.h"
+#include "httpdns_resolve_request.h"
 #include  "httpdns_resolve_result.h"
-#include "httpdns_client.h"
+
 
 #define HTTPDNS_MULTI_RESOLVE_SIZE 5
 

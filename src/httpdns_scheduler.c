@@ -1,14 +1,17 @@
 //
 // Created by caogaoshuai on 2024/1/11.
 //
-#include "httpdns_scheduler.h"
+#include <pthread.h>
+
+#include "httpdns_http.h"
+#include "httpdns_ip.h"
+#include "httpdns_log.h"
 #include "httpdns_memory.h"
 #include "http_response_parser.h"
-#include "httpdns_ip.h"
 #include "httpdns_sign.h"
 #include "httpdns_sds.h"
-#include "httpdns_log.h"
-#include <pthread.h>
+
+#include "httpdns_scheduler.h"
 
 httpdns_scheduler_t *httpdns_scheduler_new(httpdns_config_t *config) {
     if (httpdns_config_valid(config) != HTTPDNS_SUCCESS) {

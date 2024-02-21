@@ -1,13 +1,15 @@
 //
 // Created by caogaoshuai on 2024/1/29.
 //
-#include "httpdns_resolve_result.h"
-#include "httpdns_sds.h"
-#include "httpdns_memory.h"
+
+#include "httpdns_ip.h"
 #include "httpdns_log.h"
 #include "httpdns_list.h"
-#include "httpdns_ip.h"
+#include "httpdns_memory.h"
+#include "httpdns_sds.h"
 #include "httpdns_time.h"
+
+#include "httpdns_resolve_result.h"
 
 httpdns_resolve_result_t *httpdns_resolve_result_new() {
     httpdns_new_object_in_heap(result, httpdns_resolve_result_t);

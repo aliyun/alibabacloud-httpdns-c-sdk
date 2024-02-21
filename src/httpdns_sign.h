@@ -10,11 +10,12 @@ extern "C"
 {
 #endif
 
-
-#include "openssl/md5.h"
-#include <string.h>
-#include  <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
+#include <string.h>
+
+#include <openssl/md5.h>
+
 #include "httpdns_time.h"
 
 #define HTTPDNS_MAX_RESOLVE_SIGNATURE_OFFSET_TIME (30 * 60)

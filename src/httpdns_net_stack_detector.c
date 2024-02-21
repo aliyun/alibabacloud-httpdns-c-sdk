@@ -2,9 +2,10 @@
 // Created by caogaoshuai on 2024/1/11.
 //
 
-#include "httpdns_net_stack_detector.h"
 #include "httpdns_memory.h"
 #include "httpdns_log.h"
+
+#include "httpdns_net_stack_detector.h"
 
 
 static int32_t test_udp_connect(struct sockaddr *sock_addr, sa_family_t sa_family, size_t addr_len) {

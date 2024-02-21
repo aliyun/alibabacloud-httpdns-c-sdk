@@ -11,10 +11,11 @@ extern "C"
 {
 #endif
 
+#include <stdbool.h>
 #include <stdio.h>
 #include <stdarg.h>
-#include <stdbool.h>
 #include <time.h>
+
 #include "httpdns_env_configuration.h"
 
 typedef struct {

@@ -32,21 +32,28 @@ set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 
-##################################### C语言标准 ##########################################
+##################################### 相关依赖库加载 ##########################################
+## 三方库
+find_package(CURL REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(Threads REQUIRED)
+find_package(cJSON REQUIRED)
+
+include_directories(${CURL_INCLUDE_DIR})
+include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${CJSON_INCLUDE_DIR})
+## HTTPDNS SDK
 find_library(HTTPDNS_LIBRARY httpdns_c_sdk_static)
-find_library(CURL_LIBRARY curl)
-find_library(PTHREAD_LIBRARY pthread)
-find_library(SSL_LIBRARY ssl)
-find_library(CRYPTO_LIBRARY crypto)
+include_directories(${CMAKE_INSTALL_PREFIX}/include/httpdns)
 
 ##################################### Example Application ################################
 function(_TARGET_EXAMPLE_LIBRARIES EXAMPLE_BIN_NAME SOURCE_FILES)
     add_executable(${EXAMPLE_BIN_NAME}        ${SOURCE_FILES})
     target_link_libraries(${EXAMPLE_BIN_NAME} ${HTTPDNS_LIBRARY})
     target_link_libraries(${EXAMPLE_BIN_NAME} ${CURL_LIBRARY})
-    target_link_libraries(${EXAMPLE_BIN_NAME} ${PTHREAD_LIBRARY})
-    target_link_libraries(${EXAMPLE_BIN_NAME} ${SSL_LIBRARY})
-    target_link_libraries(${EXAMPLE_BIN_NAME} ${CRYPTO_LIBRARY})
+    target_link_libraries(${EXAMPLE_BIN_NAME} ${OPENSSL_LIBRARIES})
+    target_link_libraries(${EXAMPLE_BIN_NAME} Threads::Threads)
+    target_link_libraries(${EXAMPLE_BIN_NAME} ${CJSON_LIBRARIES})
 endfunction()
 
 _TARGET_EXAMPLE_LIBRARIES(sync_client_example sync_client_example.c)

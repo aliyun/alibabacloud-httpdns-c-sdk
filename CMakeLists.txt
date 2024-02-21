@@ -76,17 +76,12 @@ include_directories(${OPENSSL_INCLUDE_DIR})
 include_directories(${CJSON_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
-################################# 静态库编译安装 ############################################
+################################# 库文件编译安装 ############################################
+## 静态库安装
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
-target_link_libraries(${CMAKE_PROJECT_NAME}_static ${OPENSSL_LIBRARIES})
-target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CURL_LIBRARY})
-target_link_libraries(${CMAKE_PROJECT_NAME}_static Threads::Threads)
-target_link_libraries(${CMAKE_PROJECT_NAME}_static ${CJSON_LIBRARIES})
-
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
-
-
+## 动态库安装
 IF (APPLE)
     MESSAGE(STATUS "For mac os, skip build dynamic library")
 ELSE ()
@@ -96,14 +91,21 @@ ELSE ()
     INSTALL(TARGETS ${CMAKE_PROJECT_NAME} LIBRARY DESTINATION lib)
 ENDIF ()
 
-
+## 头文件安装
 file(GLOB HEADER_FILES src/*.h)
-
 INSTALL(FILES
         ${HEADER_FILES}
         DESTINATION include/httpdns)
+################################# 库文件编译卸载 ############################################
+# uninstall target
+if(NOT TARGET uninstall)
+    configure_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+            IMMEDIATE @ONLY)
 
-enable_testing()
+    add_custom_target(uninstall
+            COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+endif()
+################################# 单元测试 ############################################
 add_subdirectory(tests)
-
-#add_subdirectory(examples)

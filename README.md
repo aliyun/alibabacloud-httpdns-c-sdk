@@ -104,8 +104,8 @@ git clone https://code.alibaba-inc.com/alicloud-ams/alicloud-httpdns-sdk-c
     cd build
     cmake ..
     make
-    ctest
-    make install
+    make test
+    sudo make install
 ```
 
 * 注意：

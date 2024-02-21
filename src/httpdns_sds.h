@@ -1,6 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/9.
-// 参考linux httpdns_sds.h
+// 参考linux sds.h
 //
 
 #ifndef ALICLOUD_HTTPDNS_SDK_C_HTTPDNS_SDS_H
@@ -15,6 +15,36 @@ extern "C"
 
 #include <sys/types.h>
 #include <stdarg.h>
+#include <string.h>
+
+
+#define httpdns_string_is_not_blank(str) \
+    (NULL != str && strlen(str) >0)
+
+#define httpdns_string_is_blank(str) \
+    ((NULL == str || strlen(str) <=0))
+
+#define httpdns_sds_cat_easily(dst_str, slice) \
+    dst_str = httpdns_sds_cat(dst_str, slice)
+
+
+#define httpdns_sds_cat_int(dst_str, int_val) \
+    {                                 \
+        char tmp_buffer[26];                  \
+        sprintf(tmp_buffer, "%d", int_val); \
+        httpdns_sds_cat_easily(dst_str, tmp_buffer); \
+    }
+
+#define SDS_CAT_CHAR(dst_str, ch_val) \
+    {                                 \
+        char tmp_buffer[2];           \
+        tmp_buffer[0]=ch_val;         \
+        tmp_buffer[1]='\0';         \
+        httpdns_sds_cat_easily(dst_str, tmp_buffer); \
+    }
+
+#define HTTPDNS_MICRO_STRINGIFY(x) #x
+#define HTTPDNS_MICRO_TO_STRING(x) HTTPDNS_MICRO_STRINGIFY(x)
 
 #ifdef WIN32
 #define inline __inline

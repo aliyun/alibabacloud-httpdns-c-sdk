@@ -6,7 +6,6 @@
 #include "log.h"
 #include "httpdns_sds.h"
 #include "httpdns_memory.h"
-#include "httpdns_string.h"
 
 
 int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request) {
@@ -14,31 +13,31 @@ int32_t httpdns_resolve_request_valid(const httpdns_resolve_request_t *request) 
         log_info("resolve request valid failed, request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (IS_BLANK_STRING(request->host)) {
+    if (httpdns_string_is_blank(request->host)) {
         log_info("resolve request valid failed, host is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(request->account_id)) {
+    if (httpdns_string_is_blank(request->account_id)) {
         log_info("resolve request valid failed, account_id is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(request->resolver)) {
+    if (httpdns_string_is_blank(request->resolver)) {
         log_info("resolve request valid failed, resolver is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(request->query_type)) {
+    if (httpdns_string_is_blank(request->query_type)) {
         log_info("resolve request valid failed, query_type is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(request->user_agent)) {
+    if (httpdns_string_is_blank(request->user_agent)) {
         log_info("resolve request valid failed, user_agent is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(request->sdk_version)) {
+    if (httpdns_string_is_blank(request->sdk_version)) {
         log_info("resolve request valid failed, sdk_version is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (request->using_multi && IS_NOT_BLANK_STRING(request->cache_key)) {
+    if (request->using_multi && httpdns_string_is_not_blank(request->cache_key)) {
         log_info(
                 "resolve request valid failed, when using httpdns api resolve or sign_resolve, cache_key must be blank");
         return HTTPDNS_PARAMETER_ERROR;
@@ -60,7 +59,7 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
     resolve_request->host = httpdns_sds_new(host);
     resolve_request->cache_key = httpdns_sds_new(host);
     resolve_request->account_id = httpdns_sds_new(config->account_id);
-    if (config->using_sign && IS_NOT_BLANK_STRING(config->secret_key)) {
+    if (config->using_sign && httpdns_string_is_not_blank(config->secret_key)) {
         resolve_request->using_sign = config->using_sign;
         resolve_request->secret_key = httpdns_sds_new(config->secret_key);
     }
@@ -72,10 +71,10 @@ httpdns_resolve_request_new(httpdns_config_t *config, const char *host, const ch
     if (NULL != config->sdk_version) {
         resolve_request->sdk_version = httpdns_sds_new(config->sdk_version);
     }
-    if (IS_NOT_BLANK_STRING(resolver)) {
+    if (httpdns_string_is_not_blank(resolver)) {
         resolve_request->resolver = httpdns_sds_new(resolver);
     }
-    if (IS_NOT_BLANK_STRING(query_type)) {
+    if (httpdns_string_is_not_blank(query_type)) {
         resolve_request->query_type = httpdns_sds_new(query_type);
     }
     if (config->timeout_ms > 0) {
@@ -90,38 +89,38 @@ httpdns_sds_t httpdns_resolve_request_to_string(const httpdns_resolve_request_t 
         return httpdns_sds_new("httpdns_resolve_request_t()");
     }
     httpdns_sds_t dst_str = httpdns_sds_new("httpdns_resolve_request_t(host=");
-    SDS_CAT(dst_str, request->host);
-    SDS_CAT(dst_str, ",account_id=");
-    SDS_CAT(dst_str, request->account_id);
-    SDS_CAT(dst_str, ",secret_key=");
-    SDS_CAT(dst_str, request->secret_key);
-    SDS_CAT(dst_str, ",resolver=");
-    SDS_CAT(dst_str, request->resolver);
-    SDS_CAT(dst_str, ",query_type=");
-    SDS_CAT(dst_str, request->query_type);
-    SDS_CAT(dst_str, ",client_ip=");
-    SDS_CAT(dst_str, request->client_ip);
+    httpdns_sds_cat_easily(dst_str, request->host);
+    httpdns_sds_cat_easily(dst_str, ",account_id=");
+    httpdns_sds_cat_easily(dst_str, request->account_id);
+    httpdns_sds_cat_easily(dst_str, ",secret_key=");
+    httpdns_sds_cat_easily(dst_str, request->secret_key);
+    httpdns_sds_cat_easily(dst_str, ",resolver=");
+    httpdns_sds_cat_easily(dst_str, request->resolver);
+    httpdns_sds_cat_easily(dst_str, ",query_type=");
+    httpdns_sds_cat_easily(dst_str, request->query_type);
+    httpdns_sds_cat_easily(dst_str, ",client_ip=");
+    httpdns_sds_cat_easily(dst_str, request->client_ip);
 
-    SDS_CAT(dst_str, ",sdk_version=");
-    SDS_CAT(dst_str, request->sdk_version);
-    SDS_CAT(dst_str, ",user_agent=");
-    SDS_CAT(dst_str, request->user_agent);
-    SDS_CAT(dst_str, ",sdns_params=");
-    SDS_CAT(dst_str, request->sdns_params);
-    SDS_CAT(dst_str, ",cache_key=");
-    SDS_CAT(dst_str, request->cache_key);
+    httpdns_sds_cat_easily(dst_str, ",sdk_version=");
+    httpdns_sds_cat_easily(dst_str, request->sdk_version);
+    httpdns_sds_cat_easily(dst_str, ",user_agent=");
+    httpdns_sds_cat_easily(dst_str, request->user_agent);
+    httpdns_sds_cat_easily(dst_str, ",sdns_params=");
+    httpdns_sds_cat_easily(dst_str, request->sdns_params);
+    httpdns_sds_cat_easily(dst_str, ",cache_key=");
+    httpdns_sds_cat_easily(dst_str, request->cache_key);
 
-    SDS_CAT(dst_str, ",using_https=");
-    SDS_CAT_INT(dst_str, request->using_https)
-    SDS_CAT(dst_str, ",using_sign=");
-    SDS_CAT_INT(dst_str, request->using_sign)
-    SDS_CAT(dst_str, ",using_multi=");
-    SDS_CAT_INT(dst_str, request->using_multi)
-    SDS_CAT(dst_str, ",using_cache=");
-    SDS_CAT_INT(dst_str, request->using_cache)
-    SDS_CAT(dst_str, ",timeout_ms=");
-    SDS_CAT_INT(dst_str, request->timeout_ms)
-    SDS_CAT(dst_str, ")");
+    httpdns_sds_cat_easily(dst_str, ",using_https=");
+    httpdns_sds_cat_int(dst_str, request->using_https)
+    httpdns_sds_cat_easily(dst_str, ",using_sign=");
+    httpdns_sds_cat_int(dst_str, request->using_sign)
+    httpdns_sds_cat_easily(dst_str, ",using_multi=");
+    httpdns_sds_cat_int(dst_str, request->using_multi)
+    httpdns_sds_cat_easily(dst_str, ",using_cache=");
+    httpdns_sds_cat_int(dst_str, request->using_cache)
+    httpdns_sds_cat_easily(dst_str, ",timeout_ms=");
+    httpdns_sds_cat_int(dst_str, request->timeout_ms)
+    httpdns_sds_cat_easily(dst_str, ")");
     return dst_str;
 }
 
@@ -173,17 +172,17 @@ httpdns_resolve_request_t *httpdns_resolve_request_clone(const httpdns_resolve_r
 
 void
 httpdns_resolve_request_append_sdns_params(httpdns_resolve_request_t *request, const char *key, const char *value) {
-    if (NULL == request || IS_BLANK_STRING(key) || IS_BLANK_STRING(value)) {
+    if (NULL == request || httpdns_string_is_blank(key) || httpdns_string_is_blank(value)) {
         log_info("append sdns param failed, request or key or value is NULL");
         return;
     }
     if (NULL == request->sdns_params) {
         request->sdns_params = httpdns_sds_empty();
     }
-    SDS_CAT(request->sdns_params, "&sdns-");
-    SDS_CAT(request->sdns_params, key);
-    SDS_CAT(request->sdns_params, "=");
-    SDS_CAT(request->sdns_params, value);
+    httpdns_sds_cat_easily(request->sdns_params, "&sdns-");
+    httpdns_sds_cat_easily(request->sdns_params, key);
+    httpdns_sds_cat_easily(request->sdns_params, "=");
+    httpdns_sds_cat_easily(request->sdns_params, value);
 }
 
 void httpdns_resolve_request_set_host(httpdns_resolve_request_t *request, const char *host) {

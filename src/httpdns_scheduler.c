@@ -6,7 +6,7 @@
 #include "http_response_parser.h"
 #include "httpdns_ip.h"
 #include "httpdns_sign.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include "log.h"
 #include <pthread.h>
 
@@ -32,13 +32,13 @@ httpdns_sds_t httpdns_scheduler_to_string(httpdns_scheduler_t *scheduler) {
     pthread_mutex_lock(&scheduler->lock);
     httpdns_sds_t dst_str = httpdns_sds_new("httpdns_scheduler_t(ipv4_resolve_servers=");
     httpdns_sds_t list = httpdns_list_to_string(&scheduler->ipv4_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
-    SDS_CAT(dst_str, list);
+    httpdns_sds_cat_easily(dst_str, list);
     httpdns_sds_free(list);
-    SDS_CAT(dst_str, ",ipv6_resolve_servers=");
+    httpdns_sds_cat_easily(dst_str, ",ipv6_resolve_servers=");
     list = httpdns_list_to_string(&scheduler->ipv6_resolve_servers, to_httpdns_data_to_string_func(httpdns_ip_to_string));
-    SDS_CAT(dst_str, list);
+    httpdns_sds_cat_easily(dst_str, list);
     httpdns_sds_free(list);
-    SDS_CAT(dst_str, ")");
+    httpdns_sds_cat_easily(dst_str, ")");
     pthread_mutex_unlock(&scheduler->lock);
     return dst_str;
 }
@@ -184,7 +184,7 @@ static int32_t update_server_rt(int32_t old_rt_val, int32_t new_rt_val) {
 }
 
 void httpdns_scheduler_update(httpdns_scheduler_t *scheduler, const char *server, int32_t rt) {
-    if (IS_BLANK_STRING(server) || NULL == scheduler || rt <= 0) {
+    if (httpdns_string_is_blank(server) || NULL == scheduler || rt <= 0) {
         log_info("httpdns scheduler upate failed, server or scheduler or rt is invalid");
         return;
     }

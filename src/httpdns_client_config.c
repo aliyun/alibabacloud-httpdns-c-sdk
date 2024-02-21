@@ -5,9 +5,8 @@
 
 #include "httpdns_client_config.h"
 #include "httpdns_list.h"
-#include "httpdns_string.h"
-#include "httpdns_memory.h"
 #include "httpdns_sds.h"
+#include "httpdns_memory.h"
 #include <string.h>
 #include <stdlib.h>
 #include "log.h"
@@ -29,7 +28,7 @@ static void set_default_httpdns_config(httpdns_config_t *config) {
     httpdns_list_init(&config->ipv4_boot_servers);
     httpdns_list_init(&config->ipv6_boot_servers);
 
-    char httpdns_region[10] = MICRO_TO_STRING(HTTPDNS_REGION);
+    char httpdns_region[10] = HTTPDNS_MICRO_TO_STRING(HTTPDNS_REGION);
     config->region = httpdns_sds_new(httpdns_region);
 
     if (strcmp(httpdns_region, REGION_SINGAPORE) == 0) {
@@ -169,11 +168,11 @@ int32_t httpdns_config_valid(httpdns_config_t *config) {
         log_info("httpdns config valid failed, config is null");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (IS_BLANK_STRING(config->account_id)) {
+    if (httpdns_string_is_blank(config->account_id)) {
         log_info("httpdns config valid failed, account_id is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (config->using_sign && IS_BLANK_STRING(config->secret_key)) {
+    if (config->using_sign && httpdns_string_is_blank(config->secret_key)) {
         log_info("httpdns config valid failed, using sign but secret_key is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -181,7 +180,7 @@ int32_t httpdns_config_valid(httpdns_config_t *config) {
         log_info("httpdns config valid failed, ipv4 boot servers and ipv6 boot servers is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(config->region)) {
+    if (httpdns_string_is_blank(config->region)) {
         log_info("httpdns config valid failed, region is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -189,11 +188,11 @@ int32_t httpdns_config_valid(httpdns_config_t *config) {
         log_info("httpdns config valid failed, timeout is not more than 0");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(config->sdk_version)) {
+    if (httpdns_string_is_blank(config->sdk_version)) {
         log_info("httpdns config valid failed, sdk_version is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    if (IS_BLANK_STRING(config->user_agent)) {
+    if (httpdns_string_is_blank(config->user_agent)) {
         log_info("httpdns config valid failed, user agent is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }

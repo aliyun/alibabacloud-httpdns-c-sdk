@@ -7,7 +7,7 @@
 #include "http_response_parser.h"
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include "log.h"
 
 
@@ -61,7 +61,7 @@ int32_t httpdns_resolve_task_add_request(httpdns_resolve_task_t *task, const htt
         log_info("add resolve request into task failed, task or request is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
-    if (IS_BLANK_STRING(request->account_id)) {
+    if (httpdns_string_is_blank(request->account_id)) {
         log_info("add resolve request into task failed, account_id is blank");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -314,8 +314,8 @@ int32_t httpdns_client_simple_resolve(httpdns_client_t *httpdns_client,
         return HTTPDNS_PARAMETER_EMPTY;
     }
     if (NULL == httpdns_client->config
-        || IS_BLANK_STRING(request->host)
-        || IS_BLANK_STRING(request->query_type)) {
+        || httpdns_string_is_blank(request->host)
+        || httpdns_string_is_blank(request->query_type)) {
         log_info("simple resolve failed, config or host or query type is empty");
         return HTTPDNS_PARAMETER_EMPTY;
     }

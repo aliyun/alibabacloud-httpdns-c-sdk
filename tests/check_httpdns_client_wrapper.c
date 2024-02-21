@@ -3,7 +3,7 @@
 //
 #include "httpdns_client_wrapper.h"
 #include "check_suit_list.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 
 
 static void setup(void) {
@@ -74,7 +74,7 @@ START_TEST(test_httpdns_sdns) {
     log_trace("test_httpdns_sdns, result %s", result_str);
     httpdns_sds_free(result_str);
 
-    bool is_success = NULL != result && IS_NOT_BLANK_STRING(result->extra);
+    bool is_success = NULL != result && httpdns_string_is_not_blank(result->extra);
     httpdns_resolve_result_free(result);
     httpdns_resolve_request_free(request);
     ck_assert_msg(is_success, "SDNS测试失败");

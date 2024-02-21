@@ -7,11 +7,11 @@
 #include "openssl/x509v3.h"
 #include "httpdns_memory.h"
 #include "httpdns_client_config.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include "log.h"
 
 httpdns_http_context_t *httpdns_http_context_new(const char *url, int32_t timeout_ms) {
-    if (IS_BLANK_STRING(url)) {
+    if (httpdns_string_is_blank(url)) {
         log_info("create httpdns http context failed, url is blank");
         return NULL;
     }
@@ -50,18 +50,18 @@ httpdns_sds_t httpdns_http_context_to_string(const httpdns_http_context_t *http_
         return httpdns_sds_new("httpdns_http_context_t()");
     }
     httpdns_sds_t dst_str = httpdns_sds_new("httpdns_http_context_t(request_url=");
-    SDS_CAT(dst_str, http_context->request_url);
-    SDS_CAT(dst_str, ",request_timeout_ms=");
-    SDS_CAT_INT(dst_str, http_context->request_timeout_ms);
-    SDS_CAT(dst_str, ",user_agent=");
-    SDS_CAT(dst_str, http_context->user_agent);
-    SDS_CAT(dst_str, ",response_body=");
-    SDS_CAT(dst_str, http_context->response_body);
-    SDS_CAT(dst_str, ",response_status=");
-    SDS_CAT_INT(dst_str, http_context->response_status);
-    SDS_CAT(dst_str, ",response_rt_ms=");
-    SDS_CAT_INT(dst_str, http_context->response_rt_ms);
-    SDS_CAT(dst_str, ")");
+    httpdns_sds_cat_easily(dst_str, http_context->request_url);
+    httpdns_sds_cat_easily(dst_str, ",request_timeout_ms=");
+    httpdns_sds_cat_int(dst_str, http_context->request_timeout_ms);
+    httpdns_sds_cat_easily(dst_str, ",user_agent=");
+    httpdns_sds_cat_easily(dst_str, http_context->user_agent);
+    httpdns_sds_cat_easily(dst_str, ",response_body=");
+    httpdns_sds_cat_easily(dst_str, http_context->response_body);
+    httpdns_sds_cat_easily(dst_str, ",response_status=");
+    httpdns_sds_cat_int(dst_str, http_context->response_status);
+    httpdns_sds_cat_easily(dst_str, ",response_rt_ms=");
+    httpdns_sds_cat_int(dst_str, http_context->response_rt_ms);
+    httpdns_sds_cat_easily(dst_str, ")");
     return dst_str;
 }
 

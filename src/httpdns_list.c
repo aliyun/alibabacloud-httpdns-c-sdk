@@ -2,7 +2,7 @@
 // Created by caogaoshuai on 2024/1/10.
 //
 #include "httpdns_list.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include <stdio.h>
 
 void httpdns_list_init(httpdns_list_head_t *head) {
@@ -218,17 +218,17 @@ httpdns_sds_t httpdns_list_to_string(const httpdns_list_head_t *head, httpdns_da
     httpdns_sds_t dst_str = httpdns_sds_new("[");
     for (httpdns_list_node_t *cursor = httpdns_list_first_entry(head); cursor != head; cursor = cursor->next) {
         if (cursor->prev != head) {
-            SDS_CAT(dst_str, ",");
+            httpdns_sds_cat_easily(dst_str, ",");
         }
         if (NULL == to_string_func) {
-            SDS_CAT(dst_str, cursor->data);
+            httpdns_sds_cat_easily(dst_str, cursor->data);
         } else {
             httpdns_sds_t node_data_str = to_string_func(cursor->data);
-            SDS_CAT(dst_str, node_data_str);
+            httpdns_sds_cat_easily(dst_str, node_data_str);
             httpdns_sds_free(node_data_str);
         }
     }
-    SDS_CAT(dst_str, "]");
+    httpdns_sds_cat_easily(dst_str, "]");
     return dst_str;
 }
 

@@ -2,7 +2,7 @@
 // Created by caogaoshuai on 2024/1/29.
 //
 #include "httpdns_resolve_result.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include "httpdns_memory.h"
 #include "log.h"
 #include "httpdns_list.h"
@@ -53,35 +53,35 @@ httpdns_sds_t httpdns_resolve_result_to_string(const httpdns_resolve_result_t *r
 
 
     httpdns_sds_t dst_str = httpdns_sds_new("httpdns_resolve_result_t(");
-    SDS_CAT(dst_str, "host=");
-    SDS_CAT(dst_str, result->host);
-    SDS_CAT(dst_str, ",client_ip=");
-    SDS_CAT(dst_str, result->client_ip);
-    SDS_CAT(dst_str, ",extra=");
-    SDS_CAT(dst_str, result->extra);
-    SDS_CAT(dst_str, ",origin_ttl=");
-    SDS_CAT_INT(dst_str, result->origin_ttl);
-    SDS_CAT(dst_str, ",ttl=");
-    SDS_CAT_INT(dst_str, result->ttl);
-    SDS_CAT(dst_str, ",cache_key=");
-    SDS_CAT(dst_str, result->cache_key);
-    SDS_CAT(dst_str, ",hit_cache=");
-    SDS_CAT_INT(dst_str, result->hit_cache);
-    SDS_CAT(dst_str, ",query_ts=");
+    httpdns_sds_cat_easily(dst_str, "host=");
+    httpdns_sds_cat_easily(dst_str, result->host);
+    httpdns_sds_cat_easily(dst_str, ",client_ip=");
+    httpdns_sds_cat_easily(dst_str, result->client_ip);
+    httpdns_sds_cat_easily(dst_str, ",extra=");
+    httpdns_sds_cat_easily(dst_str, result->extra);
+    httpdns_sds_cat_easily(dst_str, ",origin_ttl=");
+    httpdns_sds_cat_int(dst_str, result->origin_ttl);
+    httpdns_sds_cat_easily(dst_str, ",ttl=");
+    httpdns_sds_cat_int(dst_str, result->ttl);
+    httpdns_sds_cat_easily(dst_str, ",cache_key=");
+    httpdns_sds_cat_easily(dst_str, result->cache_key);
+    httpdns_sds_cat_easily(dst_str, ",hit_cache=");
+    httpdns_sds_cat_int(dst_str, result->hit_cache);
+    httpdns_sds_cat_easily(dst_str, ",query_ts=");
     httpdns_sds_t query_ts = httpdns_time_to_string(result->query_ts);
-    SDS_CAT(dst_str, query_ts);
+    httpdns_sds_cat_easily(dst_str, query_ts);
     httpdns_sds_free(query_ts);
-    SDS_CAT(dst_str, ",ips=");
+    httpdns_sds_cat_easily(dst_str, ",ips=");
 
     httpdns_sds_t list = httpdns_list_to_string(&result->ips, to_httpdns_data_to_string_func(httpdns_ip_to_string));
-    SDS_CAT(dst_str, list);
+    httpdns_sds_cat_easily(dst_str, list);
     httpdns_sds_free(list);
 
-    SDS_CAT(dst_str, ",ipsv6=");
+    httpdns_sds_cat_easily(dst_str, ",ipsv6=");
     list = httpdns_list_to_string(&result->ipsv6, to_httpdns_data_to_string_func(httpdns_ip_to_string));
-    SDS_CAT(dst_str, list);
+    httpdns_sds_cat_easily(dst_str, list);
     httpdns_sds_free(list);
-    SDS_CAT(dst_str, ")");
+    httpdns_sds_cat_easily(dst_str, ")");
     return dst_str;
 }
 

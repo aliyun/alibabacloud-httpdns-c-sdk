@@ -10,7 +10,7 @@
 #include "httpdns_ip.h"
 #include "log.h"
 #include "httpdns_resolve_result.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 
 int32_t httpdns_resolver_single_resolve(httpdns_resolve_param_t *resolve_param) {
     if (NULL == resolve_param || NULL == resolve_param->request) {
@@ -61,39 +61,39 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
                                                     : (using_sign ? HTTPDNS_API_SIGN_D : HTTPDNS_API_D);
         httpdns_sds_t url = httpdns_sds_new(http_scheme);
         if (is_valid_ipv6(request->resolver)) {
-            SDS_CAT(url, "[");
+            httpdns_sds_cat_easily(url, "[");
         }
-        SDS_CAT(url, request->resolver);
+        httpdns_sds_cat_easily(url, request->resolver);
         if (is_valid_ipv6(request->resolver)) {
-            SDS_CAT(url, "]");
+            httpdns_sds_cat_easily(url, "]");
         }
-        SDS_CAT(url, "/");
-        SDS_CAT(url, request->account_id);
-        SDS_CAT(url, http_api);
-        SDS_CAT(url, "?host=");
-        SDS_CAT(url, request->host);
-        SDS_CAT(url, "&query=");
-        SDS_CAT(url, request->query_type);
+        httpdns_sds_cat_easily(url, "/");
+        httpdns_sds_cat_easily(url, request->account_id);
+        httpdns_sds_cat_easily(url, http_api);
+        httpdns_sds_cat_easily(url, "?host=");
+        httpdns_sds_cat_easily(url, request->host);
+        httpdns_sds_cat_easily(url, "&query=");
+        httpdns_sds_cat_easily(url, request->query_type);
         if (using_sign) {
             httpdns_signature_t *signature = httpdns_signature_new(request->host,
                                                                    request->secret_key,
                                                                    MAX_RESOLVE_SIGNATURE_OFFSET_TIME,
                                                                    httpdns_time_now());
-            SDS_CAT(url, "&s=");
-            SDS_CAT(url, signature->sign);
-            SDS_CAT(url, "&t=");
-            SDS_CAT(url, signature->timestamp);
+            httpdns_sds_cat_easily(url, "&s=");
+            httpdns_sds_cat_easily(url, signature->sign);
+            httpdns_sds_cat_easily(url, "&t=");
+            httpdns_sds_cat_easily(url, signature->timestamp);
             httpdns_signature_free(signature);
         }
-        if (IS_NOT_BLANK_STRING(request->client_ip)) {
-            SDS_CAT(url, "&ip=");
-            SDS_CAT(url, request->client_ip);
+        if (httpdns_string_is_not_blank(request->client_ip)) {
+            httpdns_sds_cat_easily(url, "&ip=");
+            httpdns_sds_cat_easily(url, request->client_ip);
         }
-        if (IS_NOT_BLANK_STRING(request->sdns_params)) {
-            SDS_CAT(url, request->sdns_params);
+        if (httpdns_string_is_not_blank(request->sdns_params)) {
+            httpdns_sds_cat_easily(url, request->sdns_params);
         }
-        SDS_CAT(url, "&platform=linux&sdk_version=");
-        SDS_CAT(url, request->sdk_version);
+        httpdns_sds_cat_easily(url, "&platform=linux&sdk_version=");
+        httpdns_sds_cat_easily(url, request->sdk_version);
 
         httpdns_http_context_t *http_context = httpdns_http_context_new(url, request->timeout_ms);
         httpdns_http_context_set_user_agent(http_context, request->user_agent);

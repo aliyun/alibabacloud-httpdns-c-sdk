@@ -7,7 +7,6 @@
 #include "httpdns_time.h"
 #include "httpdns_ip.h"
 #include "log.h"
-#include "httpdns_string.h"
 #include <pthread.h>
 
 
@@ -22,7 +21,7 @@ httpdns_cache_table_t *httpdns_cache_table_new() {
 }
 
 int32_t httpdns_cache_table_add(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == cache_table || NULL == entry || IS_BLANK_STRING(entry->cache_key)) {
+    if (NULL == cache_table || NULL == entry || httpdns_string_is_blank(entry->cache_key)) {
         log_info("cache table add entry failed, table or entry or cache_key is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
@@ -55,7 +54,7 @@ int32_t httpdns_cache_table_delete(httpdns_cache_table_t *cache_table, const cha
 }
 
 int32_t httpdns_cache_table_update(httpdns_cache_table_t *cache_table, httpdns_cache_entry_t *entry) {
-    if (NULL == cache_table || NULL == entry || IS_BLANK_STRING(entry->cache_key)) {
+    if (NULL == cache_table || NULL == entry || httpdns_string_is_blank(entry->cache_key)) {
         log_info("cache table update entry failed, table or entry or cache_key is NULL");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -152,14 +151,14 @@ httpdns_sds_t httpdns_cache_table_to_string(httpdns_cache_table_t *cache_table) 
     httpdns_sds_t dst_str = httpdns_sds_new("cache_table(");
     httpdns_dict_entry_t *de = NULL;
     while ((de = httpdns_dict_next(di)) != NULL) {
-        SDS_CAT(dst_str, "\t");
+        httpdns_sds_cat_easily(dst_str, "\t");
         httpdns_cache_entry_t *entry = (httpdns_cache_entry_t *) de->val;
         httpdns_sds_t entry_str = httpdns_resolve_result_to_string(entry);
-        SDS_CAT(dst_str, entry_str);
+        httpdns_sds_cat_easily(dst_str, entry_str);
         httpdns_sds_free(entry_str);
     }
     httpdns_dict_release_iterator(di);
-    SDS_CAT(dst_str, ")");
+    httpdns_sds_cat_easily(dst_str, ")");
     pthread_mutex_unlock(&cache_table->lock);
     return dst_str;
 }

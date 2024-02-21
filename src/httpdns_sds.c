@@ -1,6 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/9.
-// 参考linux httpdns_sds.h
+// 参考linux sds.c
 //
 
 

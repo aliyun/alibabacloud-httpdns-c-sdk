@@ -4,7 +4,7 @@
 #include "httpdns_client_wrapper.h"
 #include "httpdns_global_config.h"
 #include "log.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 #include <pthread.h>
 #include "httpdns_memory.h"
 #include <string.h>
@@ -168,7 +168,7 @@ static int32_t get_httpdns_result_for_host_async(const char *host,
         log_info("get_httpdns_result_for_host_sync failed, httpdns client is not initialized");
         return HTTPDNS_CLIENT_NOT_INITIALIZE;
     }
-    if (IS_BLANK_STRING(host) || IS_BLANK_STRING(query_type) || NULL == cb) {
+    if (httpdns_string_is_blank(host) || httpdns_string_is_blank(query_type) || NULL == cb) {
         log_info("get_httpdns_result_for_host_async failed, host or query_type or cb is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
@@ -215,7 +215,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
                                              httpdns_complete_callback_func_t cb,
                                              void *cb_param,
                                              httpdns_list_head_t *results) {
-    if (httpdns_list_is_empty(hosts) || IS_BLANK_STRING(query_type) || NULL == results) {
+    if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type) || NULL == results) {
         log_info("batch get httpdns failed, hosts or query type is NULL");
         return HTTPDNS_PARAMETER_EMPTY;
     }
@@ -227,9 +227,9 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
             host_group = httpdns_sds_empty();
         }
         if (strlen(host_group) > 0) {
-            SDS_CAT(host_group, ",");
+            httpdns_sds_cat_easily(host_group, ",");
         }
-        SDS_CAT(host_group, host_cursor->data);
+        httpdns_sds_cat_easily(host_group, host_cursor->data);
         host_count++;
         if (host_count % MULTI_RESOLVE_SIZE != 0 && !httpdns_list_is_end_node(host_cursor, hosts)) {
             continue;
@@ -238,7 +238,7 @@ static int32_t get_httpdns_results_for_hosts(httpdns_list_head_t *hosts,
                                                                          host_group,
                                                                          NULL,
                                                                          query_type);
-        if (IS_NOT_BLANK_STRING(client_ip)) {
+        if (httpdns_string_is_not_blank(client_ip)) {
             httpdns_resolve_request_set_client_ip(request, client_ip);
         }
         httpdns_resolve_request_set_using_cache(request, using_cache);
@@ -326,7 +326,7 @@ static int32_t get_httpdns_results_for_hosts_async(httpdns_list_head_t *hosts,
         log_info("get_httpdns_results_for_hosts_async failed, httpdns client is not initialized");
         return HTTPDNS_CLIENT_NOT_INITIALIZE;
     }
-    if (httpdns_list_is_empty(hosts) || IS_BLANK_STRING(query_type) || NULL == cb) {
+    if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type) || NULL == cb) {
         log_info("get_httpdns_results_for_hosts_async failed, hosts or query_type or cb is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }

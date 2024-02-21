@@ -3,7 +3,7 @@
 //
 #include<stdio.h>
 #include "httpdns_log.h"
-#include "httpdns_string.h"
+#include "httpdns_sds.h"
 
 
 static volatile FILE *log_file = NULL;
@@ -14,7 +14,7 @@ void httpdns_log_start() {
     }
     log_set_level(HTTPDNS_LOG_LEVEL);
     log_set_quiet(true);
-    char log_file_path[1024] = MICRO_TO_STRING(HTTPDNS_LOG_FILE_PATH);
+    char log_file_path[1024] = HTTPDNS_MICRO_TO_STRING(HTTPDNS_LOG_FILE_PATH);
     if (strlen(log_file_path) <= 0) {
         log_info("log file path is not set");
     }

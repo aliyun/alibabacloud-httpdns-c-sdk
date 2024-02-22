@@ -1,6 +1,6 @@
 # SDK简介
 
-阿里云EMAS提供HTTPDNS C SDK，以帮助开发者降低在嵌入式、Linux、Windows、Mac等平台下接入HTTPDNS的门槛（目前仅适配了Linux平台）。
+阿里云移动研发平台EMAS提供HTTPDNS C SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平台下接入[HTTPDNS](https://www.aliyun.com/product/httpdns)的门槛（目前仅适配了Linux平台）。
 
 ## SDK 特点
 
@@ -25,16 +25,16 @@
 
 ## SDK限制
 
-目前只适配了Mac M1、Linux平台，暂不支持Windows、Android、IOS、RTOS等平台。
+目前只适配了Linux平台，暂不支持Windows、Android、IOS、RTOS等平台。
 
 # 安装方法
 
 ## 环境依赖
-HTTPDNS C SDK依赖于openssl、libcurl、cjson、check等库，在构建之前确保本机上已经按照了这些环境，如果没有可以参考以下步骤进行安装。
+SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前请确保本机已经安装了这些库。
 
-### openssl下载及安装
+* 注意：这里默认构建机器上已经安装了cmake、gcc、git等编译构建工具
 
-HTTPDNS C SDK使用openssl完成自定义https证书校验，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
+### openssl安装
 
 * 源码安装
   - 参考[openssl源码安装](https://github.com/openssl/openssl/blob/master/INSTALL.md)
@@ -44,9 +44,7 @@ HTTPDNS C SDK使用openssl完成自定义https证书校验，您需要确认这�
   - Red Hat/CentOS/Fedora:```sudo yum install openssl-devel```
   - [Windows安装](https://slproweb.com/products/Win32OpenSSL.html)
 
-### libcurl下载及安装
-
-HTTPDNS C SDK使用curl进行网络操作，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
+### libcurl安装
 
 * 源码安装
   - [这里](http://curl.haxx.se/download.html)下载，并参考[libcurl 安装指南](http://curl.haxx.se/docs/install.html)
@@ -57,9 +55,8 @@ HTTPDNS C SDK使用curl进行网络操作，您需要确认这些库已经安装
   - Red Hat/CentOS/Fedora:```sudo yum install libcurl-devel```
   - [Windows安装](https://curl.se/windows/)
 
-### cjson下载及安装
+### cjson安装
 
-HTTPDNS C SDK使用cjson进行响应报文的解析，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 * 源码安装(推荐)
 ```shell
   git clone https://github.com/DaveGamble/cJSON.git
@@ -74,9 +71,7 @@ HTTPDNS C SDK使用cjson进行响应报文的解析，您需要确认这些库�
   - Ubuntu/Debian:```sudo apt-get install libcjson1 libcjson-dev```
   - Red Hat/CentOS/Fedora:```sudo yum install libcjson libcjson-devel```
 
-### check下载及安装
-
-HTTPDNS C SDK使用check框架作为自己的单元测试框架，该框架的下载及安装如下：
+### check安装
 
 ```shell
   git clone https://github.com/libcheck/check.git
@@ -88,15 +83,9 @@ HTTPDNS C SDK使用check框架作为自己的单元测试框架，该框架的�
   sudo make install
 ```
 
-## HTTPDNS C SDK的安装使用
-### 下载
-您可以使用如下命令获取代码：
-
-```shell
-git clone git@gitlab.alibaba-inc.com:alicloud-ams/alicloud-httpdns-sdk-c.git
-```
+## SDK的安装使用
 ### 安装
-安装时请在cmake命令中指定第三方库头文件以及库文件的路径，典型的编译命令如下：
+通过git clone获取代码后通过以下命令进行安装：
 
 ```shell
     mkdir build
@@ -107,14 +96,7 @@ git clone git@gitlab.alibaba-inc.com:alicloud-ams/alicloud-httpdns-sdk-c.git
     sudo make install
 ```
 
-* 注意：
-  - 这里假设工程所在的构建机器已经具有了C/C++的编译器、cmake环境
-  - 执行cmake . 时默认会到/usr/local/下面去寻找curl的头文件和库文件。
-  - 默认编译是Release类型，可以指定以下几种编译类型： Debug, Release,
-    RelWithDebInfo和MinSizeRel，如果要使用Debug类型编译，则执行cmake . -DCMAKE_BUILD_TYPE=Debug
-  - 如果您在安装curl时指定了安装目录，则需要在执行cmake时指定这些库的路径，比如：```shell cmake . -DCURL_INCLUDE_DIR=/usr/local/include/curl/ -DCURL_LIBRARY=/usr/local/lib/libcurl.a ```
-  - 如果要指定安装目录，则需要在cmake时增加： -DCMAKE_INSTALL_PREFIX=/your/install/path/usr/local/
-  - 可选构建参数如下：
+* 可选构建参数如下：
 
 | 参数                    | 说明          | 取值                                                                                                                            |
 |-----------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------|
@@ -124,7 +106,9 @@ git clone git@gitlab.alibaba-inc.com:alicloud-ams/alicloud-httpdns-sdk-c.git
 | HTTPDNS_RETRY_TIMES   | 解析失败后的重试次数  | 0~5的整数，重试次数太多会导致接口调用耗时较长                                                                                                      |
 
 ### 使用
+
 #### 构建配置
+
 集成HTTPDNS C SDK构建应用，需要在CMakeLists.txt构建文件添加以指令：
 ```cmake
 # 应用名和源文件
@@ -155,10 +139,9 @@ target_link_libraries(${APPLICATION_BIN_NAME} ${CJSON_LIBRARY})
 
 ```
 #### 代码使用
-核心头文件是```httpdns_client_wrapper.h```，具体使用步骤参考examples文件夹下的使用示例。
+核心头文件是```httpdns_client_config.h```,```httpdns_client_wrapper.h```，前者是HTTPDNS客户端的配置接口，后者是HTTPDNS的解析接口，具体使用步骤参考examples文件夹下的使用示例。
 
 #### 运行示例程序
-编译运行示例程序前，需要确认本地已经安装了C++编译器。
 ```shell
 cd   alicloud-httpdns-sdk-c/examples
 mkdir  build
@@ -175,7 +158,6 @@ make
 ./build/bin/sync_client_cxx_example
 
 ```
-
 #### 风险提示
 SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行配置自定义配置
 ```c

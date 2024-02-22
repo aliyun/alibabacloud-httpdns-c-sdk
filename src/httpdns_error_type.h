@@ -1,0 +1,20 @@
+
+
+
+#ifndef HTTPDNS_ERROR_TYPE_H
+#define HTTPDNS_ERROR_TYPE_H
+
+#define HTTPDNS_SUCCESS                     (0)
+#define HTTPDNS_FAILURE                     (-1)
+#define HTTPDNS_PARAMETER_EMPTY             (-101)
+#define HTTPDNS_PARAMETER_ERROR             (-102)
+#define HTTPDNS_MEMORY_ALLOCATION_ERROR     (-103)
+#define HTTPDNS_LIST_NODE_DUPLICATED        (-104)
+#define HTTPDNS_CERT_VERIFY_FAILED          (-105)
+#define HTTPDNS_BOOT_SERVER_EMPTY           (-106)
+#define HTTPDNS_CLIENT_NOT_INITIALIZE       (-107)
+#define HTTPDNS_CLIENT_ALREADY_INITIALIZED  (-108)
+#define HTTPDNS_THREAD_CREATE_FAIL_ERROR    (-109)
+#define HTTPDNS_RESULT_IP_EMPTY             (-110)
+#endif
+

@@ -202,7 +202,7 @@ static void on_http_finish_callback_param_free(httpdns_on_http_finish_callback_p
 }
 
 static char *unwrap_auto_query_type(httpdns_net_stack_detector_t *detector) {
-    net_stack_type_t type = httpdns_net_stack_type_get(detector);
+    httpdns_net_stack_type_t type = httpdns_net_stack_type_get(detector);
     switch (type) {
         case HTTPDNS_IPV4_ONLY:
             return HTTPDNS_QUERY_TYPE_A;

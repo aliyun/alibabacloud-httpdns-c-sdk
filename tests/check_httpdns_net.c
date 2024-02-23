@@ -21,13 +21,13 @@ static void teardown(void) {
 }
 
 START_TEST(test_net_detect_ipv4) {
-    net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
+    httpdns_net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
     ck_assert_msg(httpdns_have_ipv4_net_type(net_type), "本地未发现ipv4网络");
 }
 END_TEST
 
 START_TEST(test_net_detect_ipv6) {
-    net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
+    httpdns_net_stack_type_t net_type = httpdns_net_stack_type_get(net_detector);
     ck_assert_msg(httpdns_have_ipv6_net_type(net_type), "本地未发现ipv6网络");
 }
 END_TEST

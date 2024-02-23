@@ -103,7 +103,7 @@ int32_t httpdns_scheduler_refresh(httpdns_scheduler_t *scheduler) {
         httpdns_log_info("refresh resolver list failed, scheduler or config is NULL");
         return HTTPDNS_PARAMETER_ERROR;
     }
-    net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
+    httpdns_net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_config_t *config = scheduler->config;
     httpdns_list_head_t *boot_servers;
     if (HTTPDNS_IPV6_ONLY == net_stack_type) {
@@ -217,7 +217,7 @@ char *httpdns_scheduler_get(httpdns_scheduler_t *scheduler) {
         httpdns_log_info("scheduler is NULL");
         return NULL;
     }
-    net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
+    httpdns_net_stack_type_t net_stack_type = httpdns_net_stack_type_get(scheduler->net_stack_detector);
     httpdns_list_head_t *resolve_servers;
     pthread_mutex_lock(&scheduler->lock);
     if (HTTPDNS_IPV6_ONLY == net_stack_type) {

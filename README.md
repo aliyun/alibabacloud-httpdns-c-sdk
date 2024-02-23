@@ -158,7 +158,7 @@ make
 ./build/bin/sync_client_cxx_example
 
 ```
-#### 风险提示
+# 风险提示
 SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行自定义配置。
 ```c
    httpdns_config_t *httpdns_config = httpdns_client_get_config();

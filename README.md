@@ -114,7 +114,7 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
 # 应用名和源文件
 SET(APPLICATION_BIN_NAME httpdns_test_demo)
 aux_source_directory(${CMAKE_SOURCE_DIR} SOURCE_FILES)
-# 添加HTTPDNS 头文件安装位置
+# 添加HTTPDNS头文件安装位置
 SET(HTTPDNS_INCLUDE_HEADER /usr/local/include/)
 include_directories(${HTTPDNS_INCLUDE_HEADER})
 # 添加可执行目标应用
@@ -159,7 +159,7 @@ make
 
 ```
 #### 风险提示
-SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行配置自定义配置
+SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行自定义配置
 ```c
    httpdns_config_t *httpdns_config = httpdns_client_get_config();
    httpdns_config_set_timeout_ms(httpdns_config, 1000);

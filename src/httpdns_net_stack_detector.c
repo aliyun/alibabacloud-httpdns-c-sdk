@@ -51,10 +51,10 @@ static int32_t detect_ipv4_by_udp() {
 }
 
 
-net_stack_type_t detect_net_stack_by_udp() {
+httpdns_net_stack_type_t detect_net_stack_by_udp() {
     bool have_ipv4 = (detect_ipv4_by_udp() == HTTPDNS_SUCCESS);
     bool have_ipv6 = (detect_ipv6_by_udp() == HTTPDNS_SUCCESS);
-    net_stack_type_t net_stack_type = HTTPDNS_IP_STACK_UNKNOWN;
+    httpdns_net_stack_type_t net_stack_type = HTTPDNS_IP_STACK_UNKNOWN;
     if (have_ipv4) {
         httpdns_log_debug("detect ipv4 net stack by udp");
         httpdns_add_ipv4_net_type(net_stack_type);
@@ -67,7 +67,7 @@ net_stack_type_t detect_net_stack_by_udp() {
 }
 
 
-net_stack_type_t detect_net_stack_by_dns(const char *probe_domain) {
+httpdns_net_stack_type_t detect_net_stack_by_dns(const char *probe_domain) {
     struct addrinfo hint, *answer, *curr;
     memset(&hint, 0, sizeof(hint));
     hint.ai_family = AF_UNSPEC;
@@ -87,7 +87,7 @@ net_stack_type_t detect_net_stack_by_dns(const char *probe_domain) {
         }
     }
     freeaddrinfo(answer);
-    net_stack_type_t net_stack_type = HTTPDNS_IP_STACK_UNKNOWN;
+    httpdns_net_stack_type_t net_stack_type = HTTPDNS_IP_STACK_UNKNOWN;
     if (have_ipv4) {
         httpdns_log_debug("detect ipv4 net stack by dns");
         httpdns_add_ipv4_net_type(net_stack_type);
@@ -99,8 +99,8 @@ net_stack_type_t detect_net_stack_by_dns(const char *probe_domain) {
     return net_stack_type;
 }
 
-net_stack_type_t detect_net_stack(const char *probe_domain) {
-    net_stack_type_t net_stack_type = detect_net_stack_by_udp();
+httpdns_net_stack_type_t detect_net_stack(const char *probe_domain) {
+    httpdns_net_stack_type_t net_stack_type = detect_net_stack_by_udp();
     if (net_stack_type != HTTPDNS_IP_STACK_UNKNOWN) {
         httpdns_log_info("detect net stack by udp, type=%d", net_stack_type);
         return net_stack_type;
@@ -140,7 +140,7 @@ void httpdns_net_stack_detector_update_cache(httpdns_net_stack_detector_t *detec
         httpdns_log_info("httpdns net stack detector update cache failed, detector is NULL");
         return;
     }
-    net_stack_type_t net_stack_type = detect_net_stack(detector->probe_domain);
+    httpdns_net_stack_type_t net_stack_type = detect_net_stack(detector->probe_domain);
     if (net_stack_type != HTTPDNS_IP_STACK_UNKNOWN) {
         httpdns_log_info("httpdns net stack detector update cache success, net_stack_type is %d", net_stack_type);
         detector->net_stack_type_cache = net_stack_type;
@@ -160,12 +160,12 @@ void httpdns_net_stack_detector_set_probe_domain(httpdns_net_stack_detector_t *d
 }
 
 
-net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector) {
+httpdns_net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector) {
     if (NULL == detector) {
         httpdns_log_info("httpdns get net stack failed, net stack detector is NULL");
         return HTTPDNS_IP_STACK_UNKNOWN;
     }
-    net_stack_type_t net_stack_type = detector->net_stack_type_cache;
+    httpdns_net_stack_type_t net_stack_type = detector->net_stack_type_cache;
     if (detector->using_cache && net_stack_type != HTTPDNS_IP_STACK_UNKNOWN) {
         httpdns_log_debug("httpdns get net stack success, hit cache, the value is %d", net_stack_type);
         return net_stack_type;

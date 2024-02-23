@@ -380,7 +380,7 @@ int32_t select_ip_from_httpdns_result(httpdns_resolve_result_t *result, char *ds
     }
     httpdns_list_head_t *ip_list;
     httpdns_net_stack_detector_t *detector = httpdns_client->net_stack_detector;
-    net_stack_type_t net_stype = httpdns_net_stack_type_get(detector);
+    httpdns_net_stack_type_t net_stype = httpdns_net_stack_type_get(detector);
     if (httpdns_have_ipv4_net_type(net_stype)) {
         ip_list = &result->ips;
     } else {

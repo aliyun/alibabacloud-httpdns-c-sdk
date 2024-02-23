@@ -49,10 +49,10 @@ extern "C"
 #define httpdns_have_ipv6_net_type(net_stack_type) \
     net_stack_type & (1<<1)
 
-typedef u_int32_t net_stack_type_t;
+typedef u_int32_t httpdns_net_stack_type_t;
 
 typedef struct {
-    volatile net_stack_type_t net_stack_type_cache;
+    volatile httpdns_net_stack_type_t net_stack_type_cache;
     char *probe_domain;
     volatile bool using_cache;
 } httpdns_net_stack_detector_t;
@@ -70,7 +70,7 @@ void httpdns_net_stack_detector_set_using_cache(httpdns_net_stack_detector_t *de
 
 void httpdns_net_stack_detector_set_probe_domain(httpdns_net_stack_detector_t *detector, const char *probe_domain);
 
-net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector);
+httpdns_net_stack_type_t httpdns_net_stack_type_get(httpdns_net_stack_detector_t *detector);
 
 #ifdef __cplusplus
 }

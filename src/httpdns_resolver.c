@@ -47,7 +47,7 @@ int32_t httpdns_resolver_multi_resolve(httpdns_list_head_t *resolve_params) {
     httpdns_log_debug("multi resolve params size %d", resolve_params_size);
     httpdns_list_new_empty_in_stack(http_contexts);
     size_t http_context_size = 0;
-    for(httpdns_list_node_t * param_cursor = httpdns_list_first_entry(resolve_params); param_cursor != resolve_params; param_cursor = param_cursor->next) {
+    httpdns_list_for_each_entry(param_cursor, resolve_params) {
         httpdns_resolve_param_t *resolve_param = param_cursor->data;
         httpdns_resolve_request_t *request = resolve_param->request;
 

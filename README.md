@@ -66,7 +66,7 @@ HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的
   sudo make install
 ```
 
-##### SDK的安装使用
+### SDK的安装使用
 通过git clone获取代码后通过以下命令进行安装：
 
 ```shell

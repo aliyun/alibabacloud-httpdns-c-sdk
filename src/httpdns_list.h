@@ -28,7 +28,7 @@ extern "C"
     (NULL == list || httpdns_list_size(list) <=0)
 
 #define httpdns_list_is_not_empty(list) \
-    (NULL != list || httpdns_list_size(list) >0)
+    (NULL != list && httpdns_list_size(list) >0)
 
 #define to_httpdns_data_clone_func(func) \
    (httpdns_data_clone_func_t)func

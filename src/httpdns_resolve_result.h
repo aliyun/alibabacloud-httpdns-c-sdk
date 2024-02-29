@@ -56,6 +56,8 @@ void httpdns_resolve_results_merge(
         httpdns_list_head_t *merged_results);
 
 
+bool httpdns_resolve_result_valid(httpdns_resolve_result_t *result);
+
 #ifdef __cplusplus
 }
 #endif

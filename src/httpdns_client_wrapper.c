@@ -67,6 +67,14 @@ int32_t httpdns_client_env_cleanup() {
     return 0;
 }
 
+static httpdns_resolve_result_t * valid_and_return_result(httpdns_resolve_result_t *result) {
+    if (!httpdns_resolve_result_valid(result)) {
+        httpdns_resolve_result_free(result);
+        return NULL;
+    }
+    return result;
+}
+
 httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_custom_request(httpdns_resolve_request_t *request) {
     if (!is_initialized) {
         httpdns_log_info("get_httpdns_result_for_host_sync_with_custom_request failed, httpdns client is not initialized");
@@ -80,7 +88,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_custom_request(h
     httpdns_client_simple_resolve(httpdns_client,
                                   request,
                                   &result);
-    return result;
+    return valid_and_return_result(result);
 }
 
 httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_cache(const char *host,
@@ -101,7 +109,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_with_cache(const char
                                   request,
                                   &result);
     httpdns_resolve_request_free(request);
-    return result;
+    return valid_and_return_result(result);
 }
 
 httpdns_resolve_result_t *get_httpdns_result_for_host_sync_without_cache(const char *host,
@@ -122,7 +130,7 @@ httpdns_resolve_result_t *get_httpdns_result_for_host_sync_without_cache(const c
                                   request,
                                   &result);
     httpdns_resolve_request_free(request);
-    return result;
+    return valid_and_return_result(result);
 }
 
 

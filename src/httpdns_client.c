@@ -164,7 +164,7 @@ static void on_http_complete_callback_func(httpdns_http_context_t *http_context,
         httpdns_list_add(&param->resolve_context->result, resolve_result,
                          to_httpdns_data_clone_func(httpdns_resolve_result_clone));
         //更新缓存
-        if (NULL != param->cache_table) {
+        if (NULL != param->cache_table && httpdns_resolve_result_valid(resolve_result)) {
             httpdns_cache_table_update(param->cache_table, resolve_result);
         }
         //更新调度器

@@ -160,3 +160,7 @@ void httpdns_resolve_results_merge(httpdns_list_head_t *raw_results, httpdns_lis
         }
     }
 }
+
+bool httpdns_resolve_result_valid(httpdns_resolve_result_t *result) {
+    return (NULL != result) && (httpdns_list_is_not_empty(&result->ips) || httpdns_list_is_not_empty(&result->ipsv6));
+}

@@ -1,40 +1,23 @@
-# SDK简介
+# Aliyun HTTPDNS SDK for C
 
-阿里云移动研发平台EMAS提供HTTPDNS C SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平台下接入[HTTPDNS](https://www.aliyun.com/product/httpdns)的门槛（目前仅适配了Linux平台）。
+[![GitHub version](https://badge.fury.io/gh/aliyun%2Falibabacloud-httpdns-c-sdk.git.svg)](https://badge.fury.io/gh/aliyun%2Falibabacloud-httpdns-c-sdk.git)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE)
 
-## SDK 特点
-
-* 高可用
-  - 内置多组启动IP
-  - 解析失败自动重试
-* 性能
-  - 支持异步解析
-  - 支持http2协议
-  - 支持本地缓存
-  - 支持批量解析
-  - 支持预解析
-* 安全
-  - 支持https
-  - 请求加签防盗刷
-* 解析类型
-  - 域名A记录或AAAA记录
-  - 支持根据网络类型自行解析对应的记录类型
-* 易用
-  - 屏蔽https ip证书校验等细节
-  - 提供示例Example程序
+## 关于
+阿里云[HTTPDNS](https://www.aliyun.com/product/httpdns)是面向多端应用（移动端APP，PC客户端应用）具有防劫持、精准调度、实时解析生效等特性的域名解析服务。阿里云EMAS团队提供了HTTPDNS C SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平台下接入[HTTPDNS](https://www.aliyun.com/product/httpdns)的门槛（目前仅适配了Linux平台），用户可以通过调用相关API方便地使用HTTPDNS进行域名解析。
 
 ## SDK限制
-
 目前只适配了Linux平台，暂不支持Windows、Android、IOS、RTOS等平台。
 
-# 安装方法
+## 版本
+- 当前版本：1.0.0
 
-## 环境依赖
-SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前请确保本机已经安装了这些库。
+## 安装方法
 
-* 注意：这里默认构建机器上已经安装了cmake、gcc、git等编译构建工具
+### 环境依赖
+HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的SSL层校验，使用cjson进行服务端HTTP报文解析，使用check框架实现单测，HTTPDNS C SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 
-### openssl安装
+#### openssl安装
 
 * 源码安装
   - 参考[openssl源码安装](https://github.com/openssl/openssl/blob/master/INSTALL.md)
@@ -44,7 +27,7 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
   - Red Hat/CentOS/Fedora:```sudo yum install openssl-devel```
   - [Windows安装](https://slproweb.com/products/Win32OpenSSL.html)
 
-### libcurl安装
+#### libcurl安装
 
 * 源码安装
   - [这里](http://curl.haxx.se/download.html)下载，并参考[libcurl 安装指南](http://curl.haxx.se/docs/install.html)
@@ -55,7 +38,7 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
   - Red Hat/CentOS/Fedora:```sudo yum install libcurl-devel```
   - [Windows安装](https://curl.se/windows/)
 
-### cjson安装
+#### cjson安装
 
 * 源码安装(推荐)
 ```shell
@@ -71,7 +54,7 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
   - Ubuntu/Debian:```sudo apt-get install libcjson1 libcjson-dev```
   - Red Hat/CentOS/Fedora:```sudo yum install libcjson libcjson-devel```
 
-### check安装
+#### check安装
 
 ```shell
   git clone https://github.com/libcheck/check.git
@@ -83,8 +66,7 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
   sudo make install
 ```
 
-## SDK的安装使用
-### 安装
+##### SDK的安装使用
 通过git clone获取代码后通过以下命令进行安装：
 
 ```shell
@@ -105,64 +87,11 @@ SDK的编译依赖于openssl、libcurl、cjson、check等库，在构建之前�
 | HTTPDNS_REGION        | HTTPDNS服务集群 | 中国大陆：cn<br/>海外香港：hk<br/>海外新加坡：sg                                                                                              |
 | HTTPDNS_RETRY_TIMES   | 解析失败后的重试次数  | 0~5的整数，重试次数太多会导致接口调用耗时较长                                                                                                      |
 
-### 使用
 
-#### 构建配置
+## License
+- MIT
 
-集成HTTPDNS C SDK构建应用，需要在CMakeLists.txt构建文件添加以指令：
-```cmake
-# 应用名和源文件
-SET(APPLICATION_BIN_NAME httpdns_test_demo)
-aux_source_directory(${CMAKE_SOURCE_DIR} SOURCE_FILES)
-# 添加HTTPDNS头文件安装位置
-SET(HTTPDNS_INCLUDE_HEADER /usr/local/include/)
-include_directories(${HTTPDNS_INCLUDE_HEADER})
-# 添加可执行目标应用
-add_executable(${APPLICATION_BIN_NAME} ${SOURCE_FILES})
-# 链接HTTPDNS静态库
-find_library(HTTPDNS_LIBRARY httpdns_c_sdk_static)
-target_link_libraries(${APPLICATION_BIN_NAME} ${HTTPDNS_LIBRARY})
-# 链接libcurl网络库
-find_library(CURL_LIBRARY curl)
-target_link_libraries(${APPLICATION_BIN_NAME} ${CURL_LIBRARY})
-# 链接pthread线程库
-find_library(PTHREAD_LIBRARY pthread)
-target_link_libraries(${APPLICATION_BIN_NAME} ${PTHREAD_LIBRARY})
-# 链接openssl安全库
-find_library(SSL_LIBRARY ssl)
-find_library(CRYPTO_LIBRARY crypto)
-target_link_libraries(${APPLICATION_BIN_NAME} ${SSL_LIBRARY})
-target_link_libraries(${APPLICATION_BIN_NAME} ${CRYPTO_LIBRARY})
-# 链接cjson库
-find_library(CJSON_LIBRARY cjson)
-target_link_libraries(${APPLICATION_BIN_NAME} ${CJSON_LIBRARY})
-
-```
-#### 代码使用
-核心头文件是```httpdns_client_config.h```,```httpdns_client_wrapper.h```，前者是HTTPDNS客户端的配置接口，后者是HTTPDNS的解析接口，具体使用步骤参考examples文件夹下的使用示例。
-
-#### 运行示例程序
-```shell
-cd   alicloud-httpdns-sdk-c/examples
-mkdir  build
-cd build
-cmake  ../
-make 
-# C语言客户端应用集成示例，同步解析并访问www.aliyun.com网站
-./build/bin/sync_client_example
-# C语言客户端应用集成示例，异步解析并访问www.aliyun.com网站
-./build/bin/async_client_example
-# C语言服务器应用集成示例，同步解析，并打印解析结果
-./build/bin/sync_server_example
-# C++语言客户端应用集成示例，同步解析并访问www.aliyun.com网站
-./build/bin/sync_client_cxx_example
-
-```
-# 风险提示
-SDK提供了同步接口，默认超时时间为2500ms，当HTTPDNS部分服务IP发生异常时，可能会因为解析超时而导致的业务阻塞卡顿，所以可以根据业务的实际情况通过以下代码进行自定义配置。
-```c
-   httpdns_config_t *httpdns_config = httpdns_client_get_config();
-   httpdns_config_set_timeout_ms(httpdns_config, 1000);
-```
-
-
+## 联系我们
+- [阿里云HTTPDNS官方文档中心](https://www.aliyun.com/product/httpdns#Docs)
+- 阿里云官方技术支持：[提交工单](https://workorder.console.aliyun.com/#/ticket/createIndex)
+- 阿里云EMAS开发交流钉钉群：35248489

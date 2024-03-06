@@ -8,16 +8,9 @@
 #include "pthread.h"
 #include "httpdns_global_config.h"
 
-static void setup(void) {
+
+void test_refresh_resolve_servers(CuTest *tc) {
     init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
-
-START_TEST(test_refresh_resolve_servers) {
     httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "100000");
     httpdns_config_set_using_https(config, true);
@@ -33,10 +26,12 @@ START_TEST(test_refresh_resolve_servers) {
     httpdns_config_free(config);
     httpdns_scheduler_free(scheduler);
     httpdns_net_stack_detector_free(net_stack_detector);
-    ck_assert_msg(is_success, "更新解析服务列表失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "更新解析服务列表失败", is_success);
 }
 
-START_TEST(test_get_resolve_server) {
+void test_get_resolve_server(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_scheduler_t scheduler = {
             .net_stack_detector = httpdns_net_stack_detector_new()
     };
@@ -70,12 +65,13 @@ START_TEST(test_get_resolve_server) {
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     pthread_mutex_destroy(&scheduler.lock);
     pthread_mutexattr_init(&scheduler.lock_attr);
-    ck_assert_msg(is_success, "未按照响应时间最小进行调度");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "未按照响应时间最小进行调度", is_success);
 }
 
-END_TEST
 
-START_TEST(test_scheduler_update) {
+void test_scheduler_update(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_scheduler_t scheduler;
     httpdns_list_init(&scheduler.ipv4_resolve_servers);
     httpdns_list_init(&scheduler.ipv6_resolve_servers);
@@ -104,23 +100,20 @@ START_TEST(test_scheduler_update) {
     scheduler_str = httpdns_scheduler_to_string(&scheduler);
     httpdns_log_trace("test_scheduler_update, after update %s, scheduler=%s", ip3.ip, scheduler_str);
     httpdns_sds_free(scheduler_str);
-    bool is_success = (ip3.rt == (int32_t) (HTTPDNS_DELTA_WEIGHT_UPDATE_RATION * 100 + (1 - HTTPDNS_DELTA_WEIGHT_UPDATE_RATION) * 35));
+    bool is_success = (ip3.rt == (int32_t) (HTTPDNS_DELTA_WEIGHT_UPDATE_RATION * 100 +
+                                            (1 - HTTPDNS_DELTA_WEIGHT_UPDATE_RATION) * 35));
     httpdns_list_free(&scheduler.ipv4_resolve_servers, NULL);
     pthread_mutex_destroy(&scheduler.lock);
     pthread_mutexattr_init(&scheduler.lock_attr);
-    ck_assert_msg(is_success, "更新reslover响应时间失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "更新reslover响应时间失败", is_success);
 }
 
-END_TEST
 
-
-Suite *make_httpdns_scheduler_suite(void) {
-    Suite *suite = suite_create("HTTPDNS Scheduler Test");
-    TCase *httpdns_scheduler = tcase_create("httpdns_scheduler");
-    tcase_add_unchecked_fixture(httpdns_scheduler, setup, teardown);
-    suite_add_tcase(suite, httpdns_scheduler);
-    tcase_add_test(httpdns_scheduler, test_refresh_resolve_servers);
-    tcase_add_test(httpdns_scheduler, test_get_resolve_server);
-    tcase_add_test(httpdns_scheduler, test_scheduler_update);
+CuSuite *make_httpdns_scheduler_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_refresh_resolve_servers);
+    SUITE_ADD_TEST(suite, test_get_resolve_server);
+    SUITE_ADD_TEST(suite, test_scheduler_update);
     return suite;
 }

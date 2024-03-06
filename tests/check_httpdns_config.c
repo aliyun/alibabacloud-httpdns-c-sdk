@@ -7,25 +7,19 @@
 #include "httpdns_list.h"
 #include "httpdns_global_config.h"
 
-
-static void setup(void) {
+void test_config_valid(CuTest *tc) {
     init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
-START_TEST(test_config_valid) {
     httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "100000");
     bool is_expected = (httpdns_config_valid(config) == HTTPDNS_SUCCESS);
     httpdns_config_free(config);
-    ck_assert_msg(is_expected, "配置验证未通过");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "配置验证未通过", is_expected);
 
 }
 
-START_TEST(test_add_pre_resolve_host) {
+void test_add_pre_resolve_host(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "100000");
     httpdns_config_add_pre_resolve_host(config, "www.baidu.com");
@@ -33,17 +27,14 @@ START_TEST(test_add_pre_resolve_host) {
     bool is_expected = (httpdns_config_valid(config) == HTTPDNS_SUCCESS)
                        && (httpdns_list_size(&config->pre_resolve_hosts) == 1);
     httpdns_config_free(config);
-    ck_assert_msg(is_expected, "预解析域名添加异常");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "预解析域名添加异常", is_expected);
 }
 
-END_TEST
 
-Suite *make_httpdns_config_suite(void) {
-    Suite *suite = suite_create("HTTPDNS Config Test");
-    TCase *httpdns_config = tcase_create("httpdns_config");
-    tcase_add_unchecked_fixture(httpdns_config, setup, teardown);
-    suite_add_tcase(suite, httpdns_config);
-    tcase_add_test(httpdns_config, test_config_valid);
-    tcase_add_test(httpdns_config, test_add_pre_resolve_host);
+CuSuite *make_httpdns_config_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_config_valid);
+    SUITE_ADD_TEST(suite, test_add_pre_resolve_host);
     return suite;
 }

@@ -6,15 +6,6 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-static void setup(void) {
-    init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
-
 static void on_http_finish_callback(httpdns_http_context_t *http_context,
                                     void *user_callback_param) {
     httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
@@ -59,7 +50,8 @@ static void append_resolve_params(
     httpdns_list_add(resolve_params, resolve_param, NULL);
 }
 
-START_TEST(test_single_resolve_task) {
+void test_single_resolve_task(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = get_httpdns_config();
     bool is_success = false;
     httpdns_resolve_request_t *request = httpdns_resolve_request_new(config,
@@ -78,13 +70,13 @@ START_TEST(test_single_resolve_task) {
     httpdns_resolve_request_free(request);
     httpdns_resolve_param_free(resolve_param);
     httpdns_config_free(config);
-    ck_assert_msg(is_success, "单个解析请求执行失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "单个解析请求执行失败", is_success);
 }
 
-END_TEST
 
-
-START_TEST(test_multi_resolve_task) {
+void test_multi_resolve_task(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = get_httpdns_config();
     bool is_success = false;
     httpdns_list_new_empty_in_stack(resolve_params);
@@ -93,17 +85,14 @@ START_TEST(test_multi_resolve_task) {
     httpdns_resolver_multi_resolve(&resolve_params);
     httpdns_list_free(&resolve_params, to_httpdns_data_free_func(httpdns_resolve_param_free));
     httpdns_config_free(config);
-    ck_assert_msg(is_success, "批量解析请求执行失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "批量解析请求执行失败", is_success);
 }
 
-END_TEST
 
-Suite *make_httpdns_resolver_suite(void) {
-    Suite *suite = suite_create("HTTPDNS Resolver Test");
-    TCase *httpdns_resolver = tcase_create("httpdns_resolver");
-    tcase_add_unchecked_fixture(httpdns_resolver, setup, teardown);
-    suite_add_tcase(suite, httpdns_resolver);
-    tcase_add_test(httpdns_resolver, test_single_resolve_task);
-    tcase_add_test(httpdns_resolver, test_multi_resolve_task);
+CuSuite *make_httpdns_resolver_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_single_resolve_task);
+    SUITE_ADD_TEST(suite, test_multi_resolve_task);
     return suite;
 }

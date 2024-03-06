@@ -7,14 +7,6 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-static void setup(void) {
-    init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
 static size_t httpdns_list_string_diff(httpdns_list_head_t *list1, httpdns_list_head_t *list2) {
     size_t list1_size = httpdns_list_size(list1);
     size_t list2_size = httpdns_list_size(list2);
@@ -32,18 +24,19 @@ static size_t httpdns_list_string_diff(httpdns_list_head_t *list1, httpdns_list_
     return diff_size;
 }
 
-START_TEST(test_list_add) {
+void test_list_add(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(list);
     httpdns_list_add(&list, "0", httpdns_string_clone_func);
     httpdns_list_add(&list, "1", httpdns_string_clone_func);
     bool is_expected = (&list == list.next->next->next && list.prev == list.next->next);
     httpdns_list_free(&list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表指针关系不符合预期");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表指针关系不符合预期", is_expected);
 }
 
-END_TEST
-
-START_TEST(test_list_rotate) {
+void test_list_rotate(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(list);
     httpdns_list_add(&list, "0", httpdns_string_clone_func);
     httpdns_list_add(&list, "1", httpdns_string_clone_func);
@@ -51,24 +44,25 @@ START_TEST(test_list_rotate) {
     httpdns_list_rotate(&list);
     bool is_expected = first_entry == list.prev;
     httpdns_list_free(&list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表指针关系不符合预期");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表指针关系不符合预期", is_expected);
 }
 
-END_TEST
 
-START_TEST(test_list_size) {
+void test_list_size(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(list);
     httpdns_list_add(&list, "0", httpdns_string_clone_func);
     httpdns_list_add(&list, "1", httpdns_string_clone_func);
     bool is_expected = httpdns_list_size(&list) == 2;
     httpdns_list_free(&list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表size不等于2");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表size不等于2", is_expected);
 }
 
-END_TEST
 
-
-START_TEST(test_list_dup) {
+void test_list_dup(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(origin_list);
     httpdns_list_add(&origin_list, "0", httpdns_string_clone_func);
     httpdns_list_add(&origin_list, "1", httpdns_string_clone_func);
@@ -77,13 +71,13 @@ START_TEST(test_list_dup) {
     bool is_expected = httpdns_list_string_diff(&origin_list, &target_list) == 0;
     httpdns_list_free(&origin_list, httpdns_string_free_func);
     httpdns_list_free(&target_list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表复制不符合预期，数据不一致");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表复制不符合预期，数据不一致", is_expected);
 }
 
-END_TEST
 
-
-START_TEST(test_list_shuffle) {
+void test_list_shuffle(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(origin_list);
     httpdns_list_add(&origin_list, "0", httpdns_string_clone_func);
     httpdns_list_add(&origin_list, "1", httpdns_string_clone_func);
@@ -97,17 +91,19 @@ START_TEST(test_list_shuffle) {
     bool is_expected = httpdns_list_string_diff(&origin_list, &target_list) > 0;
     httpdns_sds_t origin_list_str = httpdns_list_to_string(&origin_list, NULL);
     httpdns_sds_t target_list_str = httpdns_list_to_string(&target_list, NULL);
-    httpdns_log_trace("test_list_shuffle, before shuffle list=%s, after shuffle list=%s", origin_list_str, target_list_str);
+    httpdns_log_trace("test_list_shuffle, before shuffle list=%s, after shuffle list=%s", origin_list_str,
+                      target_list_str);
     httpdns_sds_free(origin_list_str);
     httpdns_sds_free(target_list_str);
     httpdns_list_free(&origin_list, httpdns_string_free_func);
     httpdns_list_free(&target_list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表打乱失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表打乱失败", is_expected);
 }
 
-END_TEST
 
-START_TEST(test_list_sort) {
+void test_list_sort(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(origin_list);
     httpdns_list_add(&origin_list, "0", httpdns_string_clone_func);
     httpdns_list_add(&origin_list, "1", httpdns_string_clone_func);
@@ -127,13 +123,13 @@ START_TEST(test_list_sort) {
     bool is_expected = httpdns_list_string_diff(&origin_list, &target_list) == 0;
     httpdns_list_free(&origin_list, httpdns_string_free_func);
     httpdns_list_free(&target_list, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表未按照从小到大排序");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表未按照从小到大排序", is_expected);
 }
 
-END_TEST
 
-
-START_TEST(test_list_min) {
+void test_list_min(CuTest *tc) {
+    init_httpdns_sdk();
     char *excepted_min_val = "0";
     httpdns_list_new_empty_in_stack(list_head);
     httpdns_list_add(&list_head, "5", httpdns_string_clone_func);
@@ -145,12 +141,13 @@ START_TEST(test_list_min) {
     httpdns_sds_free(list_str);
     bool is_expected = (strcmp(min_val, excepted_min_val) == 0);
     httpdns_list_free(&list_head, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表搜索最小值不符合预期");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表搜索最小值不符合预期", is_expected);
 }
 
-END_TEST
 
-START_TEST(test_list_max) {
+void test_list_max(CuTest *tc) {
+    init_httpdns_sdk();
     char *excepted_max_val = "5";
     httpdns_list_new_empty_in_stack(list_head);
     httpdns_list_add(&list_head, excepted_max_val, httpdns_string_clone_func);
@@ -162,12 +159,13 @@ START_TEST(test_list_max) {
     httpdns_sds_free(list_str);
     bool is_expected = (strcmp(max_val, excepted_max_val) == 0);
     httpdns_list_free(&list_head, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表搜索最大值不符合预期");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表搜索最大值不符合预期", is_expected);
 }
 
-END_TEST
 
-START_TEST(test_list_contain) {
+void test_list_contain(CuTest *tc) {
+    init_httpdns_sdk();
     char *excepted_val = "5";
     httpdns_list_new_empty_in_stack(list_head);
     httpdns_list_add(&list_head, "0", httpdns_string_clone_func);
@@ -178,14 +176,16 @@ START_TEST(test_list_contain) {
     httpdns_log_trace("test_list_contain, list_str=%s, contain_val=%s", list_str, excepted_val);
     httpdns_sds_free(list_str);
     httpdns_list_free(&list_head, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表包含判定错误");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表包含判定错误", is_expected);
 }
 
 static bool str_search_func(const void *data, const void *target) {
     return NULL != strstr(data, target);
 }
 
-START_TEST(test_list_search) {
+void test_list_search(CuTest *tc) {
+    init_httpdns_sdk();
     char *search_target = "5";
     char *expected_val = "500";
     httpdns_list_new_empty_in_stack(list_head);
@@ -196,27 +196,25 @@ START_TEST(test_list_search) {
     bool is_expected = strcmp(expected_val, search_result) == 0;
     httpdns_sds_t list_str = httpdns_list_to_string(&list_head, NULL);
     httpdns_log_trace("test_list_search, list_str=%s, search_target=%s, search_result=%s", list_str, search_target,
-              search_result);
+                      search_result);
     httpdns_sds_free(list_str);
     httpdns_list_free(&list_head, httpdns_string_free_func);
-    ck_assert_msg(is_expected, "链表搜索结果不符合预期");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "链表搜索结果不符合预期", is_expected);
 }
 
 
-Suite *make_httpdns_list_suite(void) {
-    Suite *suite = suite_create("HTTPDNS List Test");
-    TCase *httpdns_list = tcase_create("httpdns_list");
-    tcase_add_unchecked_fixture(httpdns_list, setup, teardown);
-    suite_add_tcase(suite, httpdns_list);
-    tcase_add_test(httpdns_list, test_list_add);
-    tcase_add_test(httpdns_list, test_list_rotate);
-    tcase_add_test(httpdns_list, test_list_size);
-    tcase_add_test(httpdns_list, test_list_dup);
-    tcase_add_test(httpdns_list, test_list_shuffle);
-    tcase_add_test(httpdns_list, test_list_sort);
-    tcase_add_test(httpdns_list, test_list_min);
-    tcase_add_test(httpdns_list, test_list_max);
-    tcase_add_test(httpdns_list, test_list_contain);
-    tcase_add_test(httpdns_list, test_list_search);
+CuSuite *make_httpdns_list_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_list_add);
+    SUITE_ADD_TEST(suite, test_list_rotate);
+    SUITE_ADD_TEST(suite, test_list_size);
+    SUITE_ADD_TEST(suite, test_list_dup);
+    SUITE_ADD_TEST(suite, test_list_shuffle);
+    SUITE_ADD_TEST(suite, test_list_sort);
+    SUITE_ADD_TEST(suite, test_list_min);
+    SUITE_ADD_TEST(suite, test_list_max);
+    SUITE_ADD_TEST(suite, test_list_contain);
+    SUITE_ADD_TEST(suite, test_list_search);
     return suite;
 }

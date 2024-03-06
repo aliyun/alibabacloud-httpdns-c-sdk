@@ -6,14 +6,6 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-static void setup(void) {
-    init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
 static httpdns_config_t *get_httpdns_config() {
     httpdns_config_t *config = httpdns_config_new();
     httpdns_config_set_account_id(config, "139450");
@@ -21,7 +13,8 @@ static httpdns_config_t *get_httpdns_config() {
     return config;
 }
 
-START_TEST(test_simple_resolve_without_cache) {
+void test_simple_resolve_without_cache(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = get_httpdns_config();
     httpdns_config_set_using_cache(config, false);
     httpdns_client_t *client = httpdns_client_new(config);
@@ -36,10 +29,12 @@ START_TEST(test_simple_resolve_without_cache) {
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
     httpdns_client_free(client);
-    ck_assert_msg(is_success, "简单解析接口解析失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "简单解析接口解析失败", is_success);
 }
 
-START_TEST(test_simple_resolve_with_cache) {
+void test_simple_resolve_with_cache(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = get_httpdns_config();
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_result_t *result = NULL;
@@ -64,12 +59,13 @@ START_TEST(test_simple_resolve_with_cache) {
     httpdns_resolve_result_free(result);
     httpdns_config_free(config);
     httpdns_client_free(client);
-    ck_assert_msg(is_success, "简单解析接口缓存未命中");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "简单解析接口缓存未命中", is_success);
 }
 
-END_TEST
 
-START_TEST(test_multi_resolve_task) {
+void test_multi_resolve_tasks(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_config_t *config = get_httpdns_config();
     httpdns_client_t *client = httpdns_client_new(config);
     httpdns_resolve_task_t *task = httpdns_resolve_task_new(client);
@@ -113,18 +109,15 @@ START_TEST(test_multi_resolve_task) {
     httpdns_resolve_task_free(task);
     httpdns_config_free(config);
     httpdns_client_free(client);
-    ck_assert_msg(is_success, "校验多请求解析失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "校验多请求解析失败", is_success);
 }
 
-END_TEST
 
-Suite *make_httpdns_client_suite(void) {
-    Suite *suite = suite_create("HTTPDNS Client Test");
-    TCase *httpdns_client = tcase_create("httpdns_client");
-    tcase_add_unchecked_fixture(httpdns_client, setup, teardown);
-    suite_add_tcase(suite, httpdns_client);
-    tcase_add_test(httpdns_client, test_simple_resolve_without_cache);
-    tcase_add_test(httpdns_client, test_simple_resolve_with_cache);
-    tcase_add_test(httpdns_client, test_multi_resolve_task);
+CuSuite *make_httpdns_client_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_simple_resolve_without_cache);
+    SUITE_ADD_TEST(suite, test_simple_resolve_with_cache);
+    SUITE_ADD_TEST(suite, test_multi_resolve_tasks);
     return suite;
 }

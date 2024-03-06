@@ -6,16 +6,8 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-
-static void setup(void) {
-    init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
 static bool test_exchange_single_request(char *url) {
+    init_httpdns_sdk();
     httpdns_http_context_t *http_context = httpdns_http_context_new(url, 10000);
     httpdns_http_single_exchange(http_context);
     httpdns_sds_t http_context_str = httpdns_http_context_to_string(http_context);
@@ -26,24 +18,26 @@ static bool test_exchange_single_request(char *url) {
     return is_success;
 }
 
-START_TEST(test_exchange_singel_request_with_resolve) {
+void test_exchange_singel_request_with_resolve(CuTest *tc) {
+    init_httpdns_sdk();
     char *url = "https://203.107.1.1/100000/d?host=www.aliyun.com";
     bool is_success = test_exchange_single_request(url);
-    ck_assert_msg(is_success, "单HTTP请求-访问解析接口响应码非200");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "单HTTP请求-访问解析接口响应码非200", is_success);
 }
 
-END_TEST
 
-START_TEST(test_exchange_singel_request_with_schedule) {
+void test_exchange_singel_request_with_schedule(CuTest *tc) {
+    init_httpdns_sdk();
     char *url = "https://203.107.1.1/100000/ss";
     bool is_success = test_exchange_single_request(url);
-    ck_assert_msg(is_success, "单HTTP请求-访问调度接口响应码非200");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "单HTTP请求-访问调度接口响应码非200", is_success);
 }
 
-END_TEST
 
-
-START_TEST(test_exchange_multi_request_with_resolve) {
+void test_exchange_multi_request_with_resolve(CuTest *tc) {
+    init_httpdns_sdk();
     httpdns_list_new_empty_in_stack(http_contexts);
     httpdns_http_context_t *http_context = httpdns_http_context_new(
             "https://203.107.1.1/139450/d?host=www.baidu.com", 10000);
@@ -74,19 +68,15 @@ START_TEST(test_exchange_multi_request_with_resolve) {
         }
     }
     httpdns_list_free(&http_contexts, to_httpdns_data_free_func(httpdns_http_context_free));
-    ck_assert_msg(is_all_success, "批量HTTP接口访问存在失败");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "批量HTTP接口访问存在失败", is_all_success);
 }
 
-END_TEST
 
-
-Suite *make_httpdns_http_suite(void) {
-    Suite *suite = suite_create("HTTPDNS HTTP Client Test");
-    TCase *httpdns_http = tcase_create("httpdns_http");
-    tcase_add_unchecked_fixture(httpdns_http, setup, teardown);
-    suite_add_tcase(suite, httpdns_http);
-    tcase_add_test(httpdns_http, test_exchange_singel_request_with_resolve);
-    tcase_add_test(httpdns_http, test_exchange_singel_request_with_schedule);
-    tcase_add_test(httpdns_http, test_exchange_multi_request_with_resolve);
+CuSuite *make_httpdns_http_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_exchange_singel_request_with_resolve);
+    SUITE_ADD_TEST(suite, test_exchange_singel_request_with_schedule);
+    SUITE_ADD_TEST(suite, test_exchange_multi_request_with_resolve);
     return suite;
 }

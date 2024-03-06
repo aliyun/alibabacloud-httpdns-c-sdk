@@ -57,6 +57,9 @@ void httpdns_client_process_pre_resolve_hosts() {
 }
 
 int32_t httpdns_client_env_cleanup() {
+    if (!is_initialized) {
+        return HTTPDNS_CLIENT_NOT_INITIALIZE;
+    }
     if (NULL != httpdns_config) {
         httpdns_config_free(httpdns_config);
     }
@@ -64,10 +67,11 @@ int32_t httpdns_client_env_cleanup() {
         httpdns_client_free(httpdns_client);
     }
     cleanup_httpdns_sdk();
-    return 0;
+    is_initialized = false;
+    return HTTPDNS_SUCCESS;
 }
 
-static httpdns_resolve_result_t * valid_and_return_result(httpdns_resolve_result_t *result) {
+static httpdns_resolve_result_t *valid_and_return_result(httpdns_resolve_result_t *result) {
     if (!httpdns_resolve_result_valid(result)) {
         httpdns_resolve_result_free(result);
         return NULL;
@@ -338,8 +342,8 @@ static int32_t get_httpdns_results_for_hosts_async(httpdns_list_head_t *hosts,
         httpdns_log_info("get_httpdns_results_for_hosts_async failed, httpdns client is not initialized");
         return HTTPDNS_CLIENT_NOT_INITIALIZE;
     }
-    if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type) || NULL == cb) {
-        httpdns_log_info("get_httpdns_results_for_hosts_async failed, hosts or query_type or cb is empty");
+    if (httpdns_list_is_empty(hosts) || httpdns_string_is_blank(query_type)) {
+        httpdns_log_info("get_httpdns_results_for_hosts_async failed, hosts or query_type is empty");
         return HTTPDNS_PARAMETER_ERROR;
     }
 

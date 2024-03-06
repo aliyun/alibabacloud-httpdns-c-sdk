@@ -6,15 +6,8 @@
 #include "check_suit_list.h"
 #include "httpdns_global_config.h"
 
-static void setup(void) {
+void test_parse_schedule_response(CuTest *tc) {
     init_httpdns_sdk();
-}
-
-static void teardown(void) {
-    cleanup_httpdns_sdk();
-}
-
-START_TEST(test_parse_schedule_response) {
     char *body = "{"
                  "\"service_ip\":[\"203.107.1.a\","
                  "\"203.107.1.b\","
@@ -33,12 +26,13 @@ START_TEST(test_parse_schedule_response) {
     httpdns_sds_free(parsed_body);
 
     httpdns_schedule_response_free(response);
-    ck_assert_msg(is_expected, "解析调度报文错误");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "解析调度报文错误", is_expected);
 }
 
-END_TEST
 
-START_TEST(test_parse_single_resolve_response) {
+void test_parse_single_resolve_response(CuTest *tc) {
+    init_httpdns_sdk();
     char *body = "{"
                  "\"ipsv6\":[\"240e:960:c00:e:3:0:0:3ef\",\"240e:960:c00:e:3:0:0:3f0\"],"
                  "\"host\":\"www.aliyun.com\","
@@ -61,13 +55,13 @@ START_TEST(test_parse_single_resolve_response) {
                        && (response->origin_ttl == 60)
                        && (strcmp("47.96.236.37", response->client_ip) == 0);
     httpdns_single_resolve_response_free(response);
-    ck_assert_msg(is_expected, "单解析响应报文错误");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "单解析响应报文错误", is_expected);
 }
 
-END_TEST
 
-
-START_TEST(test_parse_multi_resolve_response) {
+void test_parse_multi_resolve_response(CuTest *tc) {
+    init_httpdns_sdk();
     char *body = "{"
                  "\"dns\":[{"
                  "\"host\":\"www.aliyun.com\","
@@ -94,18 +88,15 @@ START_TEST(test_parse_multi_resolve_response) {
 
     bool is_expected = (NULL != response) && (httpdns_list_size(&response->dns) == 2);
     httpdns_multi_resolve_response_free(response);
-    ck_assert_msg(is_expected, "批量解析响应报文错误");
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "批量解析响应报文错误", is_expected);
 }
 
-END_TEST
 
-Suite *make_httpdns_response_suite(void) {
-    Suite *suite = suite_create("HTTPDNS Response Parser Test");
-    TCase *httpdns_response = tcase_create("httpdns_response");
-    tcase_add_unchecked_fixture(httpdns_response, setup, teardown);
-    suite_add_tcase(suite, httpdns_response);
-    tcase_add_test(httpdns_response, test_parse_schedule_response);
-    tcase_add_test(httpdns_response, test_parse_single_resolve_response);
-    tcase_add_test(httpdns_response, test_parse_multi_resolve_response);
+CuSuite *make_httpdns_response_suite(void) {
+    CuSuite *suite = CuSuiteNew();
+    SUITE_ADD_TEST(suite, test_parse_schedule_response);
+    SUITE_ADD_TEST(suite, test_parse_single_resolve_response);
+    SUITE_ADD_TEST(suite, test_parse_multi_resolve_response);
     return suite;
 }

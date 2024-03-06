@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.6)
 project(alicloud_httpdns_c_sdk_test LANGUAGES C)
 
 ##################################### 相关依赖库加载 ##########################################

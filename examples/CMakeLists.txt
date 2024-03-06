@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 2.6)
 project(alicloud_httpdns_c_sdk_examples LANGUAGES C CXX)
 
 ####################################  编译选项  ###########################################

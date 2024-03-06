@@ -56,11 +56,9 @@ configure_file(
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
-find_package(cJSON REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories(${CJSON_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
 ################################# 库文件编译安装 ############################################

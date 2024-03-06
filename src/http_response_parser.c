@@ -1,9 +1,9 @@
 //
 // Created by caogaoshuai on 2024/1/19.
 //
-#include <cjson/cJSON.h>
 #include <stdio.h>
 
+#include "httpdns_cJSON.h"
 #include "httpdns_memory.h"
 #include "httpdns_log.h"
 #include "httpdns_sds.h"
@@ -128,13 +128,13 @@ void httpdns_multi_resolve_response_free(httpdns_multi_resolve_response_t *respo
     free(response);
 }
 
-static void parse_ip_array(cJSON *c_json_array, httpdns_list_head_t *ips) {
-    size_t array_size = cJSON_GetArraySize(c_json_array);
+static void parse_ip_array(httpdns_cJSON_t *c_json_array, httpdns_list_head_t *ips) {
+    size_t array_size = httpdns_cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
         return;
     }
     for (int i = 0; i < array_size; i++) {
-        cJSON *ip_json = cJSON_GetArrayItem(c_json_array, i);
+        httpdns_cJSON_t *ip_json = httpdns_cJSON_GetArrayItem(c_json_array, i);
         httpdns_list_add(ips, ip_json->valuestring, httpdns_string_clone_func);
     }
 }
@@ -143,22 +143,22 @@ httpdns_schedule_response_t *httpdns_response_parse_schedule(const char *body) {
     if (httpdns_string_is_blank(body)) {
         return NULL;
     }
-    cJSON *c_json_body = cJSON_Parse(body);
+    httpdns_cJSON_t *c_json_body = httpdns_cJSON_Parse(body);
     if (NULL == c_json_body) {
         return NULL;
     }
     httpdns_schedule_response_t *schedule_result = httpdns_schedule_response_new();
-    cJSON *ipv4_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ip");
+    httpdns_cJSON_t *ipv4_resolvers_json = httpdns_cJSON_GetObjectItem(c_json_body, "service_ip");
     if (NULL != ipv4_resolvers_json) {
         parse_ip_array(ipv4_resolvers_json, &schedule_result->service_ip);
         httpdns_list_shuffle(&schedule_result->service_ip);
     }
-    cJSON *ipv6_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ipv6");
+    httpdns_cJSON_t *ipv6_resolvers_json = httpdns_cJSON_GetObjectItem(c_json_body, "service_ipv6");
     if (NULL != ipv6_resolvers_json) {
         parse_ip_array(ipv6_resolvers_json, &schedule_result->service_ipv6);
         httpdns_list_shuffle(&schedule_result->service_ipv6);
     }
-    cJSON_Delete(c_json_body);
+    httpdns_cJSON_Delete(c_json_body);
     return schedule_result;
 }
 
@@ -192,43 +192,43 @@ static char *decode_html(char *str) {
 }
 
 
-static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(cJSON *c_json_body) {
+static httpdns_single_resolve_response_t *parse_single_resolve_result_from_json(httpdns_cJSON_t *c_json_body) {
     if (NULL == c_json_body) {
         return NULL;
     }
     httpdns_single_resolve_response_t *single_resolve_result = httpdns_single_resolve_response_new();
-    cJSON *ips_json = cJSON_GetObjectItem(c_json_body, "ips");
+    httpdns_cJSON_t *ips_json = httpdns_cJSON_GetObjectItem(c_json_body, "ips");
     if (NULL != ips_json) {
         parse_ip_array(ips_json, &single_resolve_result->ips);
         httpdns_list_shuffle(&single_resolve_result->ips);
     }
-    cJSON *ipsv6_json = cJSON_GetObjectItem(c_json_body, "ipsv6");
+    httpdns_cJSON_t *ipsv6_json = httpdns_cJSON_GetObjectItem(c_json_body, "ipsv6");
     if (NULL != ipsv6_json) {
         parse_ip_array(ipsv6_json, &single_resolve_result->ipsv6);
         httpdns_list_shuffle(&single_resolve_result->ipsv6);
     }
-    cJSON *host_json = cJSON_GetObjectItem(c_json_body, "host");
+    httpdns_cJSON_t *host_json = httpdns_cJSON_GetObjectItem(c_json_body, "host");
     if (NULL != host_json) {
         single_resolve_result->host = httpdns_sds_new(host_json->valuestring);
     }
-    cJSON *client_ip_json = cJSON_GetObjectItem(c_json_body, "client_ip");
+    httpdns_cJSON_t *client_ip_json = httpdns_cJSON_GetObjectItem(c_json_body, "client_ip");
     if (NULL != client_ip_json) {
         single_resolve_result->client_ip = httpdns_sds_new(client_ip_json->valuestring);
     }
-    cJSON *ttl_json = cJSON_GetObjectItem(c_json_body, "ttl");
+    httpdns_cJSON_t *ttl_json = httpdns_cJSON_GetObjectItem(c_json_body, "ttl");
     if (NULL != ttl_json) {
         single_resolve_result->ttl = ttl_json->valueint;
     }
-    cJSON *origin_ttl_json = cJSON_GetObjectItem(c_json_body, "origin_ttl");
+    httpdns_cJSON_t *origin_ttl_json = httpdns_cJSON_GetObjectItem(c_json_body, "origin_ttl");
     if (NULL != origin_ttl_json) {
         single_resolve_result->origin_ttl = origin_ttl_json->valueint;
     }
-    cJSON *extra_json = cJSON_GetObjectItem(c_json_body, "extra");
+    httpdns_cJSON_t *extra_json = httpdns_cJSON_GetObjectItem(c_json_body, "extra");
     if (NULL != extra_json) {
         single_resolve_result->extra = decode_html(extra_json->valuestring);
     }
     // 多域名解析接口
-    cJSON *type_json = cJSON_GetObjectItem(c_json_body, "type");
+    httpdns_cJSON_t *type_json = httpdns_cJSON_GetObjectItem(c_json_body, "type");
     if (NULL != type_json) {
         int32_t type = type_json->valueint;
         if (type == HTTPDNS_RESOLVE_TYPE_AAAA) {
@@ -244,7 +244,7 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const c
         httpdns_log_info("parse single resolve failed, body is empty");
         return NULL;
     }
-    cJSON *c_json_body = cJSON_Parse(body);
+    httpdns_cJSON_t *c_json_body = httpdns_cJSON_Parse(body);
     if (NULL == c_json_body) {
         httpdns_log_info("parse single resolve failed, body may be not json");
         return NULL;
@@ -253,7 +253,7 @@ httpdns_single_resolve_response_t *httpdns_response_parse_single_resolve(const c
     if (httpdns_list_is_empty(&single_resolve_result->ips) && httpdns_list_is_empty(&single_resolve_result->ipsv6)) {
         httpdns_log_info("parse single resolve is empty, body is %s", body);
     }
-    cJSON_Delete(c_json_body);
+    httpdns_cJSON_Delete(c_json_body);
     return single_resolve_result;
 }
 
@@ -262,17 +262,17 @@ httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const cha
         httpdns_log_info("parse multi resolve failed, body is empty");
         return NULL;
     }
-    cJSON *c_json_body = cJSON_Parse(body);
+    httpdns_cJSON_t *c_json_body = httpdns_cJSON_Parse(body);
     if (NULL == c_json_body) {
         httpdns_log_info("parse multi resolve failed, body may be not json");
         return NULL;
     }
     httpdns_multi_resolve_response_t *mul_resolve_result = httpdns_multi_resolve_response_new();
-    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "dns");
+    httpdns_cJSON_t *dns_json = httpdns_cJSON_GetObjectItem(c_json_body, "dns");
     if (NULL != dns_json) {
-        int dns_size = cJSON_GetArraySize(dns_json);
+        int dns_size = httpdns_cJSON_GetArraySize(dns_json);
         for (int i = 0; i < dns_size; i++) {
-            cJSON *single_result_json = cJSON_GetArrayItem(dns_json, i);
+            httpdns_cJSON_t *single_result_json = httpdns_cJSON_GetArrayItem(dns_json, i);
             if (NULL != single_result_json) {
                 httpdns_single_resolve_response_t *single_resolve_result = parse_single_resolve_result_from_json(
                         single_result_json);
@@ -283,6 +283,6 @@ httpdns_multi_resolve_response_t *httpdns_response_parse_multi_resolve(const cha
     } else {
         httpdns_log_info("parse multi resolve failed, body is %s", body);
     }
-    cJSON_Delete(c_json_body);
+    httpdns_cJSON_Delete(c_json_body);
     return mul_resolve_result;
 }

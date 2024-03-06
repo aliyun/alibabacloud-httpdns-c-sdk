@@ -4,7 +4,6 @@ project(alicloud_httpdns_c_sdk_test LANGUAGES C)
 ##################################### 相关依赖库加载 ##########################################
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories(${CJSON_INCLUDE_DIR})
 # check框架
 find_library(CHECK_LIBRARY check)
 include_directories(${CMAKE_INSTALL_PREFIX}/include)
@@ -21,7 +20,6 @@ target_link_libraries(${TEST_BIN_NAME} ${CHECK_LIBRARY})
 target_link_libraries(${TEST_BIN_NAME} ${CURL_LIBRARY})
 target_link_libraries(${TEST_BIN_NAME} ${OPENSSL_LIBRARIES})
 target_link_libraries(${TEST_BIN_NAME} Threads::Threads)
-target_link_libraries(${TEST_BIN_NAME} ${CJSON_LIBRARIES})
 
 ## 这里没有使用原生的CTest，而是使用check框架
 add_custom_target(test

@@ -37,11 +37,9 @@ set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
-find_package(cJSON REQUIRED)
 
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories(${CJSON_INCLUDE_DIR})
 ## HTTPDNS SDK
 find_library(HTTPDNS_LIBRARY httpdns_c_sdk_static)
 include_directories(${CMAKE_INSTALL_PREFIX}/include/httpdns)
@@ -53,7 +51,6 @@ function(_TARGET_EXAMPLE_LIBRARIES EXAMPLE_BIN_NAME SOURCE_FILES)
     target_link_libraries(${EXAMPLE_BIN_NAME} ${CURL_LIBRARY})
     target_link_libraries(${EXAMPLE_BIN_NAME} ${OPENSSL_LIBRARIES})
     target_link_libraries(${EXAMPLE_BIN_NAME} Threads::Threads)
-    target_link_libraries(${EXAMPLE_BIN_NAME} ${CJSON_LIBRARIES})
 endfunction()
 
 _TARGET_EXAMPLE_LIBRARIES(sync_client_example sync_client_example.c)

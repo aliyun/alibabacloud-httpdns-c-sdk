@@ -15,7 +15,7 @@
 ## 安装方法
 
 ### 环境依赖
-HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的SSL层校验，使用cjson进行服务端HTTP报文解析，使用check框架实现单测，HTTPDNS C SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
+HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的SSL层校验，HTTPDNS C SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 
 #### openssl安装
 
@@ -37,34 +37,6 @@ HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的
   - Ubuntu/Debian:```sudo apt-get install libcurl4-openssl-dev```
   - Red Hat/CentOS/Fedora:```sudo yum install libcurl-devel```
   - [Windows安装](https://curl.se/windows/)
-
-#### cjson安装
-
-* 源码安装(推荐)
-```shell
-  git clone https://github.com/DaveGamble/cJSON.git
-  cd cJSON
-  mkdir build
-  cd build
-  cmake .. -DENABLE_CJSON_UTILS=On -DENABLE_CJSON_TEST=Off 
-  make
-  sudo make install
-```
-* 二进制安装
-  - Ubuntu/Debian:```sudo apt-get install libcjson1 libcjson-dev```
-  - Red Hat/CentOS/Fedora:```sudo yum install libcjson libcjson-devel```
-
-#### check安装
-
-```shell
-  git clone https://github.com/libcheck/check.git
-  cd check/
-  mkdir build
-  cd build/
-  cmake ..
-  make
-  sudo make install
-```
 
 ### SDK的安装使用
 通过git clone获取代码后通过以下命令进行安装：

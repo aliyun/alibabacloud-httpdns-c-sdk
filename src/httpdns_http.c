@@ -126,9 +126,6 @@ static int32_t calculate_max_request_timeout(httpdns_list_head_t *http_contexts)
     return ctx->request_timeout_ms;
 }
 
-/**
- * 对于mac环境，目前无法在请求前进行证书校验，只能请求后校验
- */
 static int32_t ssl_cert_verify(CURL *curl) {
     struct curl_certinfo *certinfo;
     CURLcode res = curl_easy_getinfo(curl, CURLINFO_CERTINFO, &certinfo);
@@ -286,7 +283,9 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
             curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
             httpdns_log_debug("using http2, url %s", http_context->request_url);
 #endif
-            curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
+            if (!should_use_ssl_ctx_callback()) {
+                curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
+            }
         }
         curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);
         curl_easy_setopt(handle, CURLOPT_WRITEFUNCTION, write_data_callback);

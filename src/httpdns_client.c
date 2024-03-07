@@ -28,8 +28,13 @@ httpdns_client_t *httpdns_client_new(httpdns_config_t *config) {
     httpdns_client->scheduler = httpdns_scheduler_new(config);
     httpdns_scheduler_set_net_stack_detector(httpdns_client->scheduler, httpdns_client->net_stack_detector);
     httpdns_client->cache = httpdns_cache_table_new();
-    httpdns_scheduler_refresh(httpdns_client->scheduler);
-    return httpdns_client;
+    int32_t refresh_result = httpdns_scheduler_refresh(httpdns_client->scheduler);
+    if (refresh_result == HTTPDNS_SUCCESS) {
+        return httpdns_client;
+    } else {
+        httpdns_client_free(httpdns_client);
+        return NULL;
+    }
 }
 
 void httpdns_client_free(httpdns_client_t *client) {

@@ -235,6 +235,11 @@ static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     return CURLE_OK;
 }
 
+static bool is_curl_support_http2() {
+    curl_version_info_data *data = curl_version_info(CURLVERSION_NOW);
+    return data->features & CURL_VERSION_HTTP2;
+}
+
 int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
     if (httpdns_list_is_empty(http_contexts)) {
         httpdns_log_info("multiple exchange failed, http_contexts is empty");
@@ -249,7 +254,10 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYPEER, 1L);
         bool using_https = httpdns_http_is_https_scheme(http_context->request_url);
         if (using_https) {
-            curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+            if (is_curl_support_http2()) {
+                curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+                httpdns_log_debug("using http2, url %s", http_context->request_url);
+            }
             curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         }
         curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);

@@ -93,6 +93,4 @@ if(NOT TARGET uninstall)
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif()
 ################################# 单元测试 ############################################
-enable_testing()
-
 add_subdirectory(tests)

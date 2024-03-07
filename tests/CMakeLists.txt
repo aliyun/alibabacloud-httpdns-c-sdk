@@ -11,7 +11,7 @@ include_directories("${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/tests")
 aux_source_directory(${CMAKE_SOURCE_DIR}/tests TEST_SRC_LIST)
 aux_source_directory(${CMAKE_SOURCE_DIR}/src SDK_SRC_LIST)
 
-set(TEST_BIN_NAME  httpdns_unite_test)
+set(TEST_BIN_NAME  httpdns_test)
 
 add_executable(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
 target_link_libraries(${TEST_BIN_NAME} ${CHECK_LIBRARY})
@@ -19,6 +19,12 @@ target_link_libraries(${TEST_BIN_NAME} ${CURL_LIBRARY})
 target_link_libraries(${TEST_BIN_NAME} ${OPENSSL_LIBRARIES})
 target_link_libraries(${TEST_BIN_NAME} Threads::Threads)
 
-add_test(NAME ${TEST_BIN_NAME} COMMAND ${TEST_BIN_NAME})
+## 这里没有使用原生的CTest，而是使用CuTest框架
+add_custom_target(httpdns_unite_test
+        COMMAND ${TEST_BIN_NAME}
+        DEPENDS ${TEST_BIN_NAME}
+        WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+        COMMENT "Running the test executable..."
+)
 
 

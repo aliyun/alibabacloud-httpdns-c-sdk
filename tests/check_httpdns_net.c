@@ -26,7 +26,7 @@ void test_net_detect_ipv6(CuTest *tc) {
         httpdns_net_stack_detector_free(net_detector);
     }
     cleanup_httpdns_sdk();
-    CuAssert(tc, "本地未发现ipv6网络", httpdns_have_ipv4_net_type(net_type));
+    CuAssert(tc, "本地未发现ipv6网络", httpdns_have_ipv6_net_type(net_type));
 }
 
 

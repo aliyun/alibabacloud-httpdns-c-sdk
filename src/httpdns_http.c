@@ -185,14 +185,22 @@ static int32_t ssl_cert_verify(CURL *curl) {
                 }
                 // 根据 SAN 类型处理不同数据
                 if (san_entry->type == GEN_DNS) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
                     const char *dns_name = (const char *) ASN1_STRING_get0_data(san_entry->d.dNSName);
+#else
+                    const char *dns_name = (const char *) ASN1_STRING_data(san_entry->d.dNSName);
+#endif
                     httpdns_list_add(&host_names, dns_name, httpdns_string_clone_func);
                     continue;
                 }
                 if (san_entry->type == GEN_IPADD) {
                     unsigned char *ip_addr = NULL;
                     char ip_str[INET6_ADDRSTRLEN];
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
                     ip_addr = (unsigned char *) ASN1_STRING_get0_data(san_entry->d.iPAddress);
+#else
+                    ip_addr = (unsigned char *) ASN1_STRING_data(san_entry->d.iPAddress);
+#endif
                     if (ASN1_STRING_length(san_entry->d.iPAddress) == 4) {
                         // IPv4 地址
                         inet_ntop(AF_INET, ip_addr, ip_str, sizeof(ip_str));

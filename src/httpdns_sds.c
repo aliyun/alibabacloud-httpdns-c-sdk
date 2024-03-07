@@ -405,4 +405,14 @@ httpdns_sds_t httpdns_sds_cat_printf(httpdns_sds_t s, const char *fmt, ...) {
     return t;
 }
 
+void httpdns_sds_to_upper(httpdns_sds_t s) {
+    if (NULL == s) {
+        return;
+    }
+    size_t curlen = httpdns_sds_len(s);
+    for (int i = 0; i < curlen; i++) {
+        s[i] = toupper(s[i]);
+    }
+}
+
 

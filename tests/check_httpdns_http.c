@@ -35,6 +35,15 @@ void test_exchange_singel_request_with_schedule(CuTest *tc) {
     CuAssert(tc, "单HTTP请求-访问调度接口响应码非200", is_success);
 }
 
+void test_https_cert_verify_fail(CuTest *tc) {
+    init_httpdns_sdk();
+    // 证书被hook为203.107.1.1，所以以下访问会失败
+    char *url = "https://www.aliyun.com";
+    bool is_success = test_exchange_single_request(url);
+    cleanup_httpdns_sdk();
+    CuAssert(tc, "单HTTP请求-HTTPS证书非预期校验成功", !is_success);
+}
+
 
 void test_exchange_multi_request_with_resolve(CuTest *tc) {
     init_httpdns_sdk();
@@ -78,5 +87,6 @@ CuSuite *make_httpdns_http_suite(void) {
     SUITE_ADD_TEST(suite, test_exchange_singel_request_with_resolve);
     SUITE_ADD_TEST(suite, test_exchange_singel_request_with_schedule);
     SUITE_ADD_TEST(suite, test_exchange_multi_request_with_resolve);
+    SUITE_ADD_TEST(suite, test_https_cert_verify_fail);
     return suite;
 }

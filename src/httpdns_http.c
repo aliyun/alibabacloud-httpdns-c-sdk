@@ -220,6 +220,31 @@ static int32_t ssl_cert_verify(CURL *curl) {
     return is_domain_matched ? HTTPDNS_SUCCESS : HTTPDNS_CERT_VERIFY_FAILED;
 }
 
+
+static const char *availabel_ssl_libs[] = {"OpenSSL"};
+
+static bool should_use_ssl_ctx_callback() {
+    bool should = false;
+    curl_version_info_data *info = curl_version_info(CURLVERSION_NOW);
+    if (info) {
+        httpdns_sds_t curl_ssl_info = httpdns_sds_new(info->ssl_version);
+        httpdns_sds_to_upper(curl_ssl_info);
+        size_t size = sizeof(availabel_ssl_libs) / sizeof(char *);
+        for (int i = 0; i < size; i++) {
+            httpdns_sds_t availabel_ssl_lib = httpdns_sds_new(availabel_ssl_libs[i]);
+            httpdns_sds_to_upper(availabel_ssl_lib);
+            char *pos = strstr(curl_ssl_info, availabel_ssl_lib);
+            httpdns_sds_free(availabel_ssl_lib);
+            if (NULL != pos) {
+                should = true;
+                break;
+            }
+        }
+        httpdns_sds_free(curl_ssl_info);
+    }
+    return should;
+}
+
 static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
     (void) curl;
     (void) user_param;
@@ -251,8 +276,8 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
         if (using_https) {
 #ifdef CURL_HTTP_VERSION_2
             curl_easy_setopt(handle, CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
-#endif
             httpdns_log_debug("using http2, url %s", http_context->request_url);
+#endif
             curl_easy_setopt(handle, CURLOPT_CERTINFO, 1L);
         }
         curl_easy_setopt(handle, CURLOPT_PRIVATE, http_context);
@@ -261,18 +286,23 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
         curl_easy_setopt(handle, CURLOPT_VERBOSE, 0L);
         curl_easy_setopt(handle, CURLOPT_USERAGENT, http_context->user_agent);
         /**
-         * 这里curl本身的host name校验关闭，但并不关闭openssl的校验
-         *
-         * 即 https://github.com/curl/curl/blob/master/lib/vtls/openssl.c
-         *
-         * 文件中的Curl_ossl_verifyhost方法不调用
+         * 这里curl本身的host name校验关闭，即方法Curl_ossl_verifyhost不调用，但并不关闭openssl的校验
+         * openssl 1.0.2版本以上会在curl校验之前进行证书host校验，返回X509_V_ERR_HOSTNAME_MISMATCH错误码
+         * 参考：
+         * https://www.openssl.org/docs/manmaster/man3/X509_STORE_CTX_get_error.html
+         * https://www.openssl.org/docs/manmaster/man3/X509_verify_cert.html
+         * https://github.com/curl/curl/blob/master/lib/vtls/openssl.c
          */
         curl_easy_setopt(handle, CURLOPT_SSL_VERIFYHOST, 0L);
-#ifdef __linux__
-        //仅支持OpenSSL, wolfSSL, mbedTLS or BearSSL，对于mac环境的LibreSSL不支持
-        //https://curl.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html
-       curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
-#endif
+
+        /**
+         * 仅支持OpenSSL, wolfSSL, mbedTLS or BearSSL
+         * https://curl.se/libcurl/c/CURLOPT_SSL_CTX_FUNCTION.html
+         */
+        if (should_use_ssl_ctx_callback()) {
+            curl_easy_setopt(handle, CURLOPT_SSL_CTX_FUNCTION, ssl_ctx_callback);
+            httpdns_log_debug("use ssl context callback");
+        }
         curl_multi_add_handle(multi_handle, handle);
     }
     int32_t max_timeout_ms = calculate_max_request_timeout(http_contexts);
@@ -294,11 +324,12 @@ int32_t httpdns_http_multiple_exchange(httpdns_list_head_t *http_contexts) {
             curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &http_context);
             if (NULL != http_context) {
                 bool using_https = httpdns_http_is_https_scheme(http_context->request_url);
-#ifdef __APPLE__
-                bool very_https_cert_success = using_https && (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
-#else
                 bool very_https_cert_success = true;
-#endif
+                // 如果没有使用ssl标准的校验流程，那么就走手动校验的过程
+                if (using_https && !should_use_ssl_ctx_callback()) {
+                    very_https_cert_success = (ssl_cert_verify(msg->easy_handle) == HTTPDNS_SUCCESS);
+                    httpdns_log_debug("manual verify cert result %d", very_https_cert_success);
+                }
                 if (!using_https || very_https_cert_success) {
                     curl_easy_getinfo(msg->easy_handle, CURLINFO_RESPONSE_CODE, &http_context->response_status);
                     double total_time_sec;

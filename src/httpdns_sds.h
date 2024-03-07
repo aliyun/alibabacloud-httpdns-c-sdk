@@ -116,6 +116,8 @@ httpdns_sds_t httpdns_sds_cpy(httpdns_sds_t s, const char *t);
 
 httpdns_sds_t httpdns_sds_cat_vprintf(httpdns_sds_t s, const char *fmt, va_list ap);
 
+void httpdns_sds_to_upper(httpdns_sds_t s);
+
 #ifdef __GNUC__
 
 httpdns_sds_t httpdns_sds_cat_printf(httpdns_sds_t s, const char *fmt, ...)

@@ -14,7 +14,7 @@
 
 static void set_default_httpdns_config(httpdns_config_t *config) {
     config->using_cache = true;
-    config->using_https = false;
+    config->using_https = true;
     config->using_sign = false;
     config->timeout_ms = HTTPDNS_DEFAULT_TIMEOUT_MS;
 #ifdef HTTPDNS_RETRY_TIMES

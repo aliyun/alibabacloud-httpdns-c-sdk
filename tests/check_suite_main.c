@@ -1,7 +1,6 @@
 
 
 #include <stdlib.h>
-#include <check.h>
 #include "check_suit_list.h"
 #include "httpdns_log.h"
 

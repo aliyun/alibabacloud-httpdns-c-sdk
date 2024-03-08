@@ -78,17 +78,19 @@ curl  --version | grep -i -o  OpenSSL
 #### 源码安装
 
 如果通过包管理器安装的libcurl库中没有使用OpenSSL库，那么需要[下载源码](https://curl.se/download/)
-安装使用OpenSSL作为SSL层的libcurl库，步骤如下：
+安装使用OpenSSL作为SSL层的libcurl库，这里以安装curl-7.61.0为例，步骤如下：
 
 ```shell
-wget https://curl.se/download/curl-7.51.0.tar.gz
-tar -xzvf curl-7.51.0.tar.gz
-cd curl-7.51.0
+wget https://curl.se/download/curl-7.61.0.tar.gz
+tar -xzvf curl-7.61.0.tar.gz
+cd curl-7.61.0
 ./configure --with-ssl
 make
 sudo make install
 sudo ldconfig
 ```
+
+注意: 这里默认客户已安装OpenSSL库。
 
 ### SDK的安装使用
 

@@ -88,19 +88,19 @@ cd curl-7.51.0
 make
 sudo make install
 sudo ldconfig
-
 ```
 
 ### SDK的安装使用
 
 ```shell
-    git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
-    mkdir build
-    cd build
-    cmake  -DHTTPDNS_LOG_LEVEL=HTTPDNS_LOG_INFO  -DHTTPDNS_LOG_FILE_PATH=/tmp/httpdns.log  -DHTTPDNS_REGION=cn  -DHTTPDNS_RETRY_TIMES=2  -DCMAKE_BUILD_TYPE=Release   ../
-    make
-    make test
-    sudo make install
+git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
+mkdir build
+cd build
+cmake  -DHTTPDNS_LOG_LEVEL=HTTPDNS_LOG_INFO  -DHTTPDNS_LOG_FILE_PATH=/tmp/httpdns.log  -DHTTPDNS_REGION=cn  -DHTTPDNS_RETRY_TIMES=2  -DCMAKE_BUILD_TYPE=Release   ../
+make
+make test
+sudo make install
+sudo ldconfig
 ```
 
 * 可选构建参数如下：

@@ -22,7 +22,7 @@ SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平
 
 ### 构建工具安装
 
-构建过程中需要使用git克隆代码、使用cmake构建工程(版本3.0及以上)、使用gcc(4.5及以上)
+构建过程中需要使用git克隆代码、使用cmake构建工程(版本3.0及以上)、使用gcc(版本4.5及以上)
 /g++编译代码，请您确认这些命令行工具已经在安装本机，如果尚未安装参考以下安装命令：
 
 - Ubuntu/Debian:
@@ -45,7 +45,7 @@ sudo zypper install git cmake  gcc  gcc-c++
 
 ### 依赖库安装
 
-HTTPDNS C SDK使用libcurl库进行网络操作，使用openssl库进行HTTPS的SSL层校验，HTTPDNS C
+HTTPDNS C SDK使用libcurl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)进行HTTPS的SSL层校验，HTTPDNS C
 SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 
 #### 二进制安装

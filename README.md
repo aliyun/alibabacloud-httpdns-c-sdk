@@ -92,7 +92,7 @@ sudo ldconfig
 
 注意: 这里默认客户已安装OpenSSL库。
 
-### SDK的安装使用
+### SDK安装
 
 ```shell
 git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
@@ -100,7 +100,7 @@ mkdir build
 cd build
 cmake  -DHTTPDNS_LOG_LEVEL=HTTPDNS_LOG_INFO  -DHTTPDNS_LOG_FILE_PATH=/tmp/httpdns.log  -DHTTPDNS_REGION=cn  -DHTTPDNS_RETRY_TIMES=2  -DCMAKE_BUILD_TYPE=Release   ../
 make
-make test
+make httpdns_unite_test
 sudo make install
 sudo ldconfig
 ```
@@ -112,7 +112,11 @@ sudo ldconfig
 | HTTPDNS_LOG_LEVEL     | 日志打印级别      | HTTPDNS_LOG_TRACE<br/>HTTPDNS_LOG_DEBUG<br/>HTTPDNS_LOG_INFO<br/>HTTPDNS_LOG_WARN<br/>HTTPDNS_LOG_ERROR<br/>HTTPDNS_LOG_FATAL |
 | HTTPDNS_LOG_FILE_PATH | 日志文件存储路径    | 文件路径，路径长度最长不超过1023                                                                                                            |
 | HTTPDNS_REGION        | HTTPDNS服务集群 | 中国大陆：cn<br/>海外香港：hk<br/>海外新加坡：sg                                                                                              |
-| HTTPDNS_RETRY_TIMES   | 解析失败后的重试次数  | 建议0~5的整数，重试次数太多会导致接口调用耗时较长                                                                                                    |
+| HTTPDNS_RETRY_TIMES   | 解析失败后的重试次数  | 建议0~5的整数，重试次数太多会导致接口调用耗时较长    <br/>                                                                                           |
+
+### SDK使用
+
+安装SDK之后，可以通过静态库或者静态库的方式使用SDK的API，API主要包含配置HTTPDNS客户端的接口（httpdns_client_config.h）和解析域名的接口（httpdns_client_wrapper.h），具体使用方式可以参考代码examples的示例。
 
 ## License
 

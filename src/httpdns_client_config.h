@@ -84,7 +84,7 @@ int32_t httpdns_config_set_net_probe_domain(httpdns_config_t *config, const char
 int32_t httpdns_config_set_timeout_ms(httpdns_config_t *config, int32_t timeout_ms);
 
 /**
- * @description determine whether to sign HTTP requests
+ * @description determine whether to use local cache
  * @param config
  * @param using_cache default use cache, 0 not use cache, 1 use cache
  * @return: HTTPDNS_SUCCESS represents success, others represent specific failure

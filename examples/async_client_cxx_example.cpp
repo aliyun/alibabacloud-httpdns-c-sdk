@@ -125,6 +125,6 @@ int main(int argc, char *argv[]) {
     hdns_client_cleanup(client);
     cleanup:
     hdns_sdk_cleanup();
-    printf("OK, Exit.");
+    printf("OK, Exit.\n");
     return 0;
 }

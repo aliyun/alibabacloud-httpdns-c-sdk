@@ -35,12 +35,14 @@ sudo  apt install -y git cmake gcc g++
 - Aliyun/CentOS Stream/Fedora:
 
 ```shell
+sudo yum check-update
 sudo yum install git cmake  gcc  gcc-c++
 ```
 
 - OpenSUSE:
 
 ```shell
+sudo zypper refresh
 sudo zypper install git cmake  gcc  gcc-c++
 ```
 
@@ -60,12 +62,14 @@ sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 - Aliyun/CentOS Stream/Fedora:
 
 ```shell
+sudo yum check-update
 sudo yum install openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
 ```
 
 - OpenSUSE:
 
 ```shell
+sudo zypper refresh
 sudo zypper install libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
 ```
 
@@ -128,7 +132,6 @@ cd alibabacloud-httpdns-c-sdk
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release   ../
-make
 make httpdns_unite_test
 sudo make install
 sudo ldconfig

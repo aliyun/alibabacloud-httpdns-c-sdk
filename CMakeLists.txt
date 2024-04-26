@@ -13,7 +13,7 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 
-option(ADD_LOG_USE_COLOR "ON for enabling color printing" ON)
+option(ADD_LOG_USE_COLOR "ON for enabling color printing" OFF)
 IF(ADD_LOG_USE_COLOR)
     add_definitions(-DLOG_USE_COLOR)
 ENDIF(ADD_LOG_USE_COLOR)
@@ -24,7 +24,7 @@ IF(ADD_TEST_DEBUG_LOG)
 ENDIF(ADD_TEST_DEBUG_LOG)
 
 # cn: china mainland, sg: singapore, hk: hong kong
-add_definitions(-DHTTPDNS_REGION="sg")
+add_definitions(-DHTTPDNS_REGION="cn")
 
 ##################################### C语言标准 ##########################################
 # Follow ISO C99 standard

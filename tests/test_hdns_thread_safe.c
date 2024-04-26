@@ -480,11 +480,10 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     }
 
     apr_sleep(5 * APR_USEC_PER_SEC);
-
-    int fail_index = -1;
+    char msg[255] = "";
     for (int i = 0; i < arr_size; i++) {
         if (!task_params[i]->success) {
-            fail_index = i;
+            strcpy(msg, msgs[i]);
             break;
         }
     }
@@ -492,8 +491,7 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     hdns_pool_destroy(pool);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-
-    CuAssert(tc, msgs[fail_index], fail_index >= 0);
+    CuAssert(tc, msg, hdns_str_is_blank(msg));
 }
 
 

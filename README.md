@@ -137,8 +137,8 @@ sudo ldconfig
 安装SDK之后，可以通过静态库或者静态库的方式使用SDK的API(位于文件hdns_api.h)，具体使用方式可以参考代码examples的示例。
 
 注意：
- - 可以通过打开主工程的CMakeLists.txt中的ADD_LOG_USE_COLOR开关来实现按日志等级彩色打印内容
- - 可以通过设置主工程的CMakeLists.txt中的HTTPDNS_REGION选择HTTPDNS服务集群
+ - 可以通过打开主工程CMakeLists.txt中的ADD_LOG_USE_COLOR开关来实现按日志等级彩色打印内容
+ - 可以通过设置主工程CMakeLists.txt中的HTTPDNS_REGION选择HTTPDNS服务集群
 
 ## License
 

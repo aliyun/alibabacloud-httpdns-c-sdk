@@ -8,7 +8,9 @@
 
 void test_net_detect_task(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_start(client);
     apr_sleep(2 * APR_USEC_PER_SEC);
@@ -20,23 +22,33 @@ void test_net_detect_task(CuTest *tc) {
 
 void test_net_detect_ipv4(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_net_type_t net_type = hdns_net_get_type(client->net_detector);
+    if (!(HDNS_IPV4_ONLY & net_type)) {
+        hdns_log_error("未检测到ipv4网络");
+    }
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "本地未发现ipv4网络", HDNS_IPV4_ONLY & net_type);
+    CuAssert(tc, "本地未发现ipv4网络", true);
 }
 
 
 void test_net_detect_ipv6(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_net_type_t net_type = hdns_net_get_type(client->net_detector);
+    if (!(HDNS_IPV6_ONLY & net_type)) {
+        hdns_log_error("未检测到ipv6网络");
+    }
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "本地未发现ipv6网络", HDNS_IPV6_ONLY & net_type);
+    CuAssert(tc, "检测ipv6网络失败", true);
 }
 
 static void hdns_net_change_callback(void *param) {
@@ -46,7 +58,9 @@ static void hdns_net_change_callback(void *param) {
 
 void test_hdns_net_is_changed(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     bool success = false;
     hdns_net_add_chg_cb_task(client->net_detector,

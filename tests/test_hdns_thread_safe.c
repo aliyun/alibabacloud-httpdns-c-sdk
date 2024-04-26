@@ -427,7 +427,9 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_without_cache_thread(apr_threa
 
 void test_hdns_api_multi_threads(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);

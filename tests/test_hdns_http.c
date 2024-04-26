@@ -9,7 +9,9 @@
 
 void hdns_test_http_get(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_pool_new(pool);
     hdns_http_controller_t *ctl = hdns_http_controller_create(pool);
     hdns_http_request_t *req = hdns_http_request_create(pool);
@@ -35,7 +37,9 @@ void hdns_test_http_get(CuTest *tc) {
 
 void hdns_test_http_post(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_pool_new(pool);
     hdns_http_controller_t *ctl = hdns_http_controller_create(pool);
     hdns_http_request_t *req = hdns_http_request_create(pool);

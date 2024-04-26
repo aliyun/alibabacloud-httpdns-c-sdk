@@ -18,6 +18,11 @@ IF(ADD_LOG_USE_COLOR)
     add_definitions(-DLOG_USE_COLOR)
 ENDIF(ADD_LOG_USE_COLOR)
 
+option(ADD_TEST_DEBUG_LOG "ON for unit test logs" OFF)
+IF(ADD_TEST_DEBUG_LOG)
+    add_definitions(-DTEST_DEBUG_LOG)
+ENDIF(ADD_TEST_DEBUG_LOG)
+
 # cn: china mainland, sg: singapore, hk: hong kong
 add_definitions(-DHTTPDNS_REGION="sg")
 

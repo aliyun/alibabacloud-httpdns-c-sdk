@@ -10,7 +10,9 @@
 
 void test_refresh_resolve_servers(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
     hdns_client_cleanup(client);
@@ -52,7 +54,9 @@ void test_get_resolve_server(CuTest *tc) {
 
 void test_scheduler_update(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_free(client->scheduler->ipv4_resolvers);

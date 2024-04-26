@@ -28,7 +28,8 @@ SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平
 - Ubuntu/Debian:
 
 ```shell
-sudo  apt install git cmake gcc g++
+sudo  apt update
+sudo  apt install -y git cmake gcc g++
 ```
 
 - Aliyun/CentOS Stream/Fedora:
@@ -53,7 +54,7 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 - Ubuntu/Debian:
 
 ```shell
-sudo apt install libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
+sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 ```
 
 - Aliyun/CentOS Stream/Fedora:
@@ -123,6 +124,7 @@ sudo ldconfig
 
 ```shell
 git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
+cd alibabacloud-httpdns-c-sdk
 mkdir build
 cd build
 cmake -DCMAKE_BUILD_TYPE=Release   ../

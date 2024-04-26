@@ -77,7 +77,9 @@ void test_list_dup(CuTest *tc) {
 
 void test_list_shuffle(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_list_head_t *origin_list = hdns_list_new(NULL);
     hdns_list_add(origin_list, "0", NULL);
     hdns_list_add(origin_list, "1", NULL);
@@ -99,7 +101,9 @@ void test_list_shuffle(CuTest *tc) {
 
 void test_list_sort(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_list_head_t *origin_list = hdns_list_new(NULL);
     hdns_list_add(origin_list, "0", NULL);
     hdns_list_add(origin_list, "1", NULL);
@@ -123,7 +127,9 @@ void test_list_sort(CuTest *tc) {
 
 void test_list_min(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     char *excepted_min_val = "0";
     hdns_list_head_t *list = hdns_list_new(NULL);
     hdns_list_add(list, "5", NULL);
@@ -140,7 +146,9 @@ void test_list_min(CuTest *tc) {
 
 void test_list_max(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     char *excepted_max_val = "5";
     hdns_list_head_t *list = hdns_list_new(NULL);
     hdns_list_add(list, excepted_max_val, NULL);
@@ -157,7 +165,9 @@ void test_list_max(CuTest *tc) {
 
 void test_list_contain(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     char *excepted_val = "5";
     hdns_list_head_t *list = hdns_list_new(NULL);
     hdns_list_add(list, "0", NULL);
@@ -176,7 +186,9 @@ static bool str_search_func(const void *data, const void *target) {
 
 void test_list_search(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     char *search_target = "5";
     char *expected_val = "500";
     hdns_list_head_t *list = hdns_list_new(NULL);

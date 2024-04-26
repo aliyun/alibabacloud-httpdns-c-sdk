@@ -7,7 +7,9 @@
 
 void test_pre_reslove_hosts(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     char *pre_resolve_host = "www.taobao.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
@@ -38,7 +40,9 @@ void test_pre_reslove_hosts(CuTest *tc) {
 
 void test_hdns_get_result_for_host_sync_with_custom_request(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_start(client);
 
@@ -80,7 +84,9 @@ void test_hdns_get_result_for_host_sync_with_custom_request(CuTest *tc) {
 
 void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *results = NULL;
@@ -122,7 +128,9 @@ void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
 
 void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *results = NULL;
@@ -170,7 +178,9 @@ void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
 
 void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *results = NULL;
@@ -219,7 +229,9 @@ void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
 
 void test_hdns_get_results_for_hosts_sync_without_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *results = NULL;
@@ -282,7 +294,9 @@ void hdns_resv_done_callback_func(hdns_status_t *status, hdns_list_head_t *resul
 
 void test_hdns_get_result_for_host_async_with_custom_request(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_resv_req_t *req = hdns_resv_req_create(client);
@@ -317,7 +331,9 @@ void test_hdns_get_result_for_host_async_with_custom_request(CuTest *tc) {
 
 void test_hdns_get_result_for_host_async_with_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     char *host = "www.aliyun.com";
@@ -354,7 +370,9 @@ void test_hdns_get_result_for_host_async_with_cache(CuTest *tc) {
 
 void test_hdns_get_result_for_host_async_without_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
 
@@ -396,7 +414,9 @@ void test_hdns_get_result_for_host_async_without_cache(CuTest *tc) {
 
 void test_hdns_get_results_for_hosts_async_with_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *hosts = hdns_list_create();
@@ -441,7 +461,9 @@ void test_hdns_get_results_for_hosts_async_with_cache(CuTest *tc) {
 
 void test_hdns_get_results_for_hosts_async_without_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
 
     hdns_list_head_t *hosts = hdns_list_create();
@@ -488,7 +510,9 @@ void test_hdns_get_results_for_hosts_async_without_cache(CuTest *tc) {
 
 void test_hdns_log(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_status_t s = hdns_log_set_log_file_path("/tmp/httpdns.log");
     hdns_log_info("test httpdns log");
     hdns_sdk_cleanup();
@@ -497,7 +521,9 @@ void test_hdns_log(CuTest *tc) {
 
 void test_clean_host_cache(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     char *pre_resolve_host = "www.aliyun.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
@@ -545,7 +571,9 @@ void test_clean_host_cache(CuTest *tc) {
 
 void test_hdns_client_enable_update_cache_after_net_change(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
 //    hdns_log_set_log_file_path("/tmp/httpdns.log");
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_enable_update_cache_after_net_change(client, true);
@@ -573,7 +601,9 @@ void test_hdns_client_enable_update_cache_after_net_change(CuTest *tc) {
 
 void test_hdns_client_ip_probe(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);
@@ -599,7 +629,9 @@ void test_hdns_client_ip_probe(CuTest *tc) {
 
 void test_hdns_client_failover_localdns(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     const char *invalid_account_id = "000000";
     hdns_client_t *client = hdns_client_create(invalid_account_id, NULL);
     hdns_client_enable_failover_localdns(client, true);
@@ -648,7 +680,9 @@ void test_hdns_client_failover_localdns(CuTest *tc) {
 
 void test_hdns_client_add_custom_ttl(CuTest *tc) {
     hdns_sdk_init();
+#ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
+#endif
     const char *invalid_account_id = "139450";
     hdns_client_t *client = hdns_client_create(invalid_account_id, NULL);
 

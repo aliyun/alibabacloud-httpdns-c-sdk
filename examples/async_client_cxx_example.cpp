@@ -2,6 +2,7 @@
 // Created by caogaoshuai on 2024/2/7.
 //
 
+#include <unistd.h>
 #include <httpdns/hdns_api.h>
 #include <curl/curl.h>
 
@@ -57,12 +58,12 @@ static void mock_access_business_web_server(const char *dst_ip) {
 
 // 3. 构建解析回调函数
 static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *results, void *param) {
-    bool *success = param;
+    bool *success = static_cast<bool *>(param);
     *success = hdns_status_is_ok(status);
     if (hdns_status_is_ok(status)) {
         printf("resolve success, ips [ ");
         hdns_list_for_each_entry_safe(cursor, results) {
-            hdns_resv_resp_t *resp = cursor->data;
+            hdns_resv_resp_t *resp = static_cast<hdns_resv_resp_t *>(cursor->data);
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
                 printf("%s", ip_cursor->data);
                 if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
@@ -86,11 +87,14 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
 int main(int argc, char *argv[]) {
     hdns_to_void_p(argv);
     hdns_to_int(argc);
+    bool success = false;
+    hdns_status_t status = hdns_status_ok(NULL);
+    hdns_client_t *client = NULL;
     // 1. HTTPDNS SDK 环境初始化
     if (hdns_sdk_init() != HDNS_OK) {
         goto cleanup;
     }
-    hdns_client_t *client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
+    client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
     if (client == NULL) {
         goto cleanup;
     }
@@ -101,39 +105,22 @@ int main(int argc, char *argv[]) {
     hdns_client_set_using_sign(client, true);
     hdns_client_set_retry_times(client, 1);
     hdns_client_set_region(client, "cn");
-
     // 启动客户端
     hdns_client_start(client);
 
-    hdns_list_head_t *results = NULL;
-    // 2. 同步解析
-    hdns_status_t status = hdns_get_result_for_host_sync_with_cache(client,
-                                                                    MOCK_BUSINESS_HOST,
-                                                                    HDNS_QUERY_AUTO,
-                                                                    NULL, &results);
-    //3. 获取解析结果
-    if (hdns_status_is_ok(&status)) {
-        printf("resolve success, ips [ ");
-        hdns_list_for_each_entry_safe(cursor, results) {
-            hdns_resv_resp_t *resp = cursor->data;
-            hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                printf("%s", ip_cursor->data);
-                if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
-                    printf("%s", ",");
-                }
-            }
-        }
-        printf("]\n");
-    } else {
-        fprintf(stderr, "resv failed, error_code %s, error_msg:%s", status.error_code, status.error_msg);
+
+    // 2. 异步提交多个解析任务
+    status = hdns_get_result_for_host_async_with_cache(client,
+                                                                     MOCK_BUSINESS_HOST,
+                                                                     HDNS_QUERY_AUTO,
+                                                                     NULL,
+                                                                     hdns_resv_done_callback,
+                                                                     &success);
+    if (!hdns_status_is_ok(&status)) {
+        goto cleanup;
     }
-    //4. 根据解析结果访问业务
-    if (hdns_status_is_ok(&status)) {
-        char ip[HDNS_IP_ADDRESS_STRING_LENGTH];
-        if (hdns_select_ip_randomly(results, HDNS_QUERY_AUTO, ip) == HDNS_OK) {
-            mock_access_business_web_server(ip);
-        }
-    }
+    // 4. 等待结果完成（正常业务可以不做等待，而是操作其他异步任务，这里仅为了演示）
+    sleep(1);
     // 5. HTTPDNS SDK 环境释放
     hdns_client_cleanup(client);
     cleanup:

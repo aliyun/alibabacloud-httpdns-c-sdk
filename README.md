@@ -16,7 +16,7 @@ SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平
 
 ## 版本
 
-- 当前版本：1.0.0
+- 当前版本：2.0.0
 
 ## 安装方法
 
@@ -45,7 +45,7 @@ sudo zypper install git cmake  gcc  gcc-c++
 
 ### 依赖库安装
 
-HTTPDNS C SDK使用libcurl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)进行HTTPS的SSL层校验，HTTPDNS C
+HTTPDNS C SDK使用libcurl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)进行HTTPS的SSL层校验，使用apr/apr-util(版本1.5.2及以上)库解决内存管理以及跨平台问题，HTTPDNS C
 SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 
 #### 二进制安装
@@ -53,19 +53,19 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 - Ubuntu/Debian:
 
 ```shell
-sudo apt install libssl-dev libcurl4-openssl-dev
+sudo apt install libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 ```
 
 - Aliyun/CentOS Stream/Fedora:
 
 ```shell
-sudo yum install openssl-devel libcurl-devel
+sudo yum install openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
 ```
 
 - OpenSUSE:
 
 ```shell
-sudo zypper install libopenssl-devel libcurl-devel
+sudo zypper install libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
 ```
 
 <span style="color:red;">
@@ -76,7 +76,7 @@ curl  --version | grep -i -o  OpenSSL
 ```
 
 #### 源码安装
-
+##### libcurl （建议 7.33.0 及以上版本）
 如果通过包管理器安装的libcurl库中没有使用OpenSSL库，那么需要[下载源码](https://curl.se/download/)
 安装使用OpenSSL作为SSL层的libcurl库，这里以安装curl-7.61.0为例，步骤如下：
 
@@ -92,31 +92,53 @@ sudo ldconfig
 
 注意: 这里默认客户已安装OpenSSL库。
 
+
+##### apr （建议 1.5.2 及以上版本）
+
+请从[这里](https://apr.apache.org/download.cgi)下载，典型的安装方式如下：
+ ```shell
+    ./configure
+    make
+    make install
+```
+
+注意：
+- 执行./configure时默认是配置安装目录为/usr/local/，如果需要指定安装目录，请使用 ./configure --prefix=/your/install/path/
+
+##### apr-util （建议 1.5.4 及以上版本）
+
+请从[这里](https://apr.apache.org/download.cgi)下载，安装时需要注意指定--with-apr选项，典型的安装方式如下：
+```shell
+    ./configure --with-apr=/your/apr/install/path
+    make
+    make install
+```
+
+注意：
+- 执行./configure时默认是配置安装目录为/usr/local/，如果需要指定安装目录，请使用 ./configure --prefix=/your/install/path/
+- 需要通过--with-apr指定apr安装目录，如果apr安装到系统目录下需要指定--with-apr=/usr/local/apr/
+
+
 ### SDK安装
 
 ```shell
 git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
 mkdir build
 cd build
-cmake  -DHTTPDNS_LOG_LEVEL=HTTPDNS_LOG_INFO  -DHTTPDNS_LOG_FILE_PATH=/tmp/httpdns.log  -DHTTPDNS_REGION=cn  -DHTTPDNS_RETRY_TIMES=2  -DCMAKE_BUILD_TYPE=Release   ../
+cmake -DCMAKE_BUILD_TYPE=Release   ../
 make
 make httpdns_unite_test
 sudo make install
 sudo ldconfig
 ```
 
-* 可选构建参数如下：
-
-| 参数                    | 说明          | 取值                                                                                                                            |
-|-----------------------|-------------|-------------------------------------------------------------------------------------------------------------------------------|
-| HTTPDNS_LOG_LEVEL     | 日志打印级别      | HTTPDNS_LOG_TRACE<br/>HTTPDNS_LOG_DEBUG<br/>HTTPDNS_LOG_INFO<br/>HTTPDNS_LOG_WARN<br/>HTTPDNS_LOG_ERROR<br/>HTTPDNS_LOG_FATAL |
-| HTTPDNS_LOG_FILE_PATH | 日志文件存储路径    | 文件路径，路径长度最长不超过1023                                                                                                            |
-| HTTPDNS_REGION        | HTTPDNS服务集群 | 中国大陆：cn<br/>海外香港：hk<br/>海外新加坡：sg                                                                                              |
-| HTTPDNS_RETRY_TIMES   | 解析失败后的重试次数  | 建议0~5的整数，重试次数太多会导致接口调用耗时较长    <br/>                                                                                           |
-
 ### SDK使用
 
-安装SDK之后，可以通过静态库或者静态库的方式使用SDK的API，API主要包含配置HTTPDNS客户端的接口（httpdns_client_config.h）和解析域名的接口（httpdns_client_wrapper.h），具体使用方式可以参考代码examples的示例。
+安装SDK之后，可以通过静态库或者静态库的方式使用SDK的API(位于文件hdns_api.h)，具体使用方式可以参考代码examples的示例。
+
+注意：
+ - 可以通过打开主工程的CMakeLists.txt中的ADD_LOG_USE_COLOR开关来实现按日志等级彩色打印内容
+ - 可以通过设置主工程的CMakeLists.txt中的HTTPDNS_REGION选择HTTPDNS服务集群
 
 ## License
 
@@ -127,3 +149,6 @@ sudo ldconfig
 - [阿里云HTTPDNS官方文档中心](https://www.aliyun.com/product/httpdns#Docs)
 - 阿里云官方技术支持：[提交工单](https://workorder.console.aliyun.com/#/ticket/createIndex)
 - 阿里云EMAS开发交流钉钉群：35248489
+
+## 感谢
+本项目的内存管理和HTTP层封装从[阿里云OSS C SDK](https://github.com/aliyun/aliyun-oss-c-sdk)中受到了很大的启发，特此感谢。

@@ -4,7 +4,7 @@ PROJECT(httpdns_c_sdk LANGUAGES C)
 ####################################  编译选项  ###########################################
 # default Release C flags
 set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_DEBUG " -g -fsanitize=undefined,address -fno-omit-frame-pointer -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_RELEASE " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
@@ -13,54 +13,77 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 
+option(ADD_LOG_USE_COLOR "ON for enabling color printing" ON)
+IF(ADD_LOG_USE_COLOR)
+    add_definitions(-DLOG_USE_COLOR)
+ENDIF(ADD_LOG_USE_COLOR)
+
+# cn: china mainland, sg: singapore, hk: hong kong
+add_definitions(-DHTTPDNS_REGION="sg")
+
 ##################################### C语言标准 ##########################################
 # Follow ISO C99 standard
 set(CMAKE_C_STANDARD 99)
 set(CMAKE_C_STANDARD_REQUIRED ON)
 set(CMAKE_C_EXTENSIONS ON)          # Use GNU extensions and POSIX standard
 
-################################# 动态编译配置 ############################################
-# 配置日志等级
-if (DEFINED HTTPDNS_LOG_LEVEL)
-    set(HTTPDNS_LOG_LEVEL ${HTTPDNS_LOG_LEVEL})
-else ()
-    set(HTTPDNS_LOG_LEVEL HTTPDNS_LOG_INFO)
-endif ()
-# 配置日志文件路径
-if (DEFINED HTTPDNS_LOG_FILE_PATH)
-    set(HTTPDNS_LOG_FILE_PATH ${HTTPDNS_LOG_FILE_PATH})
-else ()
-    set(HTTPDNS_LOG_FILE_PATH "/tmp/httpdns.log")
-endif ()
-# 配置HTTPDNS集群
-if (DEFINED HTTPDNS_REGION)
-    set(HTTPDNS_REGION ${HTTPDNS_REGION})
-else ()
-    set(HTTPDNS_REGION "cn")
-endif ()
-
-# 配置HTTPDNS失败重试次数
-if (DEFINED HTTPDNS_RETRY_TIMES)
-    set(HTTPDNS_RETRY_TIMES ${HTTPDNS_RETRY_TIMES})
-else ()
-    set(HTTPDNS_RETRY_TIMES 1)
-endif ()
-
-
-configure_file(
-        "${CMAKE_SOURCE_DIR}/configuration.h.in"
-        "${CMAKE_SOURCE_DIR}/src/httpdns_env_configuration.h"
-)
-
 ################################# 相关依赖库加载 ############################################
 find_package(CURL REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(Threads REQUIRED)
 
+FIND_PROGRAM(APR_CONFIG_BIN NAMES apr-config apr-1-config PATHS /usr/bin /usr/local/bin /usr/local/apr/bin/  /opt/homebrew/Cellar/apr/1.7.4/bin/ )
+FIND_PROGRAM(APU_CONFIG_BIN NAMES apu-config apu-1-config PATHS /usr/bin /usr/local/bin /usr/local/apr/bin/ /opt/homebrew/Cellar/apr-util/1.6.3_1/bin/)
+
+IF (APR_CONFIG_BIN)
+    EXECUTE_PROCESS(
+            COMMAND ${APR_CONFIG_BIN} --includedir
+            OUTPUT_VARIABLE APR_INCLUDE_DIR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    EXECUTE_PROCESS(
+            COMMAND ${APR_CONFIG_BIN} --cflags
+            OUTPUT_VARIABLE APR_C_FLAGS
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    EXECUTE_PROCESS(
+            COMMAND ${APR_CONFIG_BIN} --link-ld
+            OUTPUT_VARIABLE APR_LIBRARIES
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(STRIP ${APR_LIBRARIES} APR_LIBRARIES)
+ELSE()
+    MESSAGE(FATAL_ERROR "Could not find apr-config/apr-1-config")
+ENDIF()
+
+IF (APU_CONFIG_BIN)
+    EXECUTE_PROCESS(
+            COMMAND ${APU_CONFIG_BIN} --includedir
+            OUTPUT_VARIABLE APR_UTIL_INCLUDE_DIR
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    EXECUTE_PROCESS(
+            COMMAND ${APU_CONFIG_BIN} --cflags
+            OUTPUT_VARIABLE APU_C_FLAGS
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    EXECUTE_PROCESS(
+            COMMAND ${APU_CONFIG_BIN} --link-ld
+            OUTPUT_VARIABLE APU_LIBRARIES
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    string(STRIP ${APU_LIBRARIES} APU_LIBRARIES)
+ELSE()
+    MESSAGE(FATAL_ERROR "Could not find apu-config/apu-1-config")
+ENDIF()
+
 include_directories(${CURL_INCLUDE_DIR})
 include_directories(${OPENSSL_INCLUDE_DIR})
+include_directories(${APR_INCLUDE_DIR})
+include_directories(${APR_UTIL_INCLUDE_DIR})
 
 aux_source_directory(src SRC_LIST)
+
 ################################# 库文件编译安装 ############################################
 ## 静态库安装
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})

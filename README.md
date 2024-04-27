@@ -36,14 +36,14 @@ sudo  apt install -y git cmake gcc g++
 
 ```shell
 sudo yum check-update
-sudo yum install git cmake  gcc  gcc-c++
+sudo yum install -y git cmake  gcc  gcc-c++
 ```
 
 - OpenSUSE:
 
 ```shell
 sudo zypper refresh
-sudo zypper install git cmake  gcc  gcc-c++
+sudo zypper install -y git cmake  gcc  gcc-c++
 ```
 
 ### 依赖库安装
@@ -56,6 +56,7 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 - Ubuntu/Debian:
 
 ```shell
+sudo  apt update
 sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 ```
 
@@ -63,14 +64,14 @@ sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 
 ```shell
 sudo yum check-update
-sudo yum install openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
+sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
 ```
 
 - OpenSUSE:
 
 ```shell
 sudo zypper refresh
-sudo zypper install libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
+sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
 ```
 
 <span style="color:red;">

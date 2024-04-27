@@ -4,7 +4,7 @@ PROJECT(httpdns_c_sdk LANGUAGES C)
 ####################################  编译选项  ###########################################
 # default Release C flags
 set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-set(CMAKE_C_FLAGS_DEBUG " -g -fsanitize=undefined,address -fno-omit-frame-pointer -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_RELEASE " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
 set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")

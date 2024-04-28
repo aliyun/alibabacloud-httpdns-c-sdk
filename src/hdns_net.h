@@ -14,12 +14,15 @@
  *
 }
  */
-#include <arpa/inet.h>
+
 #include <errno.h>
-#include <netdb.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#ifdef __unix__
 #include <unistd.h>
+#include <netdb.h>
+#include <arpa/inet.h>
+#endif
 
 #include <apr_thread_pool.h>
 #include <apr_atomic.h>

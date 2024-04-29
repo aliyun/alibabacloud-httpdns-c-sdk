@@ -1,7 +1,9 @@
 //
 // Created by caogaoshuai on 2024/1/24.
 //
+#ifdef __unix__
 #include <unistd.h>
+#endif
 #include "hdns_cache.h"
 
 #include "test_suit_list.h"
@@ -24,7 +26,7 @@ void test_miss_cache(CuTest *tc) {
     hdns_resv_resp_destroy(entry);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "非预期命中到缓存", is_miss_cache);
+    CuAssert(tc, "test_miss_cache failed", is_miss_cache);
 }
 
 void test_hit_cache(CuTest *tc) {
@@ -35,19 +37,19 @@ void test_hit_cache(CuTest *tc) {
     bool is_hit_cache = (entry != NULL);
     hdns_resv_resp_destroy(entry);
     hdns_sdk_cleanup();
-    CuAssert(tc, "非预期缓存缺失", is_hit_cache);
+    CuAssert(tc, "test_hit_cache failed", is_hit_cache);
 }
 
 void test_cache_expired(CuTest *tc) {
     hdns_sdk_init();
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 1));
-    sleep(2);
+    apr_sleep(1 * APR_USEC_PER_SEC);
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k1.com", HDNS_RR_TYPE_A);
     bool is_miss_cache = (entry == NULL);
     hdns_resv_resp_destroy(entry);
     hdns_sdk_cleanup();
-    CuAssert(tc, "非预期命中过期缓存", is_miss_cache);
+    CuAssert(tc, "test_cache_expired failed", is_miss_cache);
 }
 
 void test_delete_cache_entry(CuTest *tc) {
@@ -59,7 +61,7 @@ void test_delete_cache_entry(CuTest *tc) {
     bool is_miss_cache = (entry == NULL);
     hdns_resv_resp_destroy(entry);
     hdns_sdk_cleanup();
-    CuAssert(tc, "非预期命中过期缓存", is_miss_cache);
+    CuAssert(tc, "test_delete_cache_entry failed", is_miss_cache);
 }
 
 void test_update_cache_entry(CuTest *tc) {
@@ -74,7 +76,7 @@ void test_update_cache_entry(CuTest *tc) {
     hdns_resv_resp_destroy(entry);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "更新缓存失败", is_expected);
+    CuAssert(tc, "test_update_cache_entry failed", is_expected);
 }
 
 void test_clean_cache(CuTest *tc) {
@@ -87,7 +89,7 @@ void test_clean_cache(CuTest *tc) {
     hdns_resv_resp_destroy(entry);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "清理缓存失败", is_expected);
+    CuAssert(tc, "test_clean_cache failed", is_expected);
 }
 
 

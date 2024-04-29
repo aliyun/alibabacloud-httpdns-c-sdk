@@ -13,12 +13,12 @@ set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
 set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 
-option(ADD_LOG_USE_COLOR "ON for enabling color printing" OFF)
+option(ADD_LOG_USE_COLOR "ON for enabling color printing" ON)
 IF (ADD_LOG_USE_COLOR)
     add_definitions(-DLOG_USE_COLOR)
 ENDIF (ADD_LOG_USE_COLOR)
 
-option(ADD_TEST_DEBUG_LOG "ON for unit test logs" OFF)
+option(ADD_TEST_DEBUG_LOG "ON for unit test logs" ON)
 IF (ADD_TEST_DEBUG_LOG)
     add_definitions(-DTEST_DEBUG_LOG)
 ENDIF (ADD_TEST_DEBUG_LOG)
@@ -42,10 +42,10 @@ if (CMAKE_HOST_WIN32)
         set(EXTRA_LIB_PATH ${CMAKE_SOURCE_DIR}/third_party/lib/Win32/)
     endif ()
     find_path(APR_INCLUDE_DIR NAMES apr.h PATH_SUFFIXES apr PATHS ${EXTRA_INCLUDE_PATH})
-    find_library(APR_LIBRARY NAMES libapr-1 PATHS ${EXTRA_LIB_PATH})
+    find_library(APR_LIBRARIES NAMES libapr-1 PATHS ${EXTRA_LIB_PATH})
 
     find_path(APR_UTIL_INCLUDE_DIR NAMES apu.h PATH_SUFFIXES apu PATHS ${EXTRA_INCLUDE_PATH})
-    find_library(APR_UTIL_LIBRARY NAMES libaprutil-1 PATHS ${EXTRA_LIB_PATH})
+    find_library(APU_LIBRARIES NAMES libaprutil-1 PATHS ${EXTRA_LIB_PATH})
 
     find_path(CURL_INCLUDE_DIR NAMES curl/curl.h PATHS ${EXTRA_INCLUDE_PATH})
     find_library(CURL_LIBRARY NAMES libcurl PATHS ${EXTRA_LIB_PATH})
@@ -53,8 +53,10 @@ if (CMAKE_HOST_WIN32)
     find_path(CURL_INCLUDE_DIR NAMES cJSON.h PATH_SUFFIXES cjson PATHS ${EXTRA_INCLUDE_PATH})
     find_library(CURL_LIBRARY NAMES libcjson PATHS ${EXTRA_LIB_PATH})
 
-    find_path(CURL_INCLUDE_DIR NAMES openssl/ssl.h PATHS ${EXTRA_INCLUDE_PATH})
-    find_library(CURL_LIBRARY NAMES libssl PATHS ${EXTRA_LIB_PATH})
+    find_path(OPENSSL_INCLUDE_DIR NAMES openssl/ssl.h PATHS ${EXTRA_INCLUDE_PATH})
+    find_library(SSL_LIBRARIES NAMES libssl PATHS ${EXTRA_LIB_PATH})
+    find_library(CRYPTO_LIBRARIES NAMES libcrypto PATHS ${EXTRA_LIB_PATH})
+
 
 else ()
 
@@ -119,8 +121,8 @@ add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
 ## 动态库安装
-IF (APPLE)
-    MESSAGE(STATUS "For mac os, skip build dynamic library")
+IF (CMAKE_HOST_WIN32)
+    MESSAGE(STATUS "For windows os, skip build dynamic library")
 ELSE ()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})
     target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC BUILD_SHARED_LIB)
@@ -145,4 +147,4 @@ if (NOT TARGET uninstall)
             COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 endif ()
 ################################# 单元测试 ############################################
-#add_subdirectory(tests)
+add_subdirectory(tests)

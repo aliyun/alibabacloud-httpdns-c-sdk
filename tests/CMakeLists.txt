@@ -17,8 +17,8 @@ set(TEST_BIN_NAME  httpdns_test)
 
 add_executable(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
 target_link_libraries(${TEST_BIN_NAME} ${CURL_LIBRARY})
-target_link_libraries(${TEST_BIN_NAME} ${OPENSSL_LIBRARIES})
-target_link_libraries(${TEST_BIN_NAME} Threads::Threads)
+target_link_libraries(${TEST_BIN_NAME} ${CRYPTO_LIBRARIES})
+target_link_libraries(${TEST_BIN_NAME} ${SSL_LIBRARIES})
 target_link_libraries(${TEST_BIN_NAME} ${APR_LIBRARIES})
 target_link_libraries(${TEST_BIN_NAME} ${APU_LIBRARIES})
 

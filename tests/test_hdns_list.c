@@ -31,7 +31,7 @@ void test_list_add(CuTest *tc) {
 
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表指针关系不符合预期", is_expected);
+    CuAssert(tc, "test_list_add failed", is_expected);
 }
 
 void test_list_rotate(CuTest *tc) {
@@ -44,7 +44,7 @@ void test_list_rotate(CuTest *tc) {
     bool is_expected = first_entry == list->prev;
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表指针关系不符合预期", is_expected);
+    CuAssert(tc, "test_list_rotate failed", is_expected);
 }
 
 
@@ -56,7 +56,7 @@ void test_list_size(CuTest *tc) {
     bool is_expected = hdns_list_size(list) == 2;
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表size不等于2", is_expected);
+    CuAssert(tc, "test_list_size failed", is_expected);
 }
 
 
@@ -71,7 +71,7 @@ void test_list_dup(CuTest *tc) {
     hdns_list_free(origin_list);
     hdns_list_free(target_list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表复制不符合预期，数据不一致", diff == 0);
+    CuAssert(tc, "test_list_dup failed", diff == 0);
 }
 
 
@@ -95,7 +95,7 @@ void test_list_shuffle(CuTest *tc) {
     hdns_list_free(origin_list);
     hdns_list_free(target_list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表打乱失败", diff > 0);
+    CuAssert(tc, "test_list_shuffle failed", diff > 0);
 }
 
 
@@ -121,7 +121,7 @@ void test_list_sort(CuTest *tc) {
     hdns_list_free(origin_list);
     hdns_list_free(target_list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表未按照从小到大排序", diff == 0);
+    CuAssert(tc, "test_list_sort failed", diff == 0);
 }
 
 
@@ -140,7 +140,7 @@ void test_list_min(CuTest *tc) {
     bool is_expected = (strcmp(min_val, excepted_min_val) == 0);
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表搜索最小值不符合预期", is_expected);
+    CuAssert(tc, "test_list_min failed", is_expected);
 }
 
 
@@ -159,7 +159,7 @@ void test_list_max(CuTest *tc) {
     bool is_expected = (strcmp(max_val, excepted_max_val) == 0);
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表搜索最大值不符合预期", is_expected);
+    CuAssert(tc, "test_list_max failed", is_expected);
 }
 
 
@@ -177,7 +177,7 @@ void test_list_contain(CuTest *tc) {
     hdns_log_debug("test_list_contain, contain_val=%s", excepted_val);
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表包含判定错误", is_expected);
+    CuAssert(tc, "test_list_contain failed", is_expected);
 }
 
 static bool str_search_func(const void *data, const void *target) {
@@ -200,7 +200,7 @@ void test_list_search(CuTest *tc) {
     hdns_log_debug("test_list_search, search_target=%s, search_result=%s", search_target, search_result);
     hdns_list_free(list);
     hdns_sdk_cleanup();
-    CuAssert(tc, "链表搜索结果不符合预期", is_expected);
+    CuAssert(tc, "test_list_search failed", is_expected);
 }
 
 

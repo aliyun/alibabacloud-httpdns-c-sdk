@@ -1,12 +1,12 @@
 //
 // Created by caogaoshuai on 2024/1/18.
 //
-
 #include "hdns_log.h"
 #include "hdns_sign.h"
 #include "hdns_http.h"
 #include "hdns_cJSON.h"
 #include "hdns_buf.h"
+#include "hdns_platform.h"
 
 #include "hdns_resolver.h"
 

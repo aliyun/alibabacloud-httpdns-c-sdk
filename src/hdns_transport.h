@@ -5,9 +5,6 @@
 #ifndef HDNS_C_SDK_HDNS_TRANSPORT_H
 #define HDNS_C_SDK_HDNS_TRANSPORT_H
 
-#include <stdint.h>
-#include <stdbool.h>
-
 #include "hdns_define.h"
 #include "hdns_list.h"
 
@@ -60,7 +57,7 @@ struct hdns_http_response_s {
     hdns_pool_t *pool;
     int32_t status;
     hdns_table_t *headers;
-    hdns_list_head_t* body;
+    hdns_list_head_t *body;
     int64_t body_len;
     hdns_http_write_body_fn_t write_body;
     hdns_http_info_t *extra_info;
@@ -74,7 +71,7 @@ struct hdns_http_request_s {
     char *uri;
     hdns_table_t *headers;
     hdns_table_t *query_params;
-    hdns_list_head_t* body;
+    hdns_list_head_t *body;
     int64_t body_len;
     char *user_agent;
     hdns_http_read_body_fn_t read_body;

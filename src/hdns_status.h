@@ -2,7 +2,6 @@
 #define HDNS_C_SDK_HDNS_STATUS_H
 
 #include "hdns_define.h"
-#include "hdns_list.h"
 
 HDNS_CPP_START
 
@@ -20,7 +19,7 @@ typedef struct hdns_status_s {
 
 int hdns_status_is_ok(hdns_status_t *s);
 
-hdns_status_t hdns_status_ok(char* session_id);
+hdns_status_t hdns_status_ok(char *session_id);
 
 hdns_status_t hdns_status_error(int code,
                                 const char *error_code,

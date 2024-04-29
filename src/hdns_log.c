@@ -1,5 +1,4 @@
 #include "hdns_log.h"
-#include "apr_portable.h"
 
 hdns_log_print_pt hdns_log_print = hdns_log_print_default;
 hdns_log_format_pt hdns_log_format = hdns_log_format_default;

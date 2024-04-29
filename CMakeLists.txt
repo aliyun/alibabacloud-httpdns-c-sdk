@@ -106,6 +106,7 @@ else ()
     ENDIF ()
     find_package(CURL REQUIRED)
     find_package(OpenSSL REQUIRED)
+    find_package(Threads REQUIRED)
 endif ()
 
 include_directories(${CURL_INCLUDE_DIR})
@@ -121,7 +122,7 @@ add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
 ## 动态库安装
-IF (CMAKE_HOST_WIN32)
+IF (CMAKE_HOST_WIN32 OR APPLE)
     MESSAGE(STATUS "For windows os, skip build dynamic library")
 ELSE ()
     add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})

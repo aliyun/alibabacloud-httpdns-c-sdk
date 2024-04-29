@@ -13,7 +13,6 @@ typedef struct {
 static void *
 APR_THREAD_FUNC hdns_get_result_for_host_sync_with_custom_request_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
     hdns_resv_req_t *req = hdns_resv_req_create(param->client);
     hdns_resv_req_append_sdns_param(req, "sdns-param1", "value1");
     hdns_resv_req_set_host(req, "httpdns.c.sdk.com");
@@ -49,7 +48,6 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_with_custom_request_thread(apr_thr
 static void *
 APR_THREAD_FUNC hdns_get_result_for_host_sync_with_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
     hdns_list_head_t *results = NULL;
     char *host = "www.aliyun.com";
     hdns_status_t s = hdns_get_result_for_host_sync_with_cache(param->client,
@@ -88,7 +86,7 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_with_cache_thread(apr_thread_t *th
 static void *
 APR_THREAD_FUNC hdns_get_result_for_host_sync_without_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_list_head_t *results = NULL;
 
     char *host = "www.taobao.com";
@@ -133,12 +131,12 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_without_cache_thread(apr_thread_t 
 static void *
 APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_with_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_list_head_t *results = NULL;
 
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "emas.console.aliyun.com";
+    char *host2 = "emasha.aliyun.com";
 
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
@@ -181,12 +179,12 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_with_cache_thread(apr_thread_t 
 static void *
 APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_without_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_list_head_t *results = NULL;
 
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "adash-emas.cn-hangzhou.aliyuncs.com";
+    char *host2 = "emas-tlog.aliyun.com";
 
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
@@ -243,7 +241,7 @@ void hdns_resv_done_callback_func_in_multi_thread_safe(hdns_status_t *status, hd
 static void *
 APR_THREAD_FUNC  hdns_get_result_for_host_async_with_custom_request_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_resv_req_t *req = hdns_resv_req_create(param->client);
 
     hdns_resv_req_append_sdns_param(req, "sdns-param1", "value1");
@@ -274,8 +272,8 @@ APR_THREAD_FUNC  hdns_get_result_for_host_async_with_custom_request_thread(apr_t
 static void *
 APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
-    char *host = "www.aliyun.com";
+
+    char *host = "cpsnext.console.aliyun.com";
 
     bool success = false;
     hdns_get_result_for_host_async_with_cache(param->client,
@@ -307,8 +305,8 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *t
 static void *
 APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
-    char *host = "www.taobao.com";
+
+    char *host = "cloudpush.aliyuncs.com";
     bool sucess = false;
     hdns_get_result_for_host_async_without_cache(param->client,
                                                  "www.taobao.com",
@@ -345,10 +343,10 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t
 static void *
 APR_THREAD_FUNC  hdns_get_results_for_hosts_async_with_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "httpdns.console.aliyun.com";
+    char *host2 = "mhub.console.aliyun.com";
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
@@ -387,11 +385,11 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_with_cache_thread(apr_thread_t
 static void *
 APR_THREAD_FUNC  hdns_get_results_for_hosts_async_without_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
-    hdns_cache_table_clean(param->client->cache);
+
     hdns_list_head_t *hosts = hdns_list_create();
 
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "mp.console.aliyun.com";
+    char *host2 = "mpserverless.console.aliyun.com";
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
@@ -435,7 +433,7 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);
-    char *pre_resolve_host = "www.taobao.com";
+    char *pre_resolve_host = "g.alicdn.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
     hdns_client_add_ip_probe_item(client, pre_resolve_host, 443);
     hdns_client_start(client);

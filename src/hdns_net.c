@@ -1,19 +1,14 @@
 //
 // Created by caogaoshuai on 2024/1/11.
 //
-#ifdef __unix__
-
-#endif
-
+#include "hdns_platform.h"
 #include "hdns_log.h"
 #include "hdns_string.h"
 #include "hdns_net.h"
 #include "hdns_ip.h"
 
-#ifdef __unix__
-#include <ifaddrs.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
+
+#if defined(__APPLE__) || defined(__linux__)
 
 static int32_t test_udp_connect(struct sockaddr *sock_addr, sa_family_t sa_family, size_t addr_len);
 
@@ -23,19 +18,7 @@ static int32_t detect_ipv4_by_udp();
 
 static hdns_net_type_t detect_net_stack_by_udp();
 
-
 #elif _WIN32
-
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#include <iphlpapi.h>
-
-
-#pragma comment(lib, "ws2_32.lib")
 
 static hdns_net_type_t detect_net_stack_by_winsock();
 
@@ -168,7 +151,9 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, vo
     hdns_log_info("Network speed monitoring task terminated.");
     return NULL;
 }
-#ifdef __unix__
+
+#if defined(__APPLE__) || defined(__linux__)
+
 static int32_t test_udp_connect(struct sockaddr *sock_addr, sa_family_t sa_family, size_t addr_len) {
     int sock = socket(sa_family, SOCK_DGRAM, IPPROTO_UDP);
     if (sock < 0) {
@@ -227,7 +212,7 @@ static hdns_net_type_t detect_net_stack_by_udp() {
     return net_stack_type;
 }
 
-#elif _WIN32
+#elif defined(_WIN32)
 
 static hdns_net_type_t detect_net_stack_by_winsock() {
     hdns_net_type_t net_type = HDNS_NET_UNKNOWN;
@@ -299,11 +284,11 @@ static hdns_net_type_t detect_net_stack_by_dns(const char *probe_domain) {
 }
 
 static hdns_net_type_t detect_net_stack() {
-    hdns_net_type_t net_stack_type = HDNS_NET_UNKNOWN;
- 
-#ifdef __unix__
+    hdns_net_type_t net_stack_type;
+
+#if defined(__APPLE__) || defined(__linux__)
     net_stack_type = detect_net_stack_by_udp();
-#elif _WIN32
+#elif defined(_WIN32)
     net_stack_type = detect_net_stack_by_winsock();
 #endif
     if (net_stack_type != HDNS_NET_UNKNOWN) {
@@ -416,13 +401,10 @@ hdns_net_type_t hdns_net_get_type(hdns_net_detector_t *detector) {
 }
 
 
-
-
 bool hdns_net_is_changed(hdns_net_detector_t *detector) {
     if (NULL == detector) {
         return false;
     }
-   
     hdns_pool_new(pool);
     hdns_list_head_t *new_local_ips = hdns_list_new(pool);
     hdns_net_change_detector_t *change_detector = detector->change_detector;
@@ -431,12 +413,13 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
 
     bool is_changed = false;
 
-#ifdef __unix__
+#if defined(__APPLE__) ||defined(__linux__)
     struct ifaddrs* ifaddr, * ifa;
     int family, s;
     char ip[NI_MAXHOST];
 
     if (getifaddrs(&ifaddr) == -1) {
+        hdns_pool_destroy(pool);
         hdns_log_error("getifaddrs failed:%s.", strerror(errno));
         return false;
     }
@@ -468,65 +451,68 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
             }
         }
     }
-#elif _WIN32
-        WSADATA wsaData;
-        struct addrinfo* result = NULL;
-        struct addrinfo* ptr = NULL;
-        struct addrinfo hints;
-        char hostname[NI_MAXHOST];
+    freeifaddrs(ifaddr);
+#elif defined(_WIN32)
+    WSADATA wsaData;
+    struct addrinfo* result = NULL;
+    struct addrinfo* ptr = NULL;
+    struct addrinfo hints;
+    char hostname[NI_MAXHOST];
 
-        if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-            hdns_log_error("WSAStartup failed.\n");
-            hdns_pool_destroy(pool);
-            return false;
+    if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
+        hdns_log_error("WSAStartup failed.\n");
+        hdns_pool_destroy(pool);
+        return false;
+    }
+
+    if (gethostname(hostname, sizeof(hostname)) == SOCKET_ERROR) {
+        hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
+        WSACleanup();
+        hdns_pool_destroy(pool);
+        return false;
+    }
+
+    ZeroMemory(&hints, sizeof(hints));
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+    hints.ai_protocol = IPPROTO_TCP;
+
+    if (getaddrinfo(hostname, NULL, &hints, &result) != 0) {
+        hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
+        WSACleanup();
+        hdns_pool_destroy(pool);
+        return false;
+    }
+
+    for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
+        void* addr;
+        char ip[INET6_ADDRSTRLEN];
+
+        if (ptr->ai_family == AF_INET) {
+            struct sockaddr_in* ipv4 = (struct sockaddr_in*)ptr->ai_addr;
+            addr = &(ipv4->sin_addr);
+        }
+        else {
+            struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)ptr->ai_addr;
+            addr = &(ipv6->sin6_addr);
         }
 
-        if (gethostname(hostname, sizeof(hostname)) == SOCKET_ERROR) {
-            hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
-            WSACleanup();
-            hdns_pool_destroy(pool);
-            return false;
-        }
+        inet_ntop(ptr->ai_family, addr, ip, sizeof(ip));
 
-        ZeroMemory(&hints, sizeof(hints));
-        hints.ai_family = AF_UNSPEC;   
-        hints.ai_socktype = SOCK_STREAM;
-        hints.ai_protocol = IPPROTO_TCP;
-
-        if (getaddrinfo(hostname, NULL, &hints, &result) != 0) {
-            hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
-            WSACleanup();
-            hdns_pool_destroy(pool);
-            return false;
-        }
-
-        for (ptr = result; ptr != NULL; ptr = ptr->ai_next) {
-            void* addr;
-            char ip[INET6_ADDRSTRLEN];
-
-            if (ptr->ai_family == AF_INET) {
-                struct sockaddr_in* ipv4 = (struct sockaddr_in*)ptr->ai_addr;
-                addr = &(ipv4->sin_addr);
+        if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
+            hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
+            if (hdns_list_is_empty(change_detector->local_ips)) {
+                is_changed = true;
             }
-            else {
-                struct sockaddr_in6* ipv6 = (struct sockaddr_in6*)ptr->ai_addr;
-                addr = &(ipv6->sin6_addr);
+            else if (NULL == hdns_list_search(change_detector->local_ips, ip,
+                hdns_to_list_search_fn_t(hdns_str_search))) {
+                is_changed = true;
             }
-
-            inet_ntop(ptr->ai_family, addr, ip, sizeof(ip));
-
-            if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
-                hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
-                if (hdns_list_is_empty(change_detector->local_ips)) {
-                    is_changed = true;
-                }
-                else if (NULL == hdns_list_search(change_detector->local_ips, ip,
-                    hdns_to_list_search_fn_t(hdns_str_search))) {
-                    is_changed = true;
-                }
-            }
-          
         }
+
+    }
+    freeaddrinfo(result);
+    WSACleanup();
 #endif
     if (hdns_list_size(new_local_ips) != hdns_list_size(change_detector->local_ips)) {
         is_changed = true;
@@ -537,19 +523,9 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
         }
         detector->change_detector->local_ips = new_local_ips;
     } else {
-        hdns_pool_destroy(new_local_ips->pool);
+        hdns_pool_destroy(pool);
     }
     apr_thread_mutex_unlock(detector->change_detector->lock);
-#ifdef __unix__
-    freeifaddrs(ifaddr);
-#elif _WIN32
-    freeaddrinfo(result);
-    WSACleanup();
-#endif
-
-  
-
-
     return is_changed;
 }
 

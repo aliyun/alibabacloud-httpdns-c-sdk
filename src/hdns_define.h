@@ -6,7 +6,9 @@
 #define HDNS_C_SDK_HDNS_DEFINE_H
 
 #include <stdint.h>
+#include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>

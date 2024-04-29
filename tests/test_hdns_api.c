@@ -719,7 +719,7 @@ void test_hdns_client_add_custom_ttl(CuTest *tc) {
 
 
 void add_hdns_api_tests(CuSuite *suite) {
-    /*SUITE_ADD_TEST(suite, test_pre_reslove_hosts);
+    SUITE_ADD_TEST(suite, test_pre_reslove_hosts);
     SUITE_ADD_TEST(suite, test_hdns_get_result_for_host_sync_with_custom_request);
     SUITE_ADD_TEST(suite, test_hdns_get_result_for_host_sync_with_cache);
     SUITE_ADD_TEST(suite, test_hdns_get_result_for_host_sync_without_cache);
@@ -733,7 +733,7 @@ void add_hdns_api_tests(CuSuite *suite) {
     SUITE_ADD_TEST(suite, test_hdns_log);
     SUITE_ADD_TEST(suite, test_clean_host_cache);
     SUITE_ADD_TEST(suite, test_hdns_client_enable_update_cache_after_net_change);
-    SUITE_ADD_TEST(suite, test_hdns_client_ip_probe);*/
+    SUITE_ADD_TEST(suite, test_hdns_client_ip_probe);
     SUITE_ADD_TEST(suite, test_hdns_client_failover_localdns);
     SUITE_ADD_TEST(suite, test_hdns_client_add_custom_ttl);
 }

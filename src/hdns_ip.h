@@ -5,9 +5,6 @@
 #ifndef HDNS_C_SDK_HDNS_IP_H
 #define HDNS_C_SDK_HDNS_IP_H
 
-
-#include <stdbool.h>
-#include <stdint.h>
 #include "hdns_define.h"
 
 HDNS_CPP_START

@@ -1,12 +1,8 @@
 //
 // Created by cagaoshuai on 2024/4/19.
 //
-#ifdef __unix__
-#include <arpa/inet.h>
-#include <netdb.h>
-#include <netinet/in.h>
-#endif
-#include <string.h>
+
+#include "hdns_platform.h"
 
 #include "hdns_localdns.h"
 #include "hdns_log.h"

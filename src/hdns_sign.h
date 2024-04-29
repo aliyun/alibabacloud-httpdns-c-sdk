@@ -5,14 +5,7 @@
 #ifndef HDNS_C_SDK_HDNS_SIGN_H
 #define HDNS_C_SDK_HDNS_SIGN_H
 
-
-#include <stdint.h>
-#include <stdio.h>
-#include <string.h>
 #include "hdns_define.h"
-
-#include <openssl/md5.h>
-
 
 HDNS_CPP_START
 
@@ -29,7 +22,7 @@ typedef struct {
 
 hdns_sign_t *hdns_gen_resv_req_sign(hdns_pool_t *pool, const char *host, const char *secret);
 
-hdns_sign_t *hdns_gen_sched_req_sign(hdns_pool_t *pool, const char* nonce, const char *secret);
+hdns_sign_t *hdns_gen_sched_req_sign(hdns_pool_t *pool, const char *nonce, const char *secret);
 
 HDNS_CPP_END
 

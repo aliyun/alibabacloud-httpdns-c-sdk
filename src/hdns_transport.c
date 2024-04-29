@@ -48,10 +48,7 @@ static int hdns_curl_debug_callback(void *handle, curl_infotype type, char *data
         default:
             break;
         case CURLINFO_TEXT:
-            hdns_log_info("curl:%pp=> Info: %.*s", handle, (int) size, data);
-            if (strstr(data, "unknown") != NULL) {
-                hdns_log_error("find");
-            }
+            hdns_log_debug("curl:%pp=> Info: %.*s", handle, (int) size, data);
             break;
         case CURLINFO_HEADER_OUT:
             hdns_log_debug("curl:%pp=> Send header: %.*s", handle, (int) size, data);
@@ -453,14 +450,14 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
 
     // controller
     curl_easy_setopt_safe(CURLOPT_SSL_VERIFYPEER, t->controller->verify_peer);
-    curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, t->controller->verify_host?2:0);
+    curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, t->controller->verify_host ? 2 : 0);
     if (t->controller->using_http2) {
 #ifdef CURL_HTTP_VERSION_2
         curl_easy_setopt_safe(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 #endif
     }
 
-#ifdef _WIN32
+#if defined(_WIN32)
     curl_easy_setopt_safe(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif
     if (t->controller->ca_path != NULL) {
@@ -470,8 +467,6 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
     if (t->controller->ca_file != NULL) {
         curl_easy_setopt_safe(CURLOPT_CAINFO, t->controller->ca_file);
     }
-
-
     curl_easy_setopt_safe(CURLOPT_TIMEOUT_MS, t->controller->timeout);
     curl_easy_setopt_safe(CURLOPT_CONNECTTIMEOUT_MS, t->controller->connect_timeout);
 

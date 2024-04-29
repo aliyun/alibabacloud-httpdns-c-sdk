@@ -1,9 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/24.
 //
-#ifdef __unix__
-#include <unistd.h>
-#endif
 #include "hdns_cache.h"
 
 #include "test_suit_list.h"

@@ -70,6 +70,7 @@ SDK通过[vcpkg](https://github.com/microsoft/vcpkg)管理这些C\C++库，下�
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 ./bootstrap-vcpkg.sh
+./vcpkg  integrate install
 ./vcpkg  install  apr apr-util  openssl  curl[openssl,http2]  cjson
 ```
 
@@ -79,6 +80,7 @@ cd vcpkg
 git clone https://github.com/microsoft/vcpkg.git
 cd vcpkg
 .\bootstrap-vcpkg.bat
+.\vcpkg.exe  integrate install
 .\vcpkg.exe  install  apr apr-util  openssl  curl[openssl,http2]  cjson
 ```
 

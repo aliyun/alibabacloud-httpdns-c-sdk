@@ -6,7 +6,6 @@
 #include "hdns_sign.h"
 #include "hdns_http.h"
 #include "hdns_buf.h"
-#include "hdns_platform.h"
 
 #include "hdns_resolver.h"
 
@@ -29,8 +28,12 @@ static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, cJSON *c_jso
 static bool is_valid_ipv6(const char *ipv6);
 
 static bool is_valid_ipv6(const char *ipv6) {
-    struct in6_addr addr6;
-    return inet_pton(AF_INET6, ipv6, &addr6) == 1;
+    apr_sockaddr_t *sockaddr;
+    hdns_pool_new(pool);
+    apr_status_t rv = apr_sockaddr_info_get(&sockaddr, ipv6, APR_UNSPEC, 0, 0, pool);
+    bool is_ipv6 = (rv == APR_SUCCESS && sockaddr->family == APR_INET6);
+    hdns_pool_destroy(pool);
+    return is_ipv6;
 }
 
 static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips) {

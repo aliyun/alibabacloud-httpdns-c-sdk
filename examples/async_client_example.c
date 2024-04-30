@@ -2,8 +2,7 @@
 // Created by caogaoshuai on 2024/2/7.
 //
 
-#include <unistd.h>
-#include <httpdns/hdns_api.h>
+#include "hdns_api.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST        "www.taobao.com"
@@ -15,7 +14,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
     hdns_to_void_p(buffer);
     hdns_to_void_p(write_data);
     size_t real_size = size * nmemb;
-    printf("获取 %dB 的业务数据\n", size * nmemb);
+    printf("get %dB data\n", size * nmemb);
     return real_size;
 }
 
@@ -118,7 +117,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
     // 4. 等待结果完成（正常业务可以不做等待，而是操作其他异步任务，这里仅为了演示）
-    sleep(1);
+    apr_sleep(1 * APR_USEC_PER_SEC);
     // 5. HTTPDNS SDK 环境释放
     hdns_client_cleanup(client);
     cleanup:

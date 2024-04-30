@@ -9,21 +9,42 @@ PROJECT(httpdns_c_sdk LANGUAGES C)
 ####################################  编译选项  ###########################################
 # default Release C flags
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_C_FLAGS " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_C_FLAGS_RELEASE " -O3 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+
+    set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+
+    set(CMAKE_C_FLAGS_RELEASE " -O3 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+
+    set(CMAKE_C_FLAGS_MINSIZEREF " -Os -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+
     set(CMAKE_C_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+    set(CMAKE_CXX_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
+
     set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/lib)
     set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/build/${CMAKE_BUILD_TYPE}/bin)
     set(CMAKE_C_OUTPUT_EXTENSION_REPLACE 1)
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Windows")
     set(CMAKE_C_FLAGS " /O2 /W0")
+    set(CMAKE_CXX_FLAGS " /O2 /W0")
+
     set(CMAKE_C_FLAGS_DEBUG " /Zi /Od /W0")
+    set(CMAKE_CXX_FLAGS_DEBUG " /Zi /Od /W0")
+
     set(CMAKE_C_FLAGS_RELEASE " /O2 /W0")
+    set(CMAKE_CXX_FLAGS_RELEASE " /O2 /W0")
+
     set(CMAKE_C_FLAGS_MINSIZEREF " /O1 /W0")
+    set(CMAKE_CXX_FLAGS_MINSIZEREF " /O1 /W0")
+
     set(CMAKE_C_FLAGS_RELWITHDEBINFO " /O2 /Zi /W0")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " /O2 /Zi /W0")
 else ()
     MESSAGE(FATAL_ERROR, "Unsupported OS, CMake will end.")
 endif ()
@@ -95,3 +116,4 @@ if (NOT TARGET uninstall)
 endif ()
 ################################# 单元测试 ############################################
 add_subdirectory(tests)
+add_subdirectory(examples)

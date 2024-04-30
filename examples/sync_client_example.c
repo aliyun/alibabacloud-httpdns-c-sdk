@@ -2,7 +2,7 @@
 // Created by caogaoshuai on 2024/2/7.
 //
 
-#include <httpdns/hdns_api.h>
+#include "hdns_api.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST        "www.taobao.com"
@@ -14,7 +14,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
     hdns_to_void_p(buffer);
     hdns_to_void_p(write_data);
     size_t real_size = size * nmemb;
-    printf("获取 %dB 的业务数据\n", size * nmemb);
+    printf("get %dB data\n", size * nmemb);
     return real_size;
 }
 

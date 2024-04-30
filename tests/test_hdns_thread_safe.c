@@ -57,11 +57,13 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_with_cache_thread(apr_thread_t *th
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = false;
@@ -97,13 +99,14 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_without_cache_thread(apr_thread_t 
                                                                   NULL,
                                                                   &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -147,13 +150,14 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_with_cache_thread(apr_thread_t 
                                                                  NULL,
                                                                  &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = false;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -195,13 +199,14 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_without_cache_thread(apr_thread
                                                                     NULL,
                                                                     &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -460,8 +465,8 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     };
 
     char *msgs[10] = {
-           "hdns_get_result_for_host_sync_with_custom_request_thread failed",
-           "hdns_get_result_for_host_sync_with_cache_thread failed",
+            "hdns_get_result_for_host_sync_with_custom_request_thread failed",
+            "hdns_get_result_for_host_sync_with_cache_thread failed",
             "hdns_get_result_for_host_sync_without_cache_thread failed",
             "hdns_get_results_for_hosts_sync_with_cache_thread failed",
             "hdns_get_results_for_hosts_sync_without_cache_thread failed",

@@ -98,13 +98,14 @@ void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = false;
     hdns_resv_resp_t *resp = hdns_cache_table_get(client->cache, host, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -143,11 +144,13 @@ void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
                                                                   NULL,
                                                                   &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = true;
@@ -198,11 +201,13 @@ void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
                                                                  NULL,
                                                                  &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = false;
@@ -249,13 +254,14 @@ void test_hdns_get_results_for_hosts_sync_without_cache(CuTest *tc) {
                                                                     NULL,
                                                                     &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -647,11 +653,13 @@ void test_hdns_client_failover_localdns(CuTest *tc) {
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = true;
@@ -702,12 +710,14 @@ void test_hdns_client_add_custom_ttl(CuTest *tc) {
                                                                &results);
     int expected_ttl = custom_ttl - 100;
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
-        expected_ttl = resv_resp->origin_ttl;
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+            expected_ttl = resv_resp->origin_ttl;
+        }
     }
 
     hdns_list_free(results);

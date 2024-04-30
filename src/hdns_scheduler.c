@@ -1,17 +1,17 @@
 //
 // Created by caogaoshuai on 2024/1/11.
 //
+#include <cjson/cJSON.h>
 #include "hdns_http.h"
 #include "hdns_log.h"
 #include "hdns_sign.h"
 #include "hdns_buf.h"
 #include "hdns_ip.h"
-#include "hdns_cJSON.h"
 
 #include "hdns_scheduler.h"
 
 
-static void parse_ip_array(hdns_cJSON_t *c_json_array, hdns_list_head_t *ips);
+static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips);
 
 hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler);
 
@@ -30,13 +30,13 @@ static inline void hdns_add_resolver(hdns_list_head_t *resolvers, const char *re
     hdns_list_add(resolvers, hdns_ip, NULL);
 }
 
-static void parse_ip_array(hdns_cJSON_t *c_json_array, hdns_list_head_t *ips) {
-    size_t array_size = hdns_cJSON_GetArraySize(c_json_array);
+static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips) {
+    size_t array_size = cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
         return;
     }
     for (int i = 0; i < array_size; i++) {
-        hdns_cJSON_t *ip_json = hdns_cJSON_GetArrayItem(c_json_array, i);
+        cJSON *ip_json = cJSON_GetArrayItem(c_json_array, i);
         hdns_add_resolver(ips, ip_json->valuestring);
     }
 }
@@ -50,22 +50,22 @@ static void hdns_sched_do_parse_sched_resp(hdns_pool_t *req_pool,
         hdns_log_info("parse schedule response failed, body is empty");
         return;
     }
-    hdns_cJSON_t *c_json_body = hdns_cJSON_Parse(body_str);
+    cJSON *c_json_body = cJSON_Parse(body_str);
     if (NULL == c_json_body) {
         hdns_log_info("parse schedule response failed, body may be not json");
         return;
     }
-    hdns_cJSON_t *ipv4_resolvers_json = hdns_cJSON_GetObjectItem(c_json_body, "service_ip");
+    cJSON *ipv4_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ip");
     if (ipv4_resolvers_json != NULL) {
         parse_ip_array(ipv4_resolvers_json, ips);
         hdns_list_shuffle(ips);
     }
-    hdns_cJSON_t *ipv6_resolvers_json = hdns_cJSON_GetObjectItem(c_json_body, "service_ipv6");
+    cJSON *ipv6_resolvers_json = cJSON_GetObjectItem(c_json_body, "service_ipv6");
     if (NULL != ipv6_resolvers_json) {
         parse_ip_array(ipv6_resolvers_json, ipsv6);
         hdns_list_shuffle(ipsv6);
     }
-    hdns_cJSON_Delete(c_json_body);
+    cJSON_Delete(c_json_body);
 }
 
 

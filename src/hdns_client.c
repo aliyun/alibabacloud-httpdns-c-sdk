@@ -186,7 +186,7 @@ hdns_status_t hdns_do_single_resolve_with_req(hdns_client_t *client,
                                                                      enable_failover_localdns,
                                                                      results,
                                                                      resv_req->query_type,
-                                                                     HDNS_RR_TYPE_A);
+                                                                     HDNS_RR_TYPE_AAAA);
 
     if (ipv4_collect_status == HDNS_OK && ipv6_collect_status == HDNS_OK) {
         status = hdns_status_ok(client->config->session_id);

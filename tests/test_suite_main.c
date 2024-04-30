@@ -10,7 +10,7 @@ int main(void) {
     CuString *output = CuStringNew();
     CuSuite *suite = CuSuiteNew();
 
-   add_hdns_transport_tests(suite);
+    add_hdns_transport_tests(suite);
     add_hdns_session_tests(suite);
     add_hdns_scheduler_tests(suite);
     add_hdns_net_tests(suite);

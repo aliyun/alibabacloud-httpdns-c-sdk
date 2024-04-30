@@ -2,42 +2,29 @@
 // Created by cagaoshuai on 2024/4/19.
 //
 
-#include "hdns_platform.h"
+#include <apr_network_io.h>
 
 #include "hdns_localdns.h"
 #include "hdns_log.h"
 
 
 hdns_resv_resp_t *hdns_localdns_resolve(hdns_pool_t *pool, const char *host, hdns_rr_type_t type) {
-    struct addrinfo hint, *answer, *curr;
-    memset(&hint, 0, sizeof(hint));
-    hint.ai_family = AF_UNSPEC;
-    hint.ai_socktype = SOCK_STREAM;
-    int status = getaddrinfo(host, NULL, &hint, &answer);
+    apr_sockaddr_t *sa;
+    apr_status_t rv;
+    char *ip;
+    hdns_pool_new(tmp_pool);
     hdns_resv_resp_t *resp = hdns_resv_resp_create_empty(pool, host, type);
     resp->from_localdns = true;
-    if (status != 0) {
-        hdns_log_error("resolve host by localhost failed, getaddrinfo failed, errono=%d, error_msg=%s",
-                       status,
-                       gai_strerror(status));
+    apr_int32_t family = type == HDNS_RR_TYPE_A ? APR_INET : APR_INET6;
+    rv = apr_sockaddr_info_get(&sa, host, family, 0, 0, tmp_pool);
+    if (rv != APR_SUCCESS) {
+        apr_pool_destroy(tmp_pool);
         return resp;
     }
-    void *addr;
-    char ipstr[INET6_ADDRSTRLEN];
-    for (curr = answer; curr != NULL; curr = curr->ai_next) {
-        if (curr->ai_family == AF_INET && type == HDNS_RR_TYPE_A) {
-            struct sockaddr_in *ipv4 = (struct sockaddr_in *) curr->ai_addr;
-            addr = &(ipv4->sin_addr);
-            inet_ntop(curr->ai_family, addr, ipstr, sizeof ipstr);
-            hdns_list_add(resp->ips, ipstr, hdns_to_list_clone_fn_t(apr_pstrdup));
-        }
-        if (curr->ai_family == AF_INET6 && type == HDNS_RR_TYPE_AAAA) {
-            struct sockaddr_in6 *ipv6 = (struct sockaddr_in6 *) curr->ai_addr;
-            addr = &(ipv6->sin6_addr);
-            inet_ntop(curr->ai_family, addr, ipstr, sizeof ipstr);
-            hdns_list_add(resp->ips, ipstr, hdns_to_list_clone_fn_t(apr_pstrdup));
-        }
+    for (; sa; sa = sa->next) {
+        apr_sockaddr_ip_get(&ip, sa);
+        hdns_list_add(resp->ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
     }
-    freeaddrinfo(answer);
+    hdns_pool_destroy(tmp_pool);
     return resp;
 }

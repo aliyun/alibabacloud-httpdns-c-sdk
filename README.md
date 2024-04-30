@@ -55,7 +55,8 @@ sudo brew install git gcc cmake
 
 - Windows
 
-[下载Visual Studio](https://visualstudio.microsoft.com/zh-hans/vs/)，工作负载选择“使用C++的桌面开发”
+  - [下载安装Git](https://git-scm.com/downloads)
+  - [下载安装Visual Studio](https://visualstudio.microsoft.com/zh-hans/vs/) (工作负载选择“使用C++的桌面开发”)
 
 ### 依赖库安装
 

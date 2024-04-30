@@ -1,7 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/11.
 //
-#include "hdns_platform.h"
 #include "hdns_log.h"
 #include "hdns_string.h"
 #include "hdns_net.h"
@@ -9,6 +8,12 @@
 
 
 #if defined(__APPLE__) || defined(__linux__)
+
+#include <netdb.h>
+#include <arpa/inet.h>
+#include <netinet/in.h>
+#include <ifaddrs.h>
+#include <unistd.h>
 
 static int32_t test_udp_connect(struct sockaddr *sock_addr, sa_family_t sa_family, size_t addr_len);
 
@@ -19,6 +24,13 @@ static int32_t detect_ipv4_by_udp();
 static hdns_net_type_t detect_net_stack_by_udp();
 
 #elif _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
+#pragma comment(lib, "ws2_32.lib")
 
 static hdns_net_type_t detect_net_stack_by_winsock();
 
@@ -413,8 +425,8 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
 
     bool is_changed = false;
 
-#if defined(__APPLE__) ||defined(__linux__)
-    struct ifaddrs* ifaddr, * ifa;
+#if defined(__APPLE__) || defined(__linux__)
+    struct ifaddrs *ifaddr, *ifa;
     int family, s;
     char ip[NI_MAXHOST];
 

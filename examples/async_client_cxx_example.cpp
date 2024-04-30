@@ -40,6 +40,9 @@ static void mock_access_business_web_server(const char *dst_ip) {
         curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
         // 4.3 设置响应结果回调
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_callback);
+#if defined(_WIN32)
+        curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
         // 4.4 发起HTTP请求
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
@@ -60,8 +63,8 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
     bool *success = static_cast<bool *>(param);
     *success = hdns_status_is_ok(status);
     if (hdns_status_is_ok(status)) {
-        printf("resolve success, ips [ ");
         hdns_list_for_each_entry_safe(cursor, results) {
+            printf("resolve success, ips [ ");
             hdns_resv_resp_t *resp = static_cast<hdns_resv_resp_t *>(cursor->data);
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
                 printf("%s", ip_cursor->data);
@@ -69,8 +72,8 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
                     printf("%s", ",");
                 }
             }
+            printf("]\n");
         }
-        printf("]\n");
     } else {
         fprintf(stderr, "resv failed, error_code %s, error_msg:%s", status->error_code, status->error_msg);
     }
@@ -110,11 +113,11 @@ int main(int argc, char *argv[]) {
 
     // 2. 异步提交多个解析任务
     status = hdns_get_result_for_host_async_with_cache(client,
-                                                                     MOCK_BUSINESS_HOST,
-                                                                     HDNS_QUERY_AUTO,
-                                                                     NULL,
-                                                                     hdns_resv_done_callback,
-                                                                     &success);
+                                                       MOCK_BUSINESS_HOST,
+                                                       HDNS_QUERY_AUTO,
+                                                       NULL,
+                                                       hdns_resv_done_callback,
+                                                       &success);
     if (!hdns_status_is_ok(&status)) {
         goto cleanup;
     }

@@ -9,20 +9,20 @@ PROJECT(httpdns_c_sdk LANGUAGES C)
 ####################################  编译选项  ###########################################
 # default Release C flags
 if (CMAKE_SYSTEM_NAME STREQUAL "Linux" OR CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-    set(CMAKE_C_FLAGS " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_CXX_FLAGS " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    set(CMAKE_C_FLAGS_RELEASE " -O3 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS_RELEASE " -O3 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_RELEASE " -O3 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    set(CMAKE_C_FLAGS_MINSIZEREF " -Os -Wall  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -Wall -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    set(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
     set(CMAKE_C_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
     set(CMAKE_CXX_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
@@ -92,6 +92,9 @@ aux_source_directory(src SRC_LIST)
 ## 静态库安装
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(${CMAKE_PROJECT_NAME}_static PRIVATE dl)
+endif ()
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)
 
 ## 动态库安装
@@ -99,6 +102,9 @@ add_library(${CMAKE_PROJECT_NAME} SHARED ${SRC_LIST})
 target_compile_definitions(${CMAKE_PROJECT_NAME} PUBLIC BUILD_SHARED_LIB)
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES VERSION ${CMAKE_VERSION} SOVERSION ${CMAKE_VERSION})
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE dl)
+endif ()
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME} LIBRARY DESTINATION lib)
 
 

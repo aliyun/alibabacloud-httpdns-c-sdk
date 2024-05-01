@@ -50,7 +50,7 @@ sudo zypper install -y git cmake  gcc  gcc-c++
 
 ```shell
 export HOMEBREW_NO_AUTO_UPDATE=1
-sudo brew install git gcc cmake
+brew install git gcc cmake
 ```
 
 - Windows

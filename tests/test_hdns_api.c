@@ -519,7 +519,7 @@ void test_hdns_log(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_status_t s = hdns_log_set_log_file_path("/tmp/httpdns.log");
+    hdns_status_t s = hdns_log_set_log_file_path("httpdns.log");
     hdns_log_info("test httpdns log");
     hdns_sdk_cleanup();
     CuAssert(tc, "test_hdns_log failed", hdns_status_is_ok(&s));

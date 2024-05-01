@@ -205,7 +205,7 @@ void *hdns_list_search(const hdns_list_head_t *head, const void *target, hdns_li
     return NULL;
 }
 
-bool APR_INLINE hdns_list_is_end_node(const hdns_list_node_t *node, const hdns_list_head_t *head) {
+bool hdns_list_is_end_node(const hdns_list_node_t *node, const hdns_list_head_t *head) {
     if (NULL == node || NULL == head) {
         return false;
     }

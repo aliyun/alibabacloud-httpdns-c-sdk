@@ -14,20 +14,12 @@
  *
 }
  */
-#include <arpa/inet.h>
-#include <errno.h>
-#include <netdb.h>
-#include <stdbool.h>
-#include <stdlib.h>
-#include <unistd.h>
 
 #include <apr_thread_pool.h>
 #include <apr_atomic.h>
 #include <apr_thread_cond.h>
 
 #include "hdns_list.h"
-
-#include "hdns_net.h"
 #include "hdns_define.h"
 
 HDNS_CPP_START
@@ -90,7 +82,7 @@ typedef struct {
 typedef struct {
     volatile bool stop_signal;
     apr_thread_mutex_t *lock;
-    apr_thread_cond_t * not_empty_cond;
+    apr_thread_cond_t *not_empty_cond;
     hdns_list_head_t *tasks;
 } hdns_net_speed_detector_t;
 

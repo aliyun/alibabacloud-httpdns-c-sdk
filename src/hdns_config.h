@@ -5,10 +5,6 @@
 #ifndef HDNS_C_SDK_HDNS_CONFIG_H
 #define HDNS_C_SDK_HDNS_CONFIG_H
 
-
-#include <stdbool.h>
-#include <stdint.h>
-
 #include "hdns_list.h"
 #include "hdns_status.h"
 

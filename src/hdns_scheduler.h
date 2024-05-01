@@ -5,8 +5,6 @@
 #ifndef HDNS_C_SDK_HDNS_SCHEDULER_H
 #define HDNS_C_SDK_HDNS_SCHEDULER_H
 
-#include <stdint.h>
-
 #include "apr_thread_pool.h"
 
 #include "hdns_config.h"

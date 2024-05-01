@@ -1,8 +1,6 @@
 #ifndef HDNS_C_SDK_HDNS_STRING_H
 #define HDNS_C_SDK_HDNS_STRING_H
 
-#include <stdbool.h>
-
 #include "hdns_define.h"
 
 HDNS_CPP_START

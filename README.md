@@ -8,15 +8,15 @@
 阿里云[HTTPDNS](https://www.aliyun.com/product/httpdns)
 是面向多端应用（移动端APP，PC客户端应用）具有防劫持、精准调度、实时解析生效等特性的域名解析服务。阿里云EMAS团队提供了HTTPDNS C
 SDK，以降低开发者在嵌入式、Linux、Windows、Mac等非Android/IOS平台下接入[HTTPDNS](https://www.aliyun.com/product/httpdns)
-的门槛（目前仅适配了Linux平台），用户可以通过调用相关API方便地使用HTTPDNS进行域名解析。
+的门槛，用户可以通过调用相关API方便地使用HTTPDNS进行域名解析。
 
 ## SDK限制
 
-目前只适配了Linux平台，暂不支持Windows、Android、IOS、RTOS等平台。
+目前仅适配了Linux、macOS、Windows，暂不支持Android、IOS、RTOS等平台。
 
 ## 版本
 
-- 当前版本：2.0.0
+- 当前版本：2.1.0
 
 ## 安装方法
 
@@ -46,97 +46,64 @@ sudo zypper refresh
 sudo zypper install -y git cmake  gcc  gcc-c++
 ```
 
+- macOS
+
+```shell
+export HOMEBREW_NO_AUTO_UPDATE=1
+brew install git gcc cmake
+```
+
+- Windows
+
+  - [下载安装Git](https://git-scm.com/downloads)
+  - [下载安装Visual Studio](https://visualstudio.microsoft.com/zh-hans/vs/) (工作负载选择“使用C++的桌面开发”)
+
 ### 依赖库安装
 
-HTTPDNS C SDK使用libcurl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)进行HTTPS的SSL层校验，使用apr/apr-util(版本1.5.2及以上)库解决内存管理以及跨平台问题，HTTPDNS C
-SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
+HTTPDNS C SDK使用curl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)
+进行HTTPS的SSL层校验，使用apr/apr-util(版本1.5.2及以上)库解决内存管理以及跨平台问题，使用cjson库解析服务端报文解析，HTTPDNS
+C
+SDK通过[vcpkg](https://github.com/microsoft/vcpkg)管理这些C\C++库，下面介绍vcpkg的相关配置：
 
-#### 二进制安装
-
-- Ubuntu/Debian:
-
-```shell
-sudo  apt update
-sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
-```
-
-- Aliyun/CentOS Stream/Fedora:
+- macOS/Linux:
 
 ```shell
-sudo yum check-update
-sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg  integrate install
+./vcpkg  install  apr apr-util  openssl  curl[openssl,http2]  cjson
 ```
 
-- OpenSUSE:
+- Windows:
 
 ```shell
-sudo zypper refresh
-sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+.\vcpkg.exe  integrate install
+.\vcpkg.exe  install  apr apr-util  openssl  curl[openssl,http2]  cjson
 ```
-
-<span style="color:red;">
-注意：libcurl必须是依赖OpenSSL完成的SSL层通信，否则可能会导致程序异常，可以通过以下命令行检验当前libcurl是否使用了OpenSSL：</span>
-
-```shell
-curl  --version | grep -i -o  OpenSSL
-```
-
-#### 源码安装
-##### libcurl （建议 7.33.0 及以上版本）
-如果通过包管理器安装的libcurl库中没有使用OpenSSL库，那么需要[下载源码](https://curl.se/download/)
-安装使用OpenSSL作为SSL层的libcurl库，这里以安装curl-7.61.0为例，步骤如下：
-
-```shell
-wget https://curl.se/download/curl-7.61.0.tar.gz
-tar -xzvf curl-7.61.0.tar.gz
-cd curl-7.61.0
-./configure --with-ssl
-make
-sudo make install
-sudo ldconfig
-```
-
-注意: 这里默认客户已安装OpenSSL库。
-
-
-##### apr （建议 1.5.2 及以上版本）
-
-请从[这里](https://apr.apache.org/download.cgi)下载，典型的安装方式如下：
- ```shell
-    ./configure
-    make
-    make install
-```
-
-注意：
-- 执行./configure时默认是配置安装目录为/usr/local/，如果需要指定安装目录，请使用 ./configure --prefix=/your/install/path/
-
-##### apr-util （建议 1.5.4 及以上版本）
-
-请从[这里](https://apr.apache.org/download.cgi)下载，安装时需要注意指定--with-apr选项，典型的安装方式如下：
-```shell
-    ./configure --with-apr=/your/apr/install/path
-    make
-    make install
-```
-
-注意：
-- 执行./configure时默认是配置安装目录为/usr/local/，如果需要指定安装目录，请使用 ./configure --prefix=/your/install/path/
-- 需要通过--with-apr指定apr安装目录，如果apr安装到系统目录下需要指定--with-apr=/usr/local/apr/
-
 
 ### SDK安装
 
+- macOS/Linux:
+
 ```shell
-git clone 'https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git'
+git clone https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git
 cd alibabacloud-httpdns-c-sdk
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release   ../
+cmake -DCMAKE_BUILD_TYPE=Release  -DVCPKG_ROOT=${vcpkg的安装路径}  ../ 
 make httpdns_unite_test
 sudo make install
 sudo ldconfig
 ```
+
+- Windows:
+  * 下载工程
+  * Visual Studio打开Cmake工程
+  * 管理配置中配置Cmake命令参数：-DVCPKG_ROOT=${vcpkg的安装路径}
 
 ### SDK使用
 

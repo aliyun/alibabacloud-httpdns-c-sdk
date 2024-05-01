@@ -457,6 +457,9 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
 #endif
     }
 
+#if defined(_WIN32)
+    curl_easy_setopt_safe(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
     if (t->controller->ca_path != NULL) {
         curl_easy_setopt_safe(CURLOPT_CAPATH, t->controller->ca_path);
     }

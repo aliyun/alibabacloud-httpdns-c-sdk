@@ -2,8 +2,7 @@
 // Created by caogaoshuai on 2024/2/7.
 //
 
-#include <unistd.h>
-#include <httpdns/hdns_api.h>
+#include "hdns_api.h"
 #include <curl/curl.h>
 
 #define MOCK_BUSINESS_HOST        "www.taobao.com"
@@ -15,7 +14,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
     hdns_to_void_p(buffer);
     hdns_to_void_p(write_data);
     size_t real_size = size * nmemb;
-    printf("获取 %dB 的业务数据\n", size * nmemb);
+    printf("get %dB data\n", size * nmemb);
     return real_size;
 }
 
@@ -41,6 +40,9 @@ static void mock_access_business_web_server(const char *dst_ip) {
         curl_easy_setopt(curl, CURLOPT_RESOLVE, dns);
         // 4.3 设置响应结果回调
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_data_callback);
+#if defined(_WIN32)
+        curl_easy_setopt(curl, CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
         // 4.4 发起HTTP请求
         res = curl_easy_perform(curl);
         if (res != CURLE_OK) {
@@ -61,8 +63,8 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
     bool *success = param;
     *success = hdns_status_is_ok(status);
     if (hdns_status_is_ok(status)) {
-        printf("resolve success, ips [ ");
         hdns_list_for_each_entry_safe(cursor, results) {
+            printf("resolve success, ips [ ");
             hdns_resv_resp_t *resp = cursor->data;
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
                 printf("%s", ip_cursor->data);
@@ -70,8 +72,8 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
                     printf("%s", ",");
                 }
             }
+            printf("]\n");
         }
-        printf("]\n");
     } else {
         fprintf(stderr, "resv failed, error_code %s, error_msg:%s", status->error_code, status->error_msg);
     }
@@ -118,7 +120,7 @@ int main(int argc, char *argv[]) {
         goto cleanup;
     }
     // 4. 等待结果完成（正常业务可以不做等待，而是操作其他异步任务，这里仅为了演示）
-    sleep(1);
+    apr_sleep(1 * APR_USEC_PER_SEC);
     // 5. HTTPDNS SDK 环境释放
     hdns_client_cleanup(client);
     cleanup:

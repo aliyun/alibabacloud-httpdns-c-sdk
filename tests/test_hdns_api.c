@@ -35,7 +35,7 @@ void test_pre_reslove_hosts(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "预解析后未命中缓存，预解析测试失败", hdns_status_is_ok(&status) && hit_cache);
+    CuAssert(tc, "test_pre_reslove_hosts failed", hdns_status_is_ok(&status) && hit_cache);
 }
 
 void test_hdns_get_result_for_host_sync_with_custom_request(CuTest *tc) {
@@ -78,7 +78,7 @@ void test_hdns_get_result_for_host_sync_with_custom_request(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "自定义解析，同步接口，测试失败", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_get_result_for_host_sync_with_custom_request failed", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
 }
 
 
@@ -98,13 +98,14 @@ void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = false;
     hdns_resv_resp_t *resp = hdns_cache_table_get(client->cache, host, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -123,7 +124,7 @@ void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "单域名、用缓存、同步接口，测试失败", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_get_result_for_host_sync_with_cache failed", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
 }
 
 void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
@@ -143,11 +144,13 @@ void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
                                                                   NULL,
                                                                   &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = true;
@@ -172,7 +175,7 @@ void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "单域名、不用缓存、同步接口，测试失败", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_get_result_for_host_sync_without_cache failed", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
 }
 
 
@@ -198,11 +201,13 @@ void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
                                                                  NULL,
                                                                  &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = false;
@@ -223,7 +228,7 @@ void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "多域名、不用缓存、同步接口，测试失败", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_get_results_for_hosts_sync_with_cache failed", hdns_status_is_ok(&s) && hit_cache && ips_size > 0);
 }
 
 
@@ -249,13 +254,14 @@ void test_hdns_get_results_for_hosts_sync_without_cache(CuTest *tc) {
                                                                     NULL,
                                                                     &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -278,7 +284,7 @@ void test_hdns_get_results_for_hosts_sync_without_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "多域名、不用缓存、同步接口，测试失败", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_get_results_for_hosts_sync_without_cache failed", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
 }
 
 void hdns_resv_done_callback_func(hdns_status_t *status, hdns_list_head_t *results, void *param) {
@@ -325,7 +331,7 @@ void test_hdns_get_result_for_host_async_with_custom_request(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "自定义解析、异步接口，测试失败", sucess && hit_cache);
+    CuAssert(tc, "test_hdns_get_result_for_host_async_with_custom_request failed", sucess && hit_cache);
 }
 
 
@@ -365,7 +371,7 @@ void test_hdns_get_result_for_host_async_with_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "单域名、用缓存、异步接口，测试失败", success && hit_cache);
+    CuAssert(tc, "test_hdns_get_result_for_host_async_with_cache failed", success && hit_cache);
 }
 
 void test_hdns_get_result_for_host_async_without_cache(CuTest *tc) {
@@ -409,7 +415,7 @@ void test_hdns_get_result_for_host_async_without_cache(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "单域名、不用缓存、异步接口，测试失败", sucess && !hit_cache);
+    CuAssert(tc, "test_hdns_get_result_for_host_async_without_cache failed", sucess && !hit_cache);
 }
 
 void test_hdns_get_results_for_hosts_async_with_cache(CuTest *tc) {
@@ -455,7 +461,7 @@ void test_hdns_get_results_for_hosts_async_with_cache(CuTest *tc) {
 
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "多域名、不用缓存、异步接口，测试失败", success && hit_cache);
+    CuAssert(tc, "test_hdns_get_results_for_hosts_async_with_cache failed", success && hit_cache);
 }
 
 
@@ -505,7 +511,7 @@ void test_hdns_get_results_for_hosts_async_without_cache(CuTest *tc) {
 
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "多域名、不用缓存、异步接口，测试失败", success && !hit_cache);
+    CuAssert(tc, "test_hdns_get_results_for_hosts_async_without_cache failed", success && !hit_cache);
 }
 
 void test_hdns_log(CuTest *tc) {
@@ -513,10 +519,10 @@ void test_hdns_log(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_status_t s = hdns_log_set_log_file_path("/tmp/httpdns.log");
+    hdns_status_t s = hdns_log_set_log_file_path("httpdns.log");
     hdns_log_info("test httpdns log");
     hdns_sdk_cleanup();
-    CuAssert(tc, "创建日志文件，测试失败", hdns_status_is_ok(&s));
+    CuAssert(tc, "test_hdns_log failed", hdns_status_is_ok(&s));
 }
 
 void test_clean_host_cache(CuTest *tc) {
@@ -565,7 +571,7 @@ void test_clean_host_cache(CuTest *tc) {
 
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "清理域名缓存失败", hit_cache && clean_success);
+    CuAssert(tc, "test_clean_host_cache failed", hit_cache && clean_success);
 }
 
 
@@ -595,7 +601,7 @@ void test_hdns_client_enable_update_cache_after_net_change(CuTest *tc) {
 
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "网络变化更新缓存测试失败", success);
+    CuAssert(tc, "test_hdns_client_enable_update_cache_after_net_change failed", success);
 }
 
 
@@ -624,7 +630,7 @@ void test_hdns_client_ip_probe(CuTest *tc) {
 
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "网络嗅探功能测试失败", success);
+    CuAssert(tc, "test_hdns_client_ip_probe failed", success);
 }
 
 void test_hdns_client_failover_localdns(CuTest *tc) {
@@ -647,11 +653,13 @@ void test_hdns_client_failover_localdns(CuTest *tc) {
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = true;
@@ -674,7 +682,7 @@ void test_hdns_client_failover_localdns(CuTest *tc) {
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "降级到localdns测试失败", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
+    CuAssert(tc, "test_hdns_client_failover_localdns failed", hdns_status_is_ok(&s) && !hit_cache && ips_size > 0);
 }
 
 
@@ -702,19 +710,21 @@ void test_hdns_client_add_custom_ttl(CuTest *tc) {
                                                                &results);
     int expected_ttl = custom_ttl - 100;
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
-        expected_ttl = resv_resp->origin_ttl;
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+            expected_ttl = resv_resp->origin_ttl;
+        }
     }
 
     hdns_list_free(results);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
 
-    CuAssert(tc, "自定义TTL测试失败", hdns_status_is_ok(&s) && (expected_ttl == custom_ttl) && ips_size > 0);
+    CuAssert(tc, "test_hdns_client_add_custom_ttl failed", hdns_status_is_ok(&s) && (expected_ttl == custom_ttl) && ips_size > 0);
 }
 
 

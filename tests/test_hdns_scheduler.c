@@ -17,7 +17,7 @@ void test_refresh_resolve_servers(CuTest *tc) {
     hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "更新解析服务列表失败", hdns_status_is_ok(&status));
+    CuAssert(tc, "test_refresh_resolve_servers failed", hdns_status_is_ok(&status));
 }
 
 void test_get_resolve_server(CuTest *tc) {
@@ -48,7 +48,7 @@ void test_get_resolve_server(CuTest *tc) {
     bool success = strcmp("2.2.2.2", resolver) == 0;
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();
-    CuAssert(tc, "未按照响应时间最小进行调度", success);
+    CuAssert(tc, "test_get_resolve_server failed", success);
 }
 
 
@@ -84,7 +84,7 @@ void test_scheduler_update(CuTest *tc) {
     bool is_success = (ip3.rt == (int32_t) (HDNS_DELTA_WEIGHT_UPDATE_RATION * 100 +
                                             (1 - HDNS_DELTA_WEIGHT_UPDATE_RATION) * 35));
     hdns_sdk_cleanup();
-    CuAssert(tc, "更新reslover响应时间失败", is_success);
+    CuAssert(tc, "test_scheduler_update failed", is_success);
 }
 
 

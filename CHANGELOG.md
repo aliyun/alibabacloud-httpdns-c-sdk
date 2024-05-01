@@ -1,5 +1,12 @@
 # ChangeLog - Aliyun HTTPDNS SDK for C
 
+## 版本号：2.1.0 日期：2024-04-30
+
+### 变更内容
+
+- 使用vcpkg统一管理依赖的C语言库
+- 支持Windows、Mac OS平台
+
 ## 版本号：2.0.0 日期：2024-04-19
 
 ### 变更内容

@@ -1,8 +1,6 @@
 //
 // Created by caogaoshuai on 2024/1/19.
 //
-#include <string.h>
-
 #include <openssl/md5.h>
 
 #include "hdns_log.h"

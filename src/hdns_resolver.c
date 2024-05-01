@@ -1,11 +1,10 @@
 //
 // Created by caogaoshuai on 2024/1/18.
 //
-
+#include <cjson/cJSON.h>
 #include "hdns_log.h"
 #include "hdns_sign.h"
 #include "hdns_http.h"
-#include "hdns_cJSON.h"
 #include "hdns_buf.h"
 
 #include "hdns_resolver.h"
@@ -20,26 +19,30 @@ static int parse_single_resv_resp(const char *body, hdns_list_head_t *resv_resps
 
 static int parse_multi_resv_resp(const char *body, hdns_list_head_t *resv_resps);
 
-static void parse_ip_array(hdns_cJSON_t *c_json_array, hdns_list_head_t *ips);
+static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips);
 
 static char *decode_html(hdns_pool_t *pool, char *src);
 
-static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, hdns_cJSON_t *c_json_body, const char *cache_key);
+static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, cJSON *c_json_body, const char *cache_key);
 
 static bool is_valid_ipv6(const char *ipv6);
 
 static bool is_valid_ipv6(const char *ipv6) {
-    struct in6_addr addr6;
-    return inet_pton(AF_INET6, ipv6, &addr6) == 1;
+    apr_sockaddr_t *sockaddr;
+    hdns_pool_new(pool);
+    apr_status_t rv = apr_sockaddr_info_get(&sockaddr, ipv6, APR_UNSPEC, 0, 0, pool);
+    bool is_ipv6 = (rv == APR_SUCCESS && sockaddr->family == APR_INET6);
+    hdns_pool_destroy(pool);
+    return is_ipv6;
 }
 
-static void parse_ip_array(hdns_cJSON_t *c_json_array, hdns_list_head_t *ips) {
-    size_t array_size = hdns_cJSON_GetArraySize(c_json_array);
+static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips) {
+    size_t array_size = cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
         return;
     }
     for (int i = 0; i < array_size; i++) {
-        hdns_cJSON_t *ip_json = hdns_cJSON_GetArrayItem(c_json_array, i);
+        cJSON *ip_json = cJSON_GetArrayItem(c_json_array, i);
         hdns_list_add(ips, ip_json->valuestring, hdns_to_list_clone_fn_t(apr_pstrdup));
     }
 }
@@ -73,37 +76,37 @@ static char *decode_html(hdns_pool_t *pool, char *src) {
 }
 
 static APR_INLINE void fill_ips_and_append_resps(hdns_resv_resp_t *resv_resp,
-                                                 hdns_cJSON_t *c_json_body,
+                                                 cJSON *c_json_body,
                                                  const char *ips_field,
                                                  hdns_list_head_t *resv_resps) {
-    hdns_cJSON_t *ips_json = hdns_cJSON_GetObjectItem(c_json_body, ips_field);
+    cJSON *ips_json = cJSON_GetObjectItem(c_json_body, ips_field);
     parse_ip_array(ips_json, resv_resp->ips);
     hdns_list_shuffle(resv_resp->ips);
     hdns_list_add(resv_resps, resv_resp, NULL);
 }
 
-static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, hdns_cJSON_t *c_json_body, const char *cache_key) {
+static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, cJSON *c_json_body, const char *cache_key) {
     if (NULL == c_json_body) {
         return;
     }
     hdns_resv_resp_t *resv_resp = hdns_resv_resp_create_empty(resv_resps->pool, NULL, HDNS_RR_TYPE_A);
-    hdns_cJSON_t *host_json = hdns_cJSON_GetObjectItem(c_json_body, "host");
+    cJSON *host_json = cJSON_GetObjectItem(c_json_body, "host");
     if (NULL != host_json) {
         resv_resp->host = apr_pstrdup(resv_resp->pool, host_json->valuestring);
     }
-    hdns_cJSON_t *client_ip_json = hdns_cJSON_GetObjectItem(c_json_body, "client_ip");
+    cJSON *client_ip_json = cJSON_GetObjectItem(c_json_body, "client_ip");
     if (NULL != client_ip_json) {
         resv_resp->client_ip = apr_pstrdup(resv_resp->pool, client_ip_json->valuestring);
     }
-    hdns_cJSON_t *ttl_json = hdns_cJSON_GetObjectItem(c_json_body, "ttl");
+    cJSON *ttl_json = cJSON_GetObjectItem(c_json_body, "ttl");
     if (NULL != ttl_json) {
         resv_resp->ttl = ttl_json->valueint;
     }
-    hdns_cJSON_t *origin_ttl_json = hdns_cJSON_GetObjectItem(c_json_body, "origin_ttl");
+    cJSON *origin_ttl_json = cJSON_GetObjectItem(c_json_body, "origin_ttl");
     if (NULL != origin_ttl_json) {
         resv_resp->origin_ttl = origin_ttl_json->valueint;
     }
-    hdns_cJSON_t *extra_json = hdns_cJSON_GetObjectItem(c_json_body, "extra");
+    cJSON *extra_json = cJSON_GetObjectItem(c_json_body, "extra");
     if (NULL != extra_json) {
         resv_resp->extra = decode_html(resv_resp->pool, extra_json->valuestring);
     }
@@ -114,8 +117,8 @@ static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, hdns_cJSON_t
     }
     resv_resp->query_time = apr_time_now();
 
-    bool ips_exist = (hdns_cJSON_GetObjectItem(c_json_body, "ips") != NULL);
-    bool ipsv6_exist = (hdns_cJSON_GetObjectItem(c_json_body, "ipsv6") != NULL);
+    bool ips_exist = (cJSON_GetObjectItem(c_json_body, "ips") != NULL);
+    bool ipsv6_exist = (cJSON_GetObjectItem(c_json_body, "ipsv6") != NULL);
     if (ips_exist && ipsv6_exist) {
         hdns_resv_resp_t *another_resp = hdns_resv_resp_clone(resv_resps->pool, resv_resp);
         fill_ips_and_append_resps(resv_resp, c_json_body, "ips", resv_resps);
@@ -127,7 +130,7 @@ static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, hdns_cJSON_t
     if (ips_exist) {
         fill_ips_and_append_resps(resv_resp, c_json_body, "ips", resv_resps);
         resv_resp->type = HDNS_RR_TYPE_A;
-        hdns_cJSON_t *type_json = hdns_cJSON_GetObjectItem(c_json_body, "type");
+        cJSON *type_json = cJSON_GetObjectItem(c_json_body, "type");
         if (NULL != type_json) {
             resv_resp->type = type_json->valueint;
         }
@@ -145,13 +148,13 @@ static int parse_single_resv_resp(const char *body, hdns_list_head_t *resv_resps
         hdns_log_info("parse single resolve failed, body is empty");
         return HDNS_ERROR;
     }
-    hdns_cJSON_t *c_json_body = hdns_cJSON_Parse(body);
+    cJSON *c_json_body = cJSON_Parse(body);
     if (NULL == c_json_body) {
         hdns_log_info("parse single resolve failed, body may be not json");
         return HDNS_ERROR;
     }
     parse_resv_resp_from_json(resv_resps, c_json_body, cache_key);
-    hdns_cJSON_Delete(c_json_body);
+    cJSON_Delete(c_json_body);
     return HDNS_OK;
 }
 
@@ -160,22 +163,22 @@ static int parse_multi_resv_resp(const char *body, hdns_list_head_t *resv_resps)
         hdns_log_info("parse multi resolve failed, body is empty");
         return HDNS_ERROR;
     }
-    hdns_cJSON_t *c_json_body = hdns_cJSON_Parse(body);
+    cJSON *c_json_body = cJSON_Parse(body);
     if (NULL == c_json_body) {
         hdns_log_info("parse multi resolve failed, body may be not json");
         return HDNS_ERROR;
     }
-    hdns_cJSON_t *dns_json = hdns_cJSON_GetObjectItem(c_json_body, "dns");
+    cJSON *dns_json = cJSON_GetObjectItem(c_json_body, "dns");
     if (NULL != dns_json) {
-        int dns_size = hdns_cJSON_GetArraySize(dns_json);
+        int dns_size = cJSON_GetArraySize(dns_json);
         for (int i = 0; i < dns_size; i++) {
-            hdns_cJSON_t *single_resp_json = hdns_cJSON_GetArrayItem(dns_json, i);
+            cJSON *single_resp_json = cJSON_GetArrayItem(dns_json, i);
             parse_resv_resp_from_json(resv_resps, single_resp_json, NULL);
         }
     } else {
         hdns_log_info("parse multi resolve failed, body is %s", body);
     }
-    hdns_cJSON_Delete(c_json_body);
+    cJSON_Delete(c_json_body);
     return HDNS_OK;
 }
 

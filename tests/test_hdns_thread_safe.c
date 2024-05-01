@@ -57,11 +57,13 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_with_cache_thread(apr_thread_t *th
                                                                &results);
 
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
 
     bool hit_cache = false;
@@ -97,13 +99,14 @@ APR_THREAD_FUNC hdns_get_result_for_host_sync_without_cache_thread(apr_thread_t 
                                                                   NULL,
                                                                   &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -135,8 +138,8 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_with_cache_thread(apr_thread_t 
     hdns_list_head_t *results = NULL;
 
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "emas.console.aliyun.com";
+    char *host2 = "emasha.aliyun.com";
 
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
@@ -147,13 +150,14 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_with_cache_thread(apr_thread_t 
                                                                  NULL,
                                                                  &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = false;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -183,8 +187,8 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_without_cache_thread(apr_thread
     hdns_list_head_t *results = NULL;
 
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "adash-emas.cn-hangzhou.aliyuncs.com";
+    char *host2 = "emas-tlog.aliyun.com";
 
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
@@ -195,13 +199,14 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_sync_without_cache_thread(apr_thread
                                                                     NULL,
                                                                     &results);
     size_t ips_size = 0;
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resv_resp = cursor->data;
-        char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
-        hdns_log_debug("resp: %s", resp_str);
-        ips_size += hdns_list_size(resv_resp->ips);
+    if (hdns_status_is_ok(&s)) {
+        hdns_list_for_each_entry_safe(cursor, results) {
+            hdns_resv_resp_t *resv_resp = cursor->data;
+            char *resp_str = hdns_resv_resp_to_str(results->pool, resv_resp);
+            hdns_log_debug("resp: %s", resp_str);
+            ips_size += hdns_list_size(resv_resp->ips);
+        }
     }
-
     bool hit_cache = true;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host1, HDNS_RR_TYPE_A);
     if (resp != NULL) {
@@ -273,7 +278,7 @@ static void *
 APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
 
-    char *host = "www.aliyun.com";
+    char *host = "cpsnext.console.aliyun.com";
 
     bool success = false;
     hdns_get_result_for_host_async_with_cache(param->client,
@@ -306,7 +311,7 @@ static void *
 APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t *thread, void *data) {
     hdns_test_task_param_t *param = data;
 
-    char *host = "www.taobao.com";
+    char *host = "cloudpush.aliyuncs.com";
     bool sucess = false;
     hdns_get_result_for_host_async_without_cache(param->client,
                                                  "www.taobao.com",
@@ -345,8 +350,8 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_with_cache_thread(apr_thread_t
     hdns_test_task_param_t *param = data;
 
     hdns_list_head_t *hosts = hdns_list_create();
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "httpdns.console.aliyun.com";
+    char *host2 = "mhub.console.aliyun.com";
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
@@ -388,8 +393,8 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_without_cache_thread(apr_threa
 
     hdns_list_head_t *hosts = hdns_list_create();
 
-    char *host1 = "www.taobao.com";
-    char *host2 = "www.aliyun.com";
+    char *host1 = "mp.console.aliyun.com";
+    char *host2 = "mpserverless.console.aliyun.com";
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
@@ -433,7 +438,7 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     hdns_client_t *client = hdns_client_create("139450", NULL);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);
-    char *pre_resolve_host = "www.taobao.com";
+    char *pre_resolve_host = "g.alicdn.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
     hdns_client_add_ip_probe_item(client, pre_resolve_host, 443);
     hdns_client_start(client);
@@ -456,20 +461,20 @@ void test_hdns_api_multi_threads(CuTest *tc) {
             hdns_get_result_for_host_async_with_cache_thread,
             hdns_get_result_for_host_async_without_cache_thread,
             hdns_get_results_for_hosts_async_with_cache_thread,
-            hdns_get_results_for_hosts_async_without_cache_thread,
+            hdns_get_results_for_hosts_async_without_cache_thread
     };
 
     char *msgs[10] = {
-            "自定义解析，同步接口，测试失败",
-            "单域名、用缓存、同步接口，测试失败",
-            "单域名、不用缓存、同步接口，测试失败",
-            "多域名、不用缓存、同步接口，测试失败",
-            "多域名、不用缓存、同步接口，测试失败",
-            "自定义解析、异步接口，测试失败",
-            "单域名、用缓存、异步接口，测试失败",
-            "单域名、不用缓存、异步接口，测试失败",
-            "多域名、不用缓存、异步接口，测试失败",
-            "多域名、不用缓存、异步接口，测试失败",
+            "hdns_get_result_for_host_sync_with_custom_request_thread failed",
+            "hdns_get_result_for_host_sync_with_cache_thread failed",
+            "hdns_get_result_for_host_sync_without_cache_thread failed",
+            "hdns_get_results_for_hosts_sync_with_cache_thread failed",
+            "hdns_get_results_for_hosts_sync_without_cache_thread failed",
+            "hdns_get_result_for_host_async_with_custom_request_thread failed",
+            "hdns_get_result_for_host_async_with_cache_thread failed",
+            "hdns_get_result_for_host_async_without_cache_thread failed",
+            "hdns_get_results_for_hosts_async_with_cache_thread failed",
+            "hdns_get_results_for_hosts_async_without_cache_thread failed"
     };
 
     for (int i = 0; i < arr_size; i++) {

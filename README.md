@@ -79,6 +79,7 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 ```shell
 sudo  apt update
 sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
 ```
 
 - Aliyun/CentOS Stream/Fedora:
@@ -86,6 +87,7 @@ sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 ```shell
 sudo yum check-update
 sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
 ```
 
 - OpenSUSE:
@@ -93,6 +95,7 @@ sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-deve
 ```shell
 sudo zypper refresh
 sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
 ```
 
 - macOS

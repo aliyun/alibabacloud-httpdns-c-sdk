@@ -77,19 +77,22 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 - Ubuntu/Debian:
 
 ```shell
-sudo apt install libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
+sudo  apt update
+sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
 ```
 
 - Aliyun/CentOS Stream/Fedora:
 
 ```shell
-sudo yum install openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
+sudo yum check-update
+sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
 ```
 
 - OpenSUSE:
 
 ```shell
-sudo zypper install libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
+sudo zypper refresh
+sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
 ```
 
 - macOS

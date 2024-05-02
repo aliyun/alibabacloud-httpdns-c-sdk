@@ -314,7 +314,7 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t
     char *host = "cloudpush.aliyuncs.com";
     bool sucess = false;
     hdns_get_result_for_host_async_without_cache(param->client,
-                                                 "www.taobao.com",
+                                                 host,
                                                  HDNS_QUERY_AUTO,
                                                  NULL,
                                                  hdns_resv_done_callback_func_in_multi_thread_safe,

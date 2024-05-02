@@ -168,7 +168,7 @@ aux_source_directory(src SRC_LIST)
 ## 静态库安装
 add_library(${CMAKE_PROJECT_NAME}_static STATIC ${SRC_LIST})
 target_link_libraries(${CMAKE_PROJECT_NAME}_static PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if (CMAKE_HOST_LINUX)
     target_link_libraries(${CMAKE_PROJECT_NAME}_static PRIVATE dl)
 endif ()
 INSTALL(TARGETS ${CMAKE_PROJECT_NAME}_static ARCHIVE DESTINATION lib)

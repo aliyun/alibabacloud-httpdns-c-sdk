@@ -14,7 +14,7 @@ set(TEST_BIN_NAME hdns_test)
 
 add_executable(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
 target_link_libraries(${TEST_BIN_NAME} PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+if (CMAKE_HOST_LINUX)
     target_link_libraries(${TEST_BIN_NAME} PRIVATE dl)
 endif ()
 

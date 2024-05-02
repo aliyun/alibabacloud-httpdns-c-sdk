@@ -125,7 +125,7 @@ cd build
 # VCPKG安装库时采用下面命令安装
 # cmake -DCMAKE_BUILD_TYPE=Release  -DVCPKG_ROOT=${vcpkg的安装路径}  ../ 
 cmake -DCMAKE_BUILD_TYPE=Release ../ 
-make httpdns_unite_test
+make hdns_unite_test
 sudo make install
 sudo ldconfig
 ```

@@ -252,12 +252,15 @@ APR_THREAD_FUNC  hdns_get_result_for_host_async_with_custom_request_thread(apr_t
     hdns_resv_req_append_sdns_param(req, "sdns-param1", "value1");
     hdns_resv_req_set_host(req, "httpdns.c.sdk.com");
 
-    bool sucess = false;
+    param->success = false;
     hdns_get_result_for_host_async_with_custom_request(param->client,
                                                        req,
                                                        hdns_resv_done_callback_func_in_multi_thread_safe,
-                                                       &sucess);
-    apr_sleep(2 * APR_USEC_PER_SEC);
+                                                       &param->success);
+    apr_time_t start = apr_time_now();
+    while (apr_time_sec(apr_time_now() - start) < 10 && !param->success) {
+        apr_sleep(1 * APR_USEC_PER_SEC);
+    }
 
 
     bool hit_cache = false;
@@ -268,7 +271,7 @@ APR_THREAD_FUNC  hdns_get_result_for_host_async_with_custom_request_thread(apr_t
         hit_cache = true;
     }
 
-    param->success = sucess && hit_cache;
+    param->success = param->success && hit_cache;
 
     return NULL;
 }
@@ -280,15 +283,17 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *t
 
     char *host = "cpsnext.console.aliyun.com";
 
-    bool success = false;
+    param->success = false;
     hdns_get_result_for_host_async_with_cache(param->client,
                                               host,
                                               HDNS_QUERY_AUTO,
                                               NULL,
                                               hdns_resv_done_callback_func_in_multi_thread_safe,
-                                              &success);
-    apr_sleep(2 * APR_USEC_PER_SEC);
-
+                                              &param->success);
+    apr_time_t start = apr_time_now();
+    while (apr_time_sec(apr_time_now() - start) < 10 && !param->success) {
+        apr_sleep(1 * APR_USEC_PER_SEC);
+    }
 
     bool hit_cache = false;
     hdns_resv_resp_t *resp = hdns_cache_table_get(param->client->cache, host, HDNS_RR_TYPE_A);
@@ -304,7 +309,7 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *t
         hit_cache = true;
     }
 
-    param->success = success && hit_cache;
+    param->success = param->success && hit_cache;
 }
 
 static void *
@@ -312,15 +317,18 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t
     hdns_test_task_param_t *param = data;
 
     char *host = "cloudpush.aliyuncs.com";
-    bool sucess = false;
+    param->success = false;
     hdns_get_result_for_host_async_without_cache(param->client,
                                                  host,
                                                  HDNS_QUERY_AUTO,
                                                  NULL,
                                                  hdns_resv_done_callback_func_in_multi_thread_safe,
-                                                 &sucess);
+                                                 &param->success);
 
-    apr_sleep(2 * APR_USEC_PER_SEC);
+    apr_time_t start = apr_time_now();
+    while (apr_time_sec(apr_time_now() - start) < 10 && !param->success) {
+        apr_sleep(1 * APR_USEC_PER_SEC);
+    }
 
 
     bool hit_cache = true;
@@ -341,7 +349,7 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_without_cache_thread(apr_thread_t
         hdns_log_debug("AAAA Resource Record cache miss.");
     }
 
-    param->success = sucess && !hit_cache;
+    param->success = param->success && !hit_cache;
     return NULL;
 }
 
@@ -355,17 +363,20 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_with_cache_thread(apr_thread_t
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
-    bool success = false;
+    param->success = false;
 
     hdns_get_results_for_hosts_async_with_cache(param->client,
                                                 hosts,
                                                 HDNS_QUERY_AUTO,
                                                 NULL,
                                                 hdns_resv_done_callback_func_in_multi_thread_safe,
-                                                &success);
+                                                &param->success);
 
 
-    apr_sleep(2 * APR_USEC_PER_SEC);
+    apr_time_t start = apr_time_now();
+    while (apr_time_sec(apr_time_now() - start) < 10 && !param->success) {
+        apr_sleep(1 * APR_USEC_PER_SEC);
+    }
 
 
     bool hit_cache = false;
@@ -382,7 +393,7 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_with_cache_thread(apr_thread_t
         hit_cache = true;
     }
 
-    param->success = success && hit_cache;
+    param->success = param->success && hit_cache;
     return NULL;
 }
 
@@ -398,15 +409,18 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_without_cache_thread(apr_threa
     hdns_list_add_str(hosts, host1);
     hdns_list_add_str(hosts, host2);
 
-    bool success = false;
+    param->success = false;
 
     hdns_get_results_for_hosts_async_without_cache(param->client,
                                                    hosts,
                                                    HDNS_QUERY_AUTO,
                                                    NULL,
                                                    hdns_resv_done_callback_func_in_multi_thread_safe,
-                                                   &success);
-    apr_sleep(2 * APR_USEC_PER_SEC);
+                                                   &param->success);
+    apr_time_t start = apr_time_now();
+    while (apr_time_sec(apr_time_now() - start) < 10 && !param->success) {
+        apr_sleep(1 * APR_USEC_PER_SEC);
+    }
 
 
     bool hit_cache = true;
@@ -426,7 +440,7 @@ APR_THREAD_FUNC  hdns_get_results_for_hosts_async_without_cache_thread(apr_threa
     } else {
         hit_cache = false;
     }
-    param->success = success && !hit_cache;
+    param->success = param->success && !hit_cache;
     return NULL;
 }
 
@@ -484,12 +498,20 @@ void test_hdns_api_multi_threads(CuTest *tc) {
         apr_thread_pool_push(thread_pool, tasks[i], task_params[i], 0, client);
     }
 
-    apr_sleep(5 * APR_USEC_PER_SEC);
+    apr_time_t start = apr_time_now();
+    bool success = false;
+    while (!success && apr_time_sec(apr_time_now() - start) < 15) {
+        for (int i = 0; i < arr_size; i++) {
+            success = success && task_params[i]->success;
+        }
+    }
     char msg[255] = "";
-    for (int i = 0; i < arr_size; i++) {
-        if (!task_params[i]->success) {
-            strcpy(msg, msgs[i]);
-            break;
+    if (!success) {
+        for (int i = 0; i < arr_size; i++) {
+            if (!task_params[i]->success) {
+                strcpy(msg, msgs[i]);
+                break;
+            }
         }
     }
     apr_thread_pool_tasks_cancel(thread_pool, client);

@@ -1,7 +1,7 @@
 project(alicloud_httpdns_c_sdk_test LANGUAGES C)
 
 ##################################### Unit test Application ##########################################
-include_directories(${CURL_INCLUDE_DIR})
+include_directories(${CURL_INCLUDE_DIRS})
 include_directories(${APU_INCLUDE_DIR})
 include_directories(${APR_INCLUDE_DIR})
 include_directories(${CJSON_INCLUDE_DIR})

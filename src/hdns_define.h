@@ -72,7 +72,7 @@ typedef enum {
 #define  HDNS_QUERY_TYPE_AAAA     "6"
 #define  HDNS_QUERY_TYPE_BOTH   "4,6"
 
-static char *hdns_query_type_to_string(hdns_query_type_t query_type_e) {
+static const char *hdns_query_type_to_string(hdns_query_type_t query_type_e) {
     switch (query_type_e) {
         case HDNS_QUERY_IPV4:
             return HDNS_QUERY_TYPE_A;

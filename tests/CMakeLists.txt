@@ -14,6 +14,9 @@ set(TEST_BIN_NAME hdns_test)
 
 add_executable(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
 target_link_libraries(${TEST_BIN_NAME} PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
+if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+    target_link_libraries(${TEST_BIN_NAME} PRIVATE dl)
+endif ()
 
 ## 这里没有使用原生的CTest，而是使用CuTest框架
 add_custom_target(httpdns_unite_test

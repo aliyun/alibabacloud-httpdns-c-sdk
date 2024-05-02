@@ -493,6 +493,7 @@ void test_hdns_api_multi_threads(CuTest *tc) {
         }
     }
     apr_thread_pool_tasks_cancel(thread_pool, client);
+    apr_thread_pool_destroy(thread_pool);
     hdns_pool_destroy(pool);
     hdns_client_cleanup(client);
     hdns_sdk_cleanup();

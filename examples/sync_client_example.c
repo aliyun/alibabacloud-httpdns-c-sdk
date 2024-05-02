@@ -14,7 +14,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
     hdns_to_void_p(buffer);
     hdns_to_void_p(write_data);
     size_t real_size = size * nmemb;
-    printf("get %dB data\n", size * nmemb);
+    printf("get %zuB data\n", size * nmemb);
     return real_size;
 }
 
@@ -68,7 +68,7 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
             printf("resolve success, ips [ ");
             hdns_resv_resp_t *resp = cursor->data;
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                printf("%s", ip_cursor->data);
+                printf("%s", (char *) ip_cursor->data);
                 if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
                     printf("%s", ",");
                 }
@@ -121,7 +121,7 @@ int main(int argc, char *argv[]) {
         hdns_list_for_each_entry_safe(cursor, results) {
             hdns_resv_resp_t *resp = cursor->data;
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                printf("%s", ip_cursor->data);
+                printf("%s", (char *) ip_cursor->data);
                 if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
                     printf("%s", ",");
                 }

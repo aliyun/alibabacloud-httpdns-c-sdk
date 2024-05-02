@@ -67,7 +67,7 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
             printf("resolve success, ips [ ");
             hdns_resv_resp_t *resp = cursor->data;
             hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                printf("%s", ip_cursor->data);
+                printf("%s", (char*)ip_cursor->data);
                 if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
                     printf("%s", ",");
                 }

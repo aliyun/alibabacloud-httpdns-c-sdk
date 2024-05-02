@@ -1,25 +1,25 @@
-project(alicloud_httpdns_c_sdk_test LANGUAGES C)
+PROJECT(alicloud_httpdns_c_sdk_test LANGUAGES C)
 
 ##################################### Unit test Application ##########################################
-include_directories(${CURL_INCLUDE_DIR})
-include_directories(${APU_INCLUDE_DIR})
-include_directories(${APR_INCLUDE_DIR})
-include_directories(${CJSON_INCLUDE_DIR})
-include_directories(${OPENSSL_INCLUDE_DIR})
-include_directories("${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/tests")
-aux_source_directory(${CMAKE_SOURCE_DIR}/tests TEST_SRC_LIST)
-aux_source_directory(${CMAKE_SOURCE_DIR}/src SDK_SRC_LIST)
+INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${APU_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${APR_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${CJSON_INCLUDE_DIR})
+INCLUDE_DIRECTORIES(${OPENSSL_INCLUDE_DIR})
+INCLUDE_DIRECTORIES("${CMAKE_SOURCE_DIR}/src" "${CMAKE_SOURCE_DIR}/tests")
+AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/tests TEST_SRC_LIST)
+AUX_SOURCE_DIRECTORY(${CMAKE_SOURCE_DIR}/src SDK_SRC_LIST)
 
-set(TEST_BIN_NAME hdns_test)
+SET(TEST_BIN_NAME hdns_test)
 
-add_executable(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
-target_link_libraries(${TEST_BIN_NAME} PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
-if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-    target_link_libraries(${TEST_BIN_NAME} PRIVATE dl)
-endif ()
+ADD_EXECUTABLE(${TEST_BIN_NAME} ${TEST_SRC_LIST} ${SDK_SRC_LIST})
+TARGET_LINK_LIBRARIES(${TEST_BIN_NAME} PRIVATE ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
+IF (CMAKE_HOST_UNIX AND NOT CMAKE_HOST_APPLE)
+    TARGET_LINK_LIBRARIES(${TEST_BIN_NAME} PRIVATE dl)
+ENDIF ()
 
 ## 这里没有使用原生的CTest，而是使用CuTest框架
-add_custom_target(httpdns_unite_test
+ADD_CUSTOM_TARGET(hdns_unite_test
         COMMAND ${TEST_BIN_NAME}
         DEPENDS ${TEST_BIN_NAME}
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}

@@ -12,7 +12,7 @@ function(_TARGET_EXAMPLE_LIBRARIES EXAMPLE_BIN_NAME SOURCE_FILES)
     add_executable(${EXAMPLE_BIN_NAME} ${SOURCE_FILES})
     target_link_libraries(${EXAMPLE_BIN_NAME} PRIVATE ${CMAKE_PROJECT_NAME}_static ${OPENSSL_LIBRARIES} ${CURL_LIBRARIES} ${CJSON_LIBRARIES} ${APU_LIBRARIES} ${APR_LIBRARIES})
     if (CMAKE_HOST_UNIX)
-        target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE dl)
+        target_link_libraries(${EXAMPLE_BIN_NAME} PRIVATE dl)
     endif ()
 endfunction()
 

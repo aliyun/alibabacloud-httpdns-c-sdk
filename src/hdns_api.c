@@ -70,7 +70,6 @@ int hdns_sdk_init() {
 }
 
 
-
 hdns_client_t *hdns_client_create(const char *account_id, const char *secret_key) {
     hdns_config_t *config = hdns_config_create();
     config->account_id = apr_pstrdup(config->pool, account_id);
@@ -98,7 +97,8 @@ void hdns_client_add_pre_resolve_host(hdns_client_t *client, const char *host) {
 
 hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (NULL == client) {
-        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.", client->config->session_id);
+        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",
+                                 client->config->session_id);
     }
     // 异步拉取解析列表
     hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
@@ -488,7 +488,8 @@ hdns_status_t hdns_get_result_for_host_async_with_custom_request(hdns_client_t *
                                                client);
     if (status != APR_SUCCESS) {
         hdns_pool_destroy(pool);
-        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed", client->config->session_id);
+        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed",
+                                 client->config->session_id);
     }
     return hdns_status_ok(client->config->session_id);
 }
@@ -548,7 +549,8 @@ hdns_status_t hdns_get_result_for_host_async_with_cache(hdns_client_t *client,
     apr_status_t status = apr_thread_pool_push(g_hdns_api_thread_pool, hdns_single_resv_task, task_param, 0, client);
     if (status != APR_SUCCESS) {
         hdns_pool_destroy(pool);
-        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed", client->config->session_id);
+        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed",
+                                 client->config->session_id);
     }
     return hdns_status_ok(client->config->session_id);
 }
@@ -579,7 +581,8 @@ hdns_status_t hdns_get_result_for_host_async_without_cache(hdns_client_t *client
     apr_status_t status = apr_thread_pool_push(g_hdns_api_thread_pool, hdns_single_resv_task, task_param, 0, client);
     if (status != APR_SUCCESS) {
         hdns_pool_destroy(pool);
-        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed", client->config->session_id);
+        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed",
+                                 client->config->session_id);
     }
     return hdns_status_ok(client->config->session_id);
 }
@@ -648,7 +651,8 @@ hdns_status_t hdns_get_results_for_hosts_async_with_cache(hdns_client_t *client,
 
     if (status != APR_SUCCESS) {
         hdns_pool_destroy(pool);
-        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed", client->config->session_id);
+        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed",
+                                 client->config->session_id);
     }
     return hdns_status_ok(client->config->session_id);
 }
@@ -688,7 +692,8 @@ hdns_status_t hdns_get_results_for_hosts_async_without_cache(hdns_client_t *clie
     apr_status_t status = apr_thread_pool_push(g_hdns_api_thread_pool, hdns_batch_resv_task, task_param, 0, client);
     if (status != APR_SUCCESS) {
         hdns_pool_destroy(pool);
-        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed", client->config->session_id);
+        return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "Submit task failed",
+                                 client->config->session_id);
     }
     return hdns_status_ok(client->config->session_id);
 }
@@ -774,12 +779,51 @@ static int hdns_select_ip(hdns_list_head_t *results, hdns_query_type_t query_typ
     return HDNS_ERROR;
 }
 
+
 int hdns_select_ip_randomly(hdns_list_head_t *results, hdns_query_type_t query_type, char *ip) {
     return hdns_select_ip(results, query_type, ip, true);
 }
 
 int hdns_select_first_ip(hdns_list_head_t *results, hdns_query_type_t query_type, char *ip) {
     return hdns_select_ip(results, query_type, ip, false);
+}
+
+
+int hdns_get_sdns_extra(hdns_list_head_t *results, hdns_query_type_t query_type, char *extra) {
+    if (hdns_list_is_empty(results)) {
+        return HDNS_ERROR;
+    }
+    hdns_net_type_t net_type;
+    switch (query_type) {
+        case HDNS_QUERY_AUTO: {
+            net_type = hdns_net_get_type(g_hdns_net_detector);
+            if (net_type == HDNS_NET_UNKNOWN) {
+                net_type = HDNS_IPV4_ONLY;
+            }
+            break;
+        }
+        case HDNS_QUERY_BOTH: {
+            net_type = HDNS_DUAL_STACK;
+            break;
+        }
+        case HDNS_QUERY_IPV6: {
+            net_type = HDNS_IPV6_ONLY;
+            break;
+        }
+        default: {
+            net_type = HDNS_IPV4_ONLY;
+        }
+    }
+    hdns_list_for_each_entry_safe(cursor, results) {
+        hdns_resv_resp_t *resp = cursor->data;
+        if (is_net_match(net_type, resp->type)) {
+            if (hdns_str_is_not_blank(resp->extra)) {
+                strcpy(extra, resp->extra);
+                return HDNS_OK;
+            }
+        }
+    }
+    return HDNS_ERROR;
 }
 
 void hdns_client_cleanup(hdns_client_t *client) {

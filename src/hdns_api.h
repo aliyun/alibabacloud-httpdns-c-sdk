@@ -518,6 +518,22 @@ int hdns_select_ip_randomly(hdns_list_head_t *results, hdns_query_type_t query_t
  */
 int hdns_select_first_ip(hdns_list_head_t *results, hdns_query_type_t query_type, char *ip);
 
+
+/*
+ *
+ * @brief 返回软件自定义解析中的extra字段
+ *
+ * @param[in]      results       已获取的解析结果
+ * @param[in]      query_type    请求类型
+ *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
+ *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
+ * @param[out]     extra      写入extra的buffer
+ * @return  操作状态，0表示成功，否则表示失败
+ */
+int hdns_get_sdns_extra(hdns_list_head_t *results, hdns_query_type_t query_type, char *extra);
+
 /*
  *
  * @brief 设置SDK日志文件路径

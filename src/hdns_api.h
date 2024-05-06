@@ -374,7 +374,7 @@ hdns_status_t hdns_get_results_for_hosts_sync_without_cache(hdns_client_t *clien
                                                             hdns_list_head_t **results);
 
 /*
- * @brief   先进行自定义异步步解析，，最后触发函数回调
+ * @brief   先进行自定义异步步解析，最后触发函数回调
  * @param[in]   client          客户端实例
  * @param[in]   req             自定义解析请求实例
  * @param[in]   cb              解析结束后的回调函数

@@ -169,7 +169,7 @@ void hdns_client_add_custom_ttl_item(hdns_client_t *client, const char *host, co
  * @param[out]   session_id    session id
  * @return 0 获取成功，否则失败
  * @note:
- *    - session id 未长度12的字符串，请确保接收的buffer大于12
+ *    - session id 为长度12的字符串，请确保接收的buffer大于12
  */
 int hdns_client_get_session_id(hdns_client_t *client, char *session_id);
 

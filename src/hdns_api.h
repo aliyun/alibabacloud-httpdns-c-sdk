@@ -169,7 +169,7 @@ void hdns_client_add_custom_ttl_item(hdns_client_t *client, const char *host, co
  * @param[out]   session_id    session id
  * @return 0 获取成功，否则失败
  * @note:
- *    - session id 未长度12的字符串，请确保接收的buffer大于12
+ *    - session id 为长度12的字符串，请确保接收的buffer大于12
  */
 int hdns_client_get_session_id(hdns_client_t *client, char *session_id);
 
@@ -374,7 +374,7 @@ hdns_status_t hdns_get_results_for_hosts_sync_without_cache(hdns_client_t *clien
                                                             hdns_list_head_t **results);
 
 /*
- * @brief   先进行自定义异步步解析，，最后触发函数回调
+ * @brief   先进行自定义异步步解析，最后触发函数回调
  * @param[in]   client          客户端实例
  * @param[in]   req             自定义解析请求实例
  * @param[in]   cb              解析结束后的回调函数
@@ -517,6 +517,22 @@ int hdns_select_ip_randomly(hdns_list_head_t *results, hdns_query_type_t query_t
  * @return  操作状态，0表示成功，否则表示失败
  */
 int hdns_select_first_ip(hdns_list_head_t *results, hdns_query_type_t query_type, char *ip);
+
+
+/*
+ *
+ * @brief 返回软件自定义解析中的extra字段
+ *
+ * @param[in]      results       已获取的解析结果
+ * @param[in]      query_type    请求类型
+ *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
+ *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
+ * @param[out]     extra      写入extra的buffer
+ * @return  操作状态，0表示成功，否则表示失败
+ */
+int hdns_get_sdns_extra(hdns_list_head_t *results, hdns_query_type_t query_type, char *extra);
 
 /*
  *

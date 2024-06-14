@@ -60,8 +60,8 @@ brew install git gcc cmake
 
 ### 依赖库安装
 
-SDK使用curl库(版本7.33.0及以上)进行网络操作，使用openssl库(版本1.1.0及以上)
-进行HTTPS的SSL层校验，使用apr/apr-util(版本1.5.2及以上)库解决内存管理以及跨平台问题，使用cjson库解析服务端响应报文，
+SDK使用curl库（版本7.33.0及以上）进行网络操作，使用openssl库（版本1.1.0及以上）
+进行HTTPS的SSL层校验，使用apr/apr-util（版本1.5.2及以上）库解决内存管理以及跨平台问题，使用cjson库解析服务端响应报文，
 SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 本项目支持[VCPKG](https://github.com/microsoft/vcpkg)安装和手动安装两种方式安装这些C/C++库。
 
@@ -79,7 +79,7 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 ```shell
 sudo  apt update
 sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
 ```
 
 - Aliyun/CentOS Stream/Fedora:
@@ -87,7 +87,7 @@ git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && 
 ```shell
 sudo yum check-update
 sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
 ```
 
 - OpenSUSE:
@@ -95,7 +95,7 @@ git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && 
 ```shell
 sudo zypper refresh
 sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
 ```
 
 - macOS
@@ -128,8 +128,7 @@ git clone https://github.com/aliyun/alibabacloud-httpdns-c-sdk.git
 cd alibabacloud-httpdns-c-sdk
 mkdir build
 cd build
-# VCPKG安装库时采用下面命令安装
-# cmake -DCMAKE_BUILD_TYPE=Release  -DVCPKG_ROOT=${vcpkg的安装路径}  ../ 
+# 如果是通过VCPKG安装的依赖库，则构建SDK时需要添加Cmake参数 -DVCPKG_ROOT=${vcpkg的安装路径}
 cmake -DCMAKE_BUILD_TYPE=Release ../ 
 make hdns_unite_test
 sudo make install

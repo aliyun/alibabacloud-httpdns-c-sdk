@@ -30,5 +30,7 @@ void add_hdns_api_tests(CuSuite *suite);
 
 void add_hdns_thread_safe_tests(CuSuite *suite);
 
+void add_hdns_file_tests(CuSuite *suite);
+
 
 #endif //HTTPDNS_C_SDK_TEST_SUIT_LIST_H

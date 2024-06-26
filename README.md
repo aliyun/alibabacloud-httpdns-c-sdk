@@ -16,7 +16,7 @@ SDK，
 
 ## 版本
 
-- 当前版本：2.1.0
+- 当前版本：2.2.0
 
 ## 安装方法
 
@@ -60,8 +60,7 @@ brew install git gcc cmake
 
 ### 依赖库安装
 
-SDK使用curl库（版本7.33.0及以上）进行网络操作，使用openssl库（版本1.1.0及以上）
-进行HTTPS的SSL层校验，使用apr/apr-util（版本1.5.2及以上）库解决内存管理以及跨平台问题，使用cjson库解析服务端响应报文，
+SDK使用curl库（版本7.33.0及以上）进行网络操作，使用apr/apr-util（版本1.5.2及以上）库解决内存管理以及跨平台问题，使用cjson库解析服务端响应报文，
 SDK并没有带上这几个外部库，您需要确认这些库已经安装，并且将它们的头文件目录和库文件目录都加入到了项目中。
 本项目支持[VCPKG](https://github.com/microsoft/vcpkg)安装和手动安装两种方式安装这些C/C++库。
 
@@ -69,8 +68,8 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 
 - [安装VCPG](https://github.com/microsoft/vcpkg)
 - 安装SDK依赖的库
-    - macOS/Linux: ./vcpkg install apr apr-util openssl curl[openssl,http2]  cjson
-    - Windows: .\vcpkg.exe install apr apr-util openssl curl[openssl,http2]  cjson
+    - macOS/Linux: ./vcpkg install apr apr-util curl[http2]  cjson
+    - Windows: .\vcpkg.exe install apr apr-util curl[http2]  cjson
 
 #### 手动安装
 
@@ -78,45 +77,41 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 
 ```shell
 sudo  apt update
-sudo apt install -y libssl-dev libcurl4-openssl-dev libapr1-dev libaprutil1-dev
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
+sudo apt install -y libcurl4-openssl-dev libapr1-dev libaprutil1-dev libcjson-dev
 ```
 
 - Aliyun/CentOS Stream/Fedora:
 
 ```shell
 sudo yum check-update
-sudo yum install -y openssl-devel libcurl-devel apr-util apr-devel apr-util-devel
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
+sudo yum install -y libcurl-devel apr-devel apr-util-devel cjson-devel
 ```
 
 - OpenSUSE:
 
 ```shell
 sudo zypper refresh
-sudo zypper install -y libopenssl-devel libcurl-devel libapr1-devel libapr-util1-devel 
-git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
+sudo zypper install -y libcurl-devel libapr1-devel libapr-util1-devel cJSON-devel
 ```
 
 - macOS
 
 ```shell
-brew install  curl openssl apr apr-util cjson
+brew install curl apr apr-util cjson
 ```
 
 - Windows(源码安装)
 
 [下载安装cjson](https://github.com/DaveGamble/cJSON)、
-[下载安装openssl](http://slproweb.com/products/Win32OpenSSL.html)、
 [下载](http://curl.haxx.se/download.html)[安装curl](http://curl.haxx.se/docs/install.html)、
 [下载安装apr/apr-util](https://apr.apache.org/download.cgi)
 
 
 <span style="color:red;">
-注意：libcurl必须是依赖OpenSSL完成的SSL层通信，否则可能会导致程序异常，可以通过以下命令行检验当前libcurl是否使用了OpenSSL：</span>
+注意：如果cJSON开发包不能通过Unix-like平台包管理器自动安装，可以通过以下命令手动安装：</span>
 
 ```shell
-curl  --version | grep -i -o  OpenSSL
+git clone https://github.com/DaveGamble/cJSON.git && cd cJSON && mkdir build && cd build && cmake  ../ && sudo make install && cd ../../ && rm -rf cJSON
 ```
 
 ### SDK安装

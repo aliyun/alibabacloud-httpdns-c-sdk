@@ -509,7 +509,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
 
         inet_ntop(ptr->ai_family, addr, ip, sizeof(ip));
 
-        if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
+        if (hdns_is_valid_ipv6(ip) || hdns_is_valid_ipv4(ip)) {
             hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
             if (hdns_list_is_empty(change_detector->local_ips)) {
                 is_changed = true;

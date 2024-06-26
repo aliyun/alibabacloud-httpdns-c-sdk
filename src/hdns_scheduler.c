@@ -81,8 +81,8 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->ipv6_resolvers = hdns_list_new(NULL);
 
     apr_thread_mutex_lock(config->lock);
-    hdns_list_dup(scheduler->ipv4_resolvers, config->ipv4_boot_servers, hdns_to_list_clone_fn_t(apr_pstrdup));
-    hdns_list_dup(scheduler->ipv6_resolvers, config->ipv6_boot_servers, hdns_to_list_clone_fn_t(apr_pstrdup));
+    hdns_list_dup(scheduler->ipv4_resolvers, hdns_config_get_boot_servers(config, true),hdns_to_list_clone_fn_t(apr_pstrdup));
+    hdns_list_dup(scheduler->ipv6_resolvers, hdns_config_get_boot_servers(config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
     apr_thread_mutex_unlock(config->lock);
     scheduler->cur_ipv4_resolver_index = 0;
     scheduler->cur_ipv6_resolver_index = 0;
@@ -143,9 +143,9 @@ static hdns_list_head_t *get_boot_servers(hdns_scheduler_t *scheduler, hdns_pool
     apr_thread_mutex_lock(scheduler->config->lock);
     hdns_list_head_t *boot_servers = hdns_list_new(req_pool);
     if (HDNS_IPV6_ONLY == net_type) {
-        hdns_list_dup(boot_servers, config->ipv6_boot_servers, hdns_to_list_clone_fn_t(apr_pstrdup));
+        hdns_list_dup(boot_servers, hdns_config_get_boot_servers(config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
     } else {
-        hdns_list_dup(boot_servers, config->ipv4_boot_servers, hdns_to_list_clone_fn_t(apr_pstrdup));
+        hdns_list_dup(boot_servers, hdns_config_get_boot_servers(config, true), hdns_to_list_clone_fn_t(apr_pstrdup));
     }
     apr_thread_mutex_unlock(scheduler->config->lock);
     return boot_servers;

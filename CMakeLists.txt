@@ -63,8 +63,8 @@ IF (ADD_TEST_DEBUG_LOG)
     ADD_DEFINITIONS(-DTEST_DEBUG_LOG)
 ENDIF (ADD_TEST_DEBUG_LOG)
 
-# cn: china mainland, sg: singapore, hk: hong kong
-ADD_DEFINITIONS(-DHTTPDNS_REGION="cn")
+# cn: china mainland, sg: singapore, hk: hong kong, us: america, de: germany, global: nearby
+ADD_DEFINITIONS(-DHTTPDNS_REGION="global")
 
 ##################################### C语言标准 ##########################################
 # Follow ISO C99 standard

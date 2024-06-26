@@ -157,6 +157,12 @@ void hdns_client_set_region(hdns_client_t *client, const char *region) {
     apr_thread_mutex_unlock(client->config->lock);
 }
 
+void hdns_client_set_schedule_center_region(hdns_client_t *client, const char *region) {
+    apr_thread_mutex_lock(client->config->lock);
+    client->config->boot_server_region = apr_pstrdup(client->config->pool, region);
+    apr_thread_mutex_unlock(client->config->lock);
+}
+
 void hdns_client_enable_update_cache_after_net_change(hdns_client_t *client, bool enable) {
     if (enable) {
         hdns_net_add_chg_cb_task(client->net_detector,

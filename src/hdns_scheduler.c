@@ -6,6 +6,7 @@
 #include "hdns_log.h"
 #include "hdns_sign.h"
 #include "hdns_buf.h"
+#include "hdns_ip.h"
 #include "hdns_utils.h"
 
 #include "hdns_scheduler.h"
@@ -21,6 +22,8 @@ static void hdns_sched_do_parse_sched_resp(hdns_pool_t *req_pool,
                                            hdns_list_head_t *ipsv6);
 
 static char *generate_nonce(hdns_pool_t *pool);
+
+static void hdns_probe_resolvers(hdns_scheduler_t *scheduler, bool ipv4);
 
 
 static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips) {
@@ -81,8 +84,10 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->ipv6_resolvers = hdns_list_new(NULL);
 
     apr_thread_mutex_lock(config->lock);
-    hdns_list_dup(scheduler->ipv4_resolvers, hdns_config_get_boot_servers(config, true),hdns_to_list_clone_fn_t(apr_pstrdup));
-    hdns_list_dup(scheduler->ipv6_resolvers, hdns_config_get_boot_servers(config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
+    hdns_list_dup(scheduler->ipv4_resolvers,
+                  hdns_config_get_boot_servers(config, true), hdns_to_list_clone_fn_t(apr_pstrdup));
+    hdns_list_dup(scheduler->ipv6_resolvers,
+                  hdns_config_get_boot_servers(config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
     apr_thread_mutex_unlock(config->lock);
     scheduler->cur_ipv4_resolver_index = 0;
     scheduler->cur_ipv6_resolver_index = 0;
@@ -108,6 +113,7 @@ static void hdns_parse_sched_resp_body(hdns_pool_t *req_pool,
         scheduler->ipv4_resolvers = ipv4_resolvers;
         scheduler->cur_ipv4_resolver_index = 0;
         apr_thread_mutex_unlock(scheduler->lock);
+        hdns_probe_resolvers(scheduler, true);
     } else {
         char *response_body = hdns_buf_list_content(req_pool, body_bufs);
         hdns_log_info("ipv4 resolver list is empty, scheduler update failed, response body is %s", response_body);
@@ -119,6 +125,7 @@ static void hdns_parse_sched_resp_body(hdns_pool_t *req_pool,
         scheduler->ipv6_resolvers = ipv6_resolvers;
         scheduler->cur_ipv6_resolver_index = 0;
         apr_thread_mutex_unlock(scheduler->lock);
+        hdns_probe_resolvers(scheduler, false);
     } else {
         char *response_body = hdns_buf_list_content(req_pool, body_bufs);
         hdns_log_info("ipv6 resolver list is empty, scheduler update failed, response body is %s", response_body);
@@ -333,4 +340,54 @@ int hdns_scheduler_cleanup(hdns_scheduler_t *scheduler) {
         hdns_pool_destroy(scheduler->pool);
     }
     return HDNS_OK;
+}
+
+typedef struct {
+    hdns_pool_t *pool;
+    hdns_scheduler_t *scheduler;
+    bool ipv4;
+} hdns_net_speed_resolver_cb_fn_param_t;
+
+void hdns_net_speed_resolver_cb_fn(hdns_list_head_t *sorted_ips, void *user_params) {
+    hdns_net_speed_resolver_cb_fn_param_t *param = user_params;
+    hdns_scheduler_t *scheduler = param->scheduler;
+    hdns_list_head_t *resolvers = hdns_list_new(NULL);
+    hdns_list_for_each_entry_safe(sorted_cursor, sorted_ips) {
+        hdns_ip_t *sorted_ip = sorted_cursor->data;
+        hdns_list_add(resolvers, sorted_ip->ip, hdns_to_list_clone_fn_t(apr_pstrdup));
+    }
+    apr_thread_mutex_lock(param->scheduler->lock);
+    if (param->ipv4) {
+        hdns_list_free(scheduler->ipv4_resolvers);
+        scheduler->ipv4_resolvers = resolvers;
+        scheduler->cur_ipv4_resolver_index = 0;
+    } else {
+        hdns_list_free(scheduler->ipv6_resolvers);
+        scheduler->ipv6_resolvers = resolvers;
+        scheduler->cur_ipv6_resolver_index = 0;
+    }
+    apr_thread_mutex_unlock(scheduler->lock);
+    hdns_pool_destroy(param->pool);
+}
+
+static void hdns_probe_resolvers(hdns_scheduler_t *scheduler, bool ipv4) {
+    hdns_pool_new(pool);
+    hdns_list_head_t *resolvers = hdns_list_new(pool);
+    apr_thread_mutex_lock(scheduler->lock);
+    hdns_list_dup(resolvers,
+                  ipv4 ? scheduler->ipv4_resolvers : scheduler->ipv6_resolvers,
+                  hdns_to_list_clone_fn_t(apr_pstrdup));
+    apr_thread_mutex_unlock(scheduler->lock);
+
+    hdns_net_speed_resolver_cb_fn_param_t *param = hdns_palloc(pool, sizeof(hdns_net_speed_resolver_cb_fn_param_t));
+    param->pool = pool;
+    param->scheduler = scheduler;
+    param->ipv4 = ipv4;
+    hdns_net_add_speed_detect_task(scheduler->detector,
+                                   hdns_net_speed_resolver_cb_fn,
+                                   param,
+                                   resolvers,
+                                   80,
+                                   scheduler);
+
 }

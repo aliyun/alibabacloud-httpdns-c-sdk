@@ -106,7 +106,15 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
         }
         hdns_ip_t *ip = hdns_ip_create(task->pool, cursor->data);
         ip->rt = 30 * APR_USEC_PER_SEC;
-        rv = apr_sockaddr_info_get(&sa, cursor->data, APR_INET, task->port, 0, task->pool);
+        apr_int32_t family = APR_INET;
+        if (hdns_is_valid_ipv4(cursor->data)) {
+            family = APR_INET;
+        } else if (hdns_is_valid_ipv6(cursor->data)) {
+            family = APR_INET6;
+        } else {
+            continue;
+        }
+        rv = apr_sockaddr_info_get(&sa, cursor->data, family, task->port, 0, task->pool);
         if (rv != APR_SUCCESS) {
             hdns_list_add(sorted_ips, ip, NULL);
             continue;

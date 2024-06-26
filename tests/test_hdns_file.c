@@ -12,7 +12,7 @@ void test_file_write(CuTest *tc) {
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
     hdns_pool_new(pool);
-    char *dir = apr_pstrcat(pool, get_user_home_dir(pool), "/.httpdns/", NULL);
+    char *dir = apr_pstrcat(pool, hdns_get_user_home_dir(pool), "/.httpdns/", NULL);
     hdns_file_create_dir(dir);
     char *target_file_path = apr_pstrcat(pool, dir, "/server.json", NULL);
     apr_file_remove(target_file_path, pool);
@@ -28,7 +28,7 @@ void test_file_read(CuTest *tc) {
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
     hdns_pool_new(pool);
-    char *dir = apr_pstrcat(pool, get_user_home_dir(pool), "/.httpdns/", NULL);
+    char *dir = apr_pstrcat(pool, hdns_get_user_home_dir(pool), "/.httpdns/", NULL);
     hdns_file_create_dir(dir);
     char *target_file_path = apr_pstrcat(pool, dir, "/server.json", NULL);
     apr_file_remove(target_file_path, pool);

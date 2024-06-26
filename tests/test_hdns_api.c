@@ -4,13 +4,12 @@
 #include "hdns_api.h"
 #include "test_suit_list.h"
 
-
 void test_pre_reslove_hosts(CuTest *tc) {
     hdns_sdk_init();
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     char *pre_resolve_host = "www.taobao.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
 
@@ -43,7 +42,7 @@ void test_hdns_get_result_for_host_sync_with_custom_request(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_client_start(client);
 
     hdns_resv_req_t *req = hdns_resv_req_create(client);
@@ -87,7 +86,7 @@ void test_hdns_get_result_for_host_sync_with_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *results = NULL;
     char *host = "www.aliyun.com";
@@ -132,7 +131,7 @@ void test_hdns_get_result_for_host_sync_without_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *results = NULL;
 
@@ -184,7 +183,7 @@ void test_hdns_get_results_for_hosts_sync_with_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *results = NULL;
 
@@ -237,7 +236,7 @@ void test_hdns_get_results_for_hosts_sync_without_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *results = NULL;
 
@@ -303,7 +302,7 @@ void test_hdns_get_result_for_host_async_with_custom_request(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_resv_req_t *req = hdns_resv_req_create(client);
     hdns_client_start(client);
@@ -340,7 +339,7 @@ void test_hdns_get_result_for_host_async_with_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     char *host = "www.aliyun.com";
 
@@ -379,7 +378,7 @@ void test_hdns_get_result_for_host_async_without_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
 
     char *host = "www.taobao.com";
@@ -423,7 +422,7 @@ void test_hdns_get_results_for_hosts_async_with_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *hosts = hdns_list_create();
     char *host1 = "www.taobao.com";
@@ -470,7 +469,7 @@ void test_hdns_get_results_for_hosts_async_without_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
 
     hdns_list_head_t *hosts = hdns_list_create();
 
@@ -530,7 +529,7 @@ void test_clean_host_cache(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     char *pre_resolve_host = "www.aliyun.com";
     hdns_client_add_pre_resolve_host(client, pre_resolve_host);
     hdns_client_start(client);
@@ -581,7 +580,7 @@ void test_hdns_client_enable_update_cache_after_net_change(CuTest *tc) {
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
 //    hdns_log_set_log_file_path("/tmp/httpdns.log");
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);
     hdns_client_set_using_https(client, false);
@@ -610,7 +609,7 @@ void test_hdns_client_ip_probe(CuTest *tc) {
 #ifdef TEST_DEBUG_LOG
     hdns_log_level = HDNS_LOG_DEBUG;
 #endif
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_client_enable_update_cache_after_net_change(client, true);
     hdns_client_enable_expired_ip(client, true);
 

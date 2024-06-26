@@ -15,13 +15,14 @@
 HDNS_CPP_START
 
 
-#define HDNS_DELTA_WEIGHT_UPDATE_RATION     0.3
 #define HDNS_SCHEDULE_NONCE_SIZE             12
 
 typedef struct {
     hdns_pool_t *pool;
     hdns_list_head_t *ipv4_resolvers;
+    int32_t cur_ipv4_resolver_index;
     hdns_list_head_t *ipv6_resolvers;
+    int32_t cur_ipv6_resolver_index;
     hdns_net_detector_t *detector;
     apr_thread_pool_t *thread_pool;
     hdns_config_t *config;
@@ -35,7 +36,7 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
 
 hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler);
 
-void hdns_scheduler_update(hdns_scheduler_t *scheduler, const char *server, int32_t rt);
+void hdns_scheduler_failover(hdns_scheduler_t *scheduler, const char *server);
 
 int hdns_scheduler_get(hdns_scheduler_t *scheduler, char *resolver);
 

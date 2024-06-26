@@ -10,18 +10,6 @@
 
 HDNS_CPP_START
 
-#define HDNS_REGION_NUM  5
-
-typedef enum {
-    HDNS_REGION_CN = 0,
-    HDNS_REGION_HK = 1,
-    HDNS_REGION_SG = 2,
-    HDNS_REGION_US = 3,
-    HDNS_REGION_DE = 4
-} hdns_region_t;
-
-
-
 typedef struct {
     hdns_pool_t *pool;
     char *account_id;

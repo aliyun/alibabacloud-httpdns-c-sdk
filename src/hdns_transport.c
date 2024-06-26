@@ -11,6 +11,7 @@
 #include "hdns_fstack.h"
 #include "hdns_buf.h"
 #include "hdns_session.h"
+#include "hdns_utils.h"
 
 #include "hdns_transport.h"
 
@@ -18,6 +19,8 @@
 static int hdns_curl_transport_setup(hdns_http_transport_t *t);
 
 static void hdns_init_curl_headers(hdns_http_transport_t *t);
+
+static void hdns_init_curl_sni(hdns_http_transport_t *t);
 
 static int hdns_init_curl_url(hdns_http_transport_t *t);
 
@@ -58,6 +61,19 @@ static int hdns_curl_debug_callback(void *handle, curl_infotype type, char *data
             break;
     }
     return 0;
+}
+
+static void hdns_init_curl_sni(hdns_http_transport_t *t) {
+    if (hdns_str_is_blank(t->controller->ca_host)) {
+        return;
+    }
+    if (hdns_is_valid_ipv6(t->req->host) || hdns_is_valid_ipv4(t->req->host)) {
+        char *sni = apr_pstrcat(t->pool, t->controller->ca_host, ":443:", t->req->host, NULL);
+        t->curl_ctx->sni = curl_slist_append(t->curl_ctx->sni, sni);
+        union hdns_func_u func;
+        func.func1 = (hdns_func1_pt) curl_slist_free_all;
+        hdns_fstack_push(t->cleanup, t->curl_ctx->sni, func, 1);
+    }
 }
 
 static void hdns_init_curl_headers(hdns_http_transport_t *t) {
@@ -171,7 +187,6 @@ int hdns_query_params_to_string(hdns_pool_t *p, hdns_table_t *query_params, hdns
 
 static int hdns_init_curl_url(hdns_http_transport_t *t) {
     int rs;
-    const char *proto;
     hdns_string_t querystr;
     char uristr[3 * HDNS_MAX_URI_LEN + 1];
 
@@ -190,16 +205,26 @@ static int hdns_init_curl_url(hdns_http_transport_t *t) {
         return rs;
     }
 
-    proto = strlen(t->req->proto) != 0 ? t->req->proto : HDNS_HTTP_PREFIX;
+    char *host = apr_pstrdup(t->pool, t->req->host);
+    if (hdns_is_valid_ipv4(host) || hdns_is_valid_ipv6(host)) {
+        if (hdns_str_start_with(t->req->proto, HDNS_HTTPS_PREFIX) && hdns_str_is_not_blank(t->controller->ca_host)) {
+            host = apr_pstrdup(t->pool, t->controller->ca_host);
+        }
+        if (hdns_is_valid_ipv6(host)) {
+            host = apr_pstrcat(t->pool, "[", t->req->host, "]", NULL);
+        }
+    }
+
+
     if (querystr.len == 0) {
         t->curl_ctx->url = apr_psprintf(t->pool, "%s%s%s",
-                                        proto,
-                                        t->req->host,
+                                        t->req->proto,
+                                        host,
                                         uristr);
     } else {
         t->curl_ctx->url = apr_psprintf(t->pool, "%s%s%s%.*s",
-                                        proto,
-                                        t->req->host,
+                                        t->req->proto,
+                                        host,
                                         uristr,
                                         querystr.len,
                                         querystr.data);
@@ -224,6 +249,7 @@ hdns_http_transport_t *hdns_http_transport_create(hdns_pool_t *p) {
     t->curl_ctx->session = hdns_session_require();
     t->curl_ctx->curl_code = CURLE_OK;
     t->curl_ctx->url = NULL;
+    t->curl_ctx->sni = NULL;
     t->curl_ctx->headers = NULL;
     t->curl_ctx->header_callback = hdns_curl_default_header_callback;
     t->curl_ctx->read_callback = hdns_curl_default_read_callback;
@@ -440,32 +466,38 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
         curl_easy_setopt_safe(CURLOPT_WRITEFUNCTION, t->curl_ctx->write_callback);
     }
 
-    if (t->curl_ctx->ssl_callback != NULL) {
-        curl_easy_setopt_safe(CURLOPT_SSL_CTX_DATA, t);
-        curl_easy_setopt_safe(CURLOPT_SSL_CTX_FUNCTION, t->curl_ctx->ssl_callback);
-    }
-
     hdns_init_curl_headers(t);
     curl_easy_setopt_safe(CURLOPT_HTTPHEADER, t->curl_ctx->headers);
 
-    // controller
-    curl_easy_setopt_safe(CURLOPT_SSL_VERIFYPEER, t->controller->verify_peer);
-    curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, t->controller->verify_host ? 2 : 0);
-    if (t->controller->using_http2) {
+    if (hdns_str_start_with(t->req->proto, HDNS_HTTPS_PREFIX)) {
+        if (t->curl_ctx->ssl_callback != NULL) {
+            curl_easy_setopt_safe(CURLOPT_SSL_CTX_DATA, t);
+            curl_easy_setopt_safe(CURLOPT_SSL_CTX_FUNCTION, t->curl_ctx->ssl_callback);
+        }
+
+        // controller
+        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYPEER, t->controller->verify_peer);
+        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, t->controller->verify_host);
+        if (t->controller->using_http2) {
 #ifdef CURL_HTTP_VERSION_2
-        curl_easy_setopt_safe(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
+            curl_easy_setopt_safe(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);
 #endif
-    }
+        }
 
 #if defined(_WIN32)
-    curl_easy_setopt_safe(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+        curl_easy_setopt_safe(CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
 #endif
-    if (t->controller->ca_path != NULL) {
-        curl_easy_setopt_safe(CURLOPT_CAPATH, t->controller->ca_path);
-    }
+        if (t->controller->ca_path != NULL) {
+            curl_easy_setopt_safe(CURLOPT_CAPATH, t->controller->ca_path);
+        }
 
-    if (t->controller->ca_file != NULL) {
-        curl_easy_setopt_safe(CURLOPT_CAINFO, t->controller->ca_file);
+        if (t->controller->ca_file != NULL) {
+            curl_easy_setopt_safe(CURLOPT_CAINFO, t->controller->ca_file);
+        }
+        hdns_init_curl_sni(t);
+        if (t->curl_ctx->sni != NULL) {
+            curl_easy_setopt_safe(CURLOPT_RESOLVE, t->curl_ctx->sni);
+        }
     }
     curl_easy_setopt_safe(CURLOPT_TIMEOUT_MS, t->controller->timeout);
     curl_easy_setopt_safe(CURLOPT_CONNECTTIMEOUT_MS, t->controller->connect_timeout);

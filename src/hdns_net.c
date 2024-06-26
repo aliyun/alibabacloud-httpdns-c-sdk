@@ -5,6 +5,7 @@
 #include "hdns_string.h"
 #include "hdns_net.h"
 #include "hdns_ip.h"
+#include "hdns_utils.h"
 
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -252,17 +253,6 @@ static hdns_net_type_t detect_net_stack_by_winsock() {
 }
 #endif
 
-static bool is_valid_ipv6(const char *ipv6) {
-    struct in6_addr addr6;
-    return inet_pton(AF_INET6, ipv6, &addr6) == 1;
-}
-
-static bool is_valid_ipv4(const char *ip) {
-    struct in_addr addr;
-    return inet_pton(AF_INET, ip, &addr) == 1;
-}
-
-
 static hdns_net_type_t detect_net_stack_by_dns(const char *probe_domain) {
     struct addrinfo hint, *answer, *curr;
     memset(&hint, 0, sizeof(hint));
@@ -452,7 +442,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
                 hdns_pool_destroy(pool);
                 return false;
             }
-            if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
+            if (hdns_is_valid_ipv6(ip) || hdns_is_valid_ipv4(ip)) {
                 hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
                 if (hdns_list_is_empty(change_detector->local_ips)) {
                     is_changed = true;

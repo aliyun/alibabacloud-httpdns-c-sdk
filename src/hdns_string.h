@@ -76,6 +76,8 @@ int hdns_ends_with(const hdns_string_t *str, const hdns_string_t *suffix);
 
 bool hdns_str_search(const char *s1, const char *s2);
 
+bool hdns_str_start_with(const char * str, const char* prefix);
+
 HDNS_CPP_END
 
 #endif

@@ -1,4 +1,5 @@
 #include "hdns_string.h"
+#include <apr_strings.h>
 
 typedef int (*hdns_is_char_fn_t)(char c);
 
@@ -49,4 +50,15 @@ int hdns_ends_with(const hdns_string_t *str, const hdns_string_t *suffix) {
 
 bool hdns_str_search(const char *s1, const char *s2) {
     return strcmp(s1, s2) == 0;
+}
+
+
+bool hdns_str_start_with(const char *str, const char *prefix) {
+    apr_size_t prefix_len = strlen(prefix);
+    apr_size_t str_len = strlen(str);
+
+    if (str_len < prefix_len) {
+        return FALSE;
+    }
+    return strncmp(str, prefix, prefix_len) == 0;
 }

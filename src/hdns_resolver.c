@@ -25,17 +25,6 @@ static char *decode_html(hdns_pool_t *pool, char *src);
 
 static void parse_resv_resp_from_json(hdns_list_head_t *resv_resps, cJSON *c_json_body, const char *cache_key);
 
-static bool is_valid_ipv6(const char *ipv6);
-
-static bool is_valid_ipv6(const char *ipv6) {
-    apr_sockaddr_t *sockaddr;
-    hdns_pool_new(pool);
-    apr_status_t rv = apr_sockaddr_info_get(&sockaddr, ipv6, APR_UNSPEC, 0, 0, pool);
-    bool is_ipv6 = (rv == APR_SUCCESS && sockaddr->family == APR_INET6);
-    hdns_pool_destroy(pool);
-    return is_ipv6;
-}
-
 static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips) {
     size_t array_size = cJSON_GetArraySize(c_json_array);
     if (array_size == 0) {
@@ -186,11 +175,8 @@ static int parse_multi_resv_resp(const char *body, hdns_list_head_t *resv_resps)
 hdns_http_response_t *hdns_resv_send_req(hdns_pool_t *req_pool, hdns_resv_req_t *resv_req) {
     hdns_http_request_t *http_req = hdns_http_request_create(req_pool);
     http_req->proto = resv_req->using_https ? HDNS_HTTPS_PREFIX : HDNS_HTTP_PREFIX;
-    if (is_valid_ipv6(resv_req->resolver)) {
-        http_req->host = apr_pstrcat(req_pool, "[", resv_req->resolver, "]", NULL);
-    } else {
-        http_req->host = apr_pstrdup(req_pool, resv_req->resolver);
-    }
+    http_req->host = apr_pstrdup(req_pool, resv_req->resolver);
+
     const bool using_sign = (resv_req->using_sign && NULL != resv_req->secret_key);
     const char *http_api = resv_req->using_multi ? (using_sign ? HDNS_API_SIGN_RESOLVE : HDNS_API_RESOLVE)
                                                  : (using_sign ? HDNS_API_SIGN_D : HDNS_API_D);

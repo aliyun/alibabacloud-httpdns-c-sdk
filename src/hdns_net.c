@@ -116,22 +116,26 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
         }
         rv = apr_sockaddr_info_get(&sa, cursor->data, family, task->port, 0, task->pool);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         rv = apr_socket_create(&sock, sa->family, SOCK_STREAM, APR_PROTO_TCP, task->pool);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         rv = apr_socket_timeout_set(sock, 5 * APR_USEC_PER_SEC);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         start = apr_time_now();
         rv = apr_socket_connect(sock, sa);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }

@@ -198,3 +198,4 @@ ENDIF ()
 ################################# 单元测试 ############################################
 ADD_SUBDIRECTORY(tests)
 ADD_SUBDIRECTORY(examples)
+ADD_SUBDIRECTORY(benchmark)

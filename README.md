@@ -68,8 +68,8 @@ SDK并没有带上这几个外部库，您需要确认这些库已经安装，�
 
 - [安装VCPG](https://github.com/microsoft/vcpkg)
 - 安装SDK依赖的库
-    - macOS/Linux: ./vcpkg install apr apr-util curl[http2]  cjson
-    - Windows: .\vcpkg.exe install apr apr-util curl[http2]  cjson
+    - macOS/Linux: ./vcpkg install apr apr-util curl[openssl,http2]  cjson
+    - Windows: .\vcpkg.exe install apr apr-util curl[openssl,http2]  cjson
 
 #### 手动安装
 

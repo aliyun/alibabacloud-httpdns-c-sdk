@@ -174,6 +174,7 @@ int64_t get_memory_usage_on_mac() {
 #elif defined(__linux__)
 
 int64_t get_memory_usage_on_linux() {
+    hdns_pool_new(pool);
     apr_file_t *file;
     apr_status_t rv;
     char line[256];
@@ -184,6 +185,7 @@ int64_t get_memory_usage_on_linux() {
         char errbuf[256];
         apr_strerror(rv, errbuf, sizeof(errbuf));
         fprintf(stderr, "Cannot open file %s: %s\n", fname, errbuf);
+        hdns_pool_destroy(pool);
         return 0;
     }
     if (apr_file_gets(line, sizeof(line), file) == APR_SUCCESS) {
@@ -191,6 +193,7 @@ int64_t get_memory_usage_on_linux() {
         unsigned long vm_pages, rss_pages;
         sscanf(line, "%lu %*s %*s %*s %*s %*s %lu", &vm_pages, &rss_pages);
         apr_file_close(file);
+        hdns_pool_destroy(pool);
         return rss_pages * page_size;
     }
    return 0;

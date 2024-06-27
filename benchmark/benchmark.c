@@ -131,7 +131,7 @@ int main(int argc, char *argv[]) {
     printf("API Call Times: %d\n", g_metric.total_times);
     printf("API Memory Usage: \n");
     for (int i = 0; i < 4; i++) {
-        printf("\t%s: %d KB\n", api_name[i], g_metric.memeroy_usage_bytes[i] / g_metric.total_times / 1024);
+        printf("\t%s: %d KB\n", api_name[i], g_metric.memeroy_usage_bytes[i] / 1024);
     }
     printf("API Time Cost: \n");
     for (int i = 0; i < 4; i++) {

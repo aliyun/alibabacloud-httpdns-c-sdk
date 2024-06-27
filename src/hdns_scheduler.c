@@ -290,12 +290,19 @@ int hdns_scheduler_get(hdns_scheduler_t *scheduler, char *resolver) {
     hdns_list_head_t *resolve_servers;
     int32_t resolver_index;
     apr_thread_mutex_lock(scheduler->lock);
-
+    // 确保一定返回一个resolver
     if (HDNS_IPV6_ONLY == net_stack_type) {
         resolve_servers = scheduler->ipv6_resolvers;
+        // 可能是新的resolver还没有从服务端拉回，此时重新轮询现有的服务节点
+        if (scheduler->cur_ipv6_resolver_index >= hdns_list_size(resolve_servers)) {
+            scheduler->cur_ipv6_resolver_index = 0;
+        }
         resolver_index = scheduler->cur_ipv6_resolver_index;
     } else {
         resolve_servers = scheduler->ipv4_resolvers;
+        if (scheduler->cur_ipv4_resolver_index >= hdns_list_size(resolve_servers)) {
+            scheduler->cur_ipv4_resolver_index = 0;
+        }
         resolver_index = scheduler->cur_ipv4_resolver_index;
     }
 
@@ -305,7 +312,7 @@ int hdns_scheduler_get(hdns_scheduler_t *scheduler, char *resolver) {
         apr_thread_mutex_unlock(scheduler->lock);
         return HDNS_OK;
     }
-    hdns_scheduler_refresh_async(scheduler);
+
     apr_thread_mutex_unlock(scheduler->lock);
     hdns_log_info("get resolve server from scheduler failed");
     return HDNS_ERROR;

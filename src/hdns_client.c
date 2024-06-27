@@ -316,7 +316,7 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
             goto cleanup;
         }
     } else {
-        cache = hdns_cache_table_create(session_pool);
+        cache = hdns_cache_table_create();
         status = hdns_batch_fetch_resv_results(client, hosts, query_type, client_ip, cache);
         if (!hdns_status_is_ok(&status) && !enable_failover_localdns && !enable_expired_ip) {
             goto cleanup;

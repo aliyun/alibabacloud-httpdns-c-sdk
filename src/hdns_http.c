@@ -4,8 +4,6 @@
 #include "hdns_define.h"
 #include "apr_thread_mutex.h"
 #include <apr_file_io.h>
-#include <openssl/ssl.h>
-#include <openssl/x509v3.h>
 
 static size_t hdns_http_read_body(hdns_http_request_t *req, char *buffer, size_t len);
 
@@ -61,7 +59,7 @@ hdns_http_controller_t *hdns_http_controller_create(hdns_pool_t *p) {
     ctl->proxy_host = NULL;
     ctl->proxy_auth = NULL;
     ctl->verify_peer = TRUE;
-    ctl->verify_host = FALSE;
+    ctl->verify_host = TRUE;
     ctl->ca_path = NULL;
     ctl->ca_file = NULL;
     ctl->ca_host = HDNS_SSL_CA_HOST;
@@ -119,32 +117,12 @@ hdns_http_response_t *hdns_http_response_create(hdns_pool_t *p) {
     return resp;
 }
 
-
-static CURLcode ssl_ctx_callback(CURL *curl, void *ssl_ctx, void *user_param) {
-    (void) curl;
-    (void) user_param;
-    hdns_http_transport_t *t = user_param;
-    if (t != NULL && t->controller != NULL && hdns_str_is_not_blank(t->controller->ca_host)) {
-        X509_VERIFY_PARAM *param = SSL_CTX_get0_param(ssl_ctx);
-        if (NULL == param) {
-            X509_VERIFY_PARAM *new_param = X509_VERIFY_PARAM_new();
-            X509_VERIFY_PARAM_set1_host(new_param, t->controller->ca_host, strlen(t->controller->ca_host));
-            SSL_CTX_set1_param(ssl_ctx, new_param);
-            X509_VERIFY_PARAM_free(new_param);
-        } else {
-            X509_VERIFY_PARAM_set1_host(param, t->controller->ca_host, strlen(t->controller->ca_host));
-        }
-    }
-    return CURLE_OK;
-}
-
 int hdns_http_send_request(hdns_http_controller_t *ctl, hdns_http_request_t *req, hdns_http_response_t *resp) {
     hdns_http_transport_t *t;
     t = hdns_http_transport_create(ctl->pool);
     t->req = req;
     t->resp = resp;
     t->controller = (hdns_http_controller_t *) ctl;
-    t->curl_ctx->ssl_callback = ssl_ctx_callback;
     return hdns_http_transport_perform(t);
 }
 

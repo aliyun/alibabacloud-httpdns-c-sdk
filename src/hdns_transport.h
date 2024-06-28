@@ -82,6 +82,7 @@ typedef struct {
     CURL *session;
     CURLcode curl_code;
     char *url;
+    struct curl_slist *sni;
     struct curl_slist *headers;
     curl_read_callback header_callback;
     curl_read_callback read_callback;

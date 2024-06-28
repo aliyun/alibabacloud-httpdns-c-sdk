@@ -145,7 +145,7 @@ int main(int argc, char *argv[]) {
         }
         char extra[1024];
         if (hdns_get_sdns_extra(results, HDNS_QUERY_AUTO, extra) == HDNS_OK) {
-            printf("extra:%s", extra);
+            printf("extra:%s\n", extra);
         }
     }
     // 8. 清理请求结果

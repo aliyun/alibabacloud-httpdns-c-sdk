@@ -16,7 +16,7 @@ static hdns_cache_entry_t *create_test_cache_entry(hdns_cache_t *cache, char *ca
 
 void test_miss_cache(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 60));
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k2.com", HDNS_RR_TYPE_A);
     bool is_miss_cache = (entry == NULL);
@@ -28,7 +28,7 @@ void test_miss_cache(CuTest *tc) {
 
 void test_hit_cache(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 60));
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k1.com", HDNS_RR_TYPE_A);
     bool is_hit_cache = (entry != NULL);
@@ -39,7 +39,7 @@ void test_hit_cache(CuTest *tc) {
 
 void test_cache_expired(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 1));
     apr_sleep(1 * APR_USEC_PER_SEC);
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k1.com", HDNS_RR_TYPE_A);
@@ -51,7 +51,7 @@ void test_cache_expired(CuTest *tc) {
 
 void test_delete_cache_entry(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 60));
     hdns_cache_table_delete(client->cache, "k1.com", HDNS_RR_TYPE_A);
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k1.com", HDNS_RR_TYPE_A);
@@ -63,7 +63,7 @@ void test_delete_cache_entry(CuTest *tc) {
 
 void test_update_cache_entry(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 60));
     hdns_cache_entry_t *update_entry = create_test_cache_entry(client->cache, "k1.com", 80);
     update_entry->origin_ttl = 120;
@@ -78,7 +78,7 @@ void test_update_cache_entry(CuTest *tc) {
 
 void test_clean_cache(CuTest *tc) {
     hdns_sdk_init();
-    hdns_client_t *client = hdns_client_create("139450", NULL);
+    hdns_client_t *client = hdns_client_create(HDNS_TEST_ACCOUNT, HDNS_TEST_SECRET_KEY);
     hdns_cache_table_add(client->cache, create_test_cache_entry(client->cache, "k1.com", 60));
     hdns_cache_table_clean(client->cache);
     hdns_cache_entry_t *entry = hdns_cache_table_get(client->cache, "k1.com", HDNS_RR_TYPE_A);

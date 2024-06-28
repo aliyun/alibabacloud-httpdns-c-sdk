@@ -99,11 +99,20 @@ void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times);
 /*
  * @brief   设置访问HTTPDNS服务器的集群
  * @param[in]   client        客户端实例
- * @param[in]   region        cn:中国大陆，hk:中国香港，sg: 新加坡
+ * @param[in]   region        global: 就近访问（默认），cn:中国大陆，hk:中国香港，sg: 新加坡，us: 美国，de: 德国
  * @note :
  *    - hdns_client_t是线程安全的，可多线程共享
  */
 void hdns_client_set_region(hdns_client_t *client, const char *region);
+
+/*
+ * @brief   设置HTTPDNS调度中心的region
+ * @param[in]   client        客户端实例
+ * @param[in]   region        cn:中国大陆，hk:中国香港，sg: 新加坡，us: 美国，de: 德国
+ * @note :
+ *    - hdns_client_t是线程安全的，可多线程共享
+ */
+void hdns_client_set_schedule_center_region(hdns_client_t *client, const char *region);
 
 /*
  * @brief   是否开启网络变化时缓存更新

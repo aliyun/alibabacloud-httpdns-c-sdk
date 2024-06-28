@@ -53,6 +53,9 @@ int hdns_sdk_init() {
         hdns_log_fatal("hdns_pool_create failure, code:%d %s.\n", s, apr_strerror(s, buf, sizeof(buf)));
         return HDNS_ERROR;
     }
+    //  最多个允许保留20个内存块，内存块要尽快归还操作系统
+    apr_allocator_max_free_set(apr_pool_allocator_get(g_hdns_api_pool), 20);
+
     if ((s = apr_thread_pool_create(&g_hdns_api_thread_pool,
                                     HDNS_THREAD_POOL_CORE_SIZE,
                                     HDNS_THREAD_POOL_MAX_SIZE,
@@ -154,6 +157,12 @@ void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times) {
 void hdns_client_set_region(hdns_client_t *client, const char *region) {
     apr_thread_mutex_lock(client->config->lock);
     client->config->region = apr_pstrdup(client->config->pool, region);
+    apr_thread_mutex_unlock(client->config->lock);
+}
+
+void hdns_client_set_schedule_center_region(hdns_client_t *client, const char *region) {
+    apr_thread_mutex_lock(client->config->lock);
+    client->config->boot_server_region = apr_pstrdup(client->config->pool, region);
     apr_thread_mutex_unlock(client->config->lock);
 }
 

@@ -1,4 +1,4 @@
-PROJECT(alicloud_httpdns_c_sdk_examples LANGUAGES C CXX)
+PROJECT(alicloud_httpdns_c_sdk_benchmark LANGUAGES C CXX)
 
 ##################################### Example Application ################################
 INCLUDE_DIRECTORIES(${CURL_INCLUDE_DIRS})
@@ -15,12 +15,4 @@ FUNCTION(_TARGET_EXAMPLE_LIBRARIES EXAMPLE_BIN_NAME SOURCE_FILES)
     ENDIF ()
 ENDFUNCTION()
 
-_TARGET_EXAMPLE_LIBRARIES(sync_resolve_example sync_resolve_example.c)
-
-_TARGET_EXAMPLE_LIBRARIES(cxx_integration_example cxx_integration_example.cpp)
-
-_TARGET_EXAMPLE_LIBRARIES(async_resolve_example async_resolve_example.c)
-
-_TARGET_EXAMPLE_LIBRARIES(sdns_resolve_example sdns_resolve_example.c)
-
-_TARGET_EXAMPLE_LIBRARIES(batch_resolve_example batch_resolve_example.c)
+_TARGET_EXAMPLE_LIBRARIES(benchmark benchmark.c)

@@ -5,6 +5,7 @@
 #include "hdns_string.h"
 #include "hdns_net.h"
 #include "hdns_ip.h"
+#include "hdns_utils.h"
 
 
 #if defined(__APPLE__) || defined(__linux__)
@@ -105,24 +106,36 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
         }
         hdns_ip_t *ip = hdns_ip_create(task->pool, cursor->data);
         ip->rt = 30 * APR_USEC_PER_SEC;
-        rv = apr_sockaddr_info_get(&sa, cursor->data, APR_INET, task->port, 0, task->pool);
+        apr_int32_t family = APR_INET;
+        if (hdns_is_valid_ipv4(cursor->data)) {
+            family = APR_INET;
+        } else if (hdns_is_valid_ipv6(cursor->data)) {
+            family = APR_INET6;
+        } else {
+            continue;
+        }
+        rv = apr_sockaddr_info_get(&sa, cursor->data, family, task->port, 0, task->pool);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         rv = apr_socket_create(&sock, sa->family, SOCK_STREAM, APR_PROTO_TCP, task->pool);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         rv = apr_socket_timeout_set(sock, 5 * APR_USEC_PER_SEC);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
         start = apr_time_now();
         rv = apr_socket_connect(sock, sa);
         if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
@@ -251,17 +264,6 @@ static hdns_net_type_t detect_net_stack_by_winsock() {
         return net_type;
 }
 #endif
-
-static bool is_valid_ipv6(const char *ipv6) {
-    struct in6_addr addr6;
-    return inet_pton(AF_INET6, ipv6, &addr6) == 1;
-}
-
-static bool is_valid_ipv4(const char *ip) {
-    struct in_addr addr;
-    return inet_pton(AF_INET, ip, &addr) == 1;
-}
-
 
 static hdns_net_type_t detect_net_stack_by_dns(const char *probe_domain) {
     struct addrinfo hint, *answer, *curr;
@@ -452,7 +454,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
                 hdns_pool_destroy(pool);
                 return false;
             }
-            if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
+            if (hdns_is_valid_ipv6(ip) || hdns_is_valid_ipv4(ip)) {
                 hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
                 if (hdns_list_is_empty(change_detector->local_ips)) {
                     is_changed = true;
@@ -511,7 +513,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
 
         inet_ntop(ptr->ai_family, addr, ip, sizeof(ip));
 
-        if (is_valid_ipv6(ip) || is_valid_ipv4(ip)) {
+        if (hdns_is_valid_ipv6(ip) || hdns_is_valid_ipv4(ip)) {
             hdns_list_add(new_local_ips, ip, hdns_to_list_clone_fn_t(apr_pstrdup));
             if (hdns_list_is_empty(change_detector->local_ips)) {
                 is_changed = true;

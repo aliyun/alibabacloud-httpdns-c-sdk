@@ -160,7 +160,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define HDNS_MAX_CONNECT_TIMEOUT_MS  2500
 #define HDNS_SCHEDULER_REFRESH_TIMEOUT_MS 2000
 #define HDNS_MIN_TIMEOUT_MS  50
-#define HDNS_SSL_CA_HOST     "203.107.1.1"
+#define HDNS_SSL_CA_HOST     "resolvers.httpdns.aliyuncs.com"
 #define HDNS_CERT_PEM_NAME   "Cert:"
 #define HDNS_HTTP_STATUS_OK  200
 
@@ -173,7 +173,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define CRLF   "\x0d\x0a"
 
 #define HDNS_PLATFORM   "linux"
-#define HDNS_VERSION    "2.0.0"
+#define HDNS_VERSION    "2.2.0"
 #define HDNS_VER        "alibabacloud-httpdns-c-sdk-" HDNS_VERSION
 
 #define HDNS_FALSE     0

@@ -1,7 +1,6 @@
 
 
 #include "test_suit_list.h"
-#include "hdns_log.h"
 
 int main(void) {
 
@@ -20,6 +19,8 @@ int main(void) {
     add_hdns_cache_tests(suite);
     add_hdns_api_tests(suite);
     add_hdns_thread_safe_tests(suite);
+    add_hdns_file_tests(suite);
+    add_hdns_utils_tests(suite);
 
     CuSuiteRun(suite);
     CuSuiteSummary(suite, output);

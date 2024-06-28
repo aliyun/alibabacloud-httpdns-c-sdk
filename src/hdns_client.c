@@ -66,20 +66,24 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     /*
      *  注意：结果统一在results->pool上
      */
+    int ret = HDNS_ERROR;
     hdns_resv_resp_t *cache_resp = hdns_cache_table_get(cache, cache_key, rr_type);
     if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip) && hdns_list_is_not_empty(cache_resp->ips)) {
         hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
-        hdns_resv_resp_destroy(cache_resp);
-        return HDNS_OK;
+        ret = HDNS_OK;
+        goto cleanup;
     }
     if (enable_failover_localdns) {
         hdns_resv_resp_t *localdns_resp = hdns_localdns_resolve(results->pool, host, rr_type);
         hdns_list_add(results, localdns_resp, NULL);
-        return HDNS_OK;
+        ret = HDNS_OK;
+        goto cleanup;
     }
     hdns_resv_resp_t *empty_resp = hdns_resv_resp_create_empty(results->pool, host, rr_type);
     hdns_list_add(results, empty_resp, NULL);
-    return HDNS_ERROR;
+    cleanup:
+    hdns_resv_resp_destroy(cache_resp);
+    return ret;
 }
 
 hdns_status_t hdns_do_single_resolve(hdns_client_t *client,
@@ -316,7 +320,7 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
             goto cleanup;
         }
     } else {
-        cache = hdns_cache_table_create(session_pool);
+        cache = hdns_cache_table_create();
         status = hdns_batch_fetch_resv_results(client, hosts, query_type, client_ip, cache);
         if (!hdns_status_is_ok(&status) && !enable_failover_localdns && !enable_expired_ip) {
             goto cleanup;
@@ -441,12 +445,12 @@ void hdns_net_speed_cache_cb_fn(hdns_list_head_t *sorted_ips, void *user_params)
 static void hdns_apply_custom_ttl(hdns_client_t *client, hdns_resv_resp_t *resp) {
     apr_thread_mutex_lock(client->config->lock);
     int *ttl = apr_hash_get(client->config->custom_ttl_items,
-                             resp->host,
-                             APR_HASH_KEY_STRING);
+                            resp->host,
+                            APR_HASH_KEY_STRING);
     apr_thread_mutex_unlock(client->config->lock);
-    if ( ttl!= NULL) {
-       resp->ttl = (*ttl);
-       resp->origin_ttl = (*ttl);
+    if (ttl != NULL) {
+        resp->ttl = (*ttl);
+        resp->origin_ttl = (*ttl);
     }
 }
 
@@ -496,13 +500,12 @@ hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *re
                                        http_resp->extra_info->reason,
                                        client->config->session_id);
             if (hdns_http_should_retry(http_resp)) {
-                hdns_scheduler_update(client->scheduler, resolver, resv_req->timeout_ms * 1000);
+                hdns_scheduler_failover(client->scheduler, resolver);
                 retry_times--;
             }
             continue;
         }
         // 服务端正常响应
-        hdns_scheduler_update(client->scheduler, resolver, http_resp->extra_info->total_time);
         if (http_resp->status == HDNS_HTTP_STATUS_OK) {
             hdns_parse_resv_resp(resv_req, http_resp, req_pool, resv_resps);
             hdns_list_for_each_entry(entry_cursor, resv_resps) {
@@ -519,6 +522,7 @@ hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *re
                                        client->config->session_id);
         }
         if (hdns_http_should_retry(http_resp)) {
+            hdns_scheduler_failover(client->scheduler, resolver);
             retry_times--;
             continue;
         }

@@ -66,20 +66,24 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     /*
      *  注意：结果统一在results->pool上
      */
+    int ret = HDNS_ERROR;
     hdns_resv_resp_t *cache_resp = hdns_cache_table_get(cache, cache_key, rr_type);
     if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip) && hdns_list_is_not_empty(cache_resp->ips)) {
         hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
-        hdns_resv_resp_destroy(cache_resp);
-        return HDNS_OK;
+        ret = HDNS_OK;
+        goto cleanup;
     }
     if (enable_failover_localdns) {
         hdns_resv_resp_t *localdns_resp = hdns_localdns_resolve(results->pool, host, rr_type);
         hdns_list_add(results, localdns_resp, NULL);
-        return HDNS_OK;
+        ret = HDNS_OK;
+        goto cleanup;
     }
     hdns_resv_resp_t *empty_resp = hdns_resv_resp_create_empty(results->pool, host, rr_type);
     hdns_list_add(results, empty_resp, NULL);
-    return HDNS_ERROR;
+    cleanup:
+    hdns_resv_resp_destroy(cache_resp);
+    return ret;
 }
 
 hdns_status_t hdns_do_single_resolve(hdns_client_t *client,

@@ -90,13 +90,13 @@ void hdns_session_pool_cleanup() {
         curl_easy_cleanup(g_hdns_session_stack[g_hdns_session_stack_size]);
     }
     curl_global_cleanup();
-    if (g_hdns_session_pool != NULL) {
-        hdns_pool_destroy(g_hdns_session_pool);
-        g_hdns_session_pool = NULL;
-    }
     if (g_hdns_session_stack_mutex != NULL) {
         apr_thread_mutex_destroy(g_hdns_session_stack_mutex);
         g_hdns_session_stack_mutex = NULL;
+    }
+    if (g_hdns_session_pool != NULL) {
+        hdns_pool_destroy(g_hdns_session_pool);
+        g_hdns_session_pool = NULL;
     }
 }
 

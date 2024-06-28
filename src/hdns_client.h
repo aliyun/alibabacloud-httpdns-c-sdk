@@ -23,6 +23,7 @@ typedef struct {
     hdns_net_detector_t *net_detector;
     hdns_config_t *config;
     hdns_cache_t *cache;
+    volatile bool is_started;
 } hdns_client_t;
 
 

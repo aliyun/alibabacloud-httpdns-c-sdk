@@ -158,8 +158,8 @@ void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times) {
 
 void hdns_client_set_region(hdns_client_t *client, const char *region) {
     apr_thread_mutex_lock(client->config->lock);
-    client->config->region = apr_pstrdup(client->config->pool, region);
     if (client->is_started && strcmp(region, client->config->region)) {
+        client->config->region = apr_pstrdup(client->config->pool, region);
         hdns_cache_table_clean(client->cache);
         hdns_scheduler_refresh_async(client->scheduler);
     }

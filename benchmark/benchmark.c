@@ -189,12 +189,11 @@ int64_t get_memory_usage_on_linux() {
         return 0;
     }
     if (apr_file_gets(line, sizeof(line), file) == APR_SUCCESS) {
-        long page_size = sysconf(_SC_PAGESIZE);
-        unsigned long vm_pages, rss_pages;
-        sscanf(line, "%lu %*s %*s %*s %*s %*s %lu", &vm_pages, &rss_pages);
+        unsigned long rss_pages;
+        sscanf(line, "%*s %lu", &rss_pages);
         apr_file_close(file);
         hdns_pool_destroy(pool);
-        return rss_pages * page_size;
+        return rss_pages * getpagesize();
     }
    return 0;
 }

@@ -88,6 +88,7 @@ hdns_client_t *hdns_client_create(const char *account_id, const char *secret_key
     client->net_detector = g_hdns_net_detector;
     client->scheduler = hdns_scheduler_create(config, g_hdns_net_detector, g_hdns_api_thread_pool);
     client->cache = hdns_cache_table_create();
+    client->is_started = false;
     return client;
 }
 
@@ -103,6 +104,7 @@ hdns_status_t hdns_client_start(hdns_client_t *client) {
         return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",
                                  client->config->session_id);
     }
+    client->is_started = true;
     // 异步拉取解析列表
     hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
     if (!hdns_status_is_ok(&status)) {
@@ -156,7 +158,11 @@ void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times) {
 
 void hdns_client_set_region(hdns_client_t *client, const char *region) {
     apr_thread_mutex_lock(client->config->lock);
-    client->config->region = apr_pstrdup(client->config->pool, region);
+    if (client->is_started && strcmp(region, client->config->region)) {
+        client->config->region = apr_pstrdup(client->config->pool, region);
+        hdns_cache_table_clean(client->cache);
+        hdns_scheduler_refresh_async(client->scheduler);
+    }
     apr_thread_mutex_unlock(client->config->lock);
 }
 

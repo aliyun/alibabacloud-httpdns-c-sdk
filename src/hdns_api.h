@@ -108,7 +108,7 @@ void hdns_client_set_region(hdns_client_t *client, const char *region);
 /*
  * @brief   设置HTTPDNS调度中心的region
  * @param[in]   client        客户端实例
- * @param[in]   region        cn:中国大陆，hk:中国香港，sg: 新加坡，us: 美国，de: 德国
+ * @param[in]   region        cn:中国大陆（默认），hk:中国香港，sg: 新加坡，us: 美国，de: 德国
  * @note :
  *    - hdns_client_t是线程安全的，可多线程共享
  */

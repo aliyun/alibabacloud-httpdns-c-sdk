@@ -47,20 +47,21 @@ int64_t get_memory_usage();
         func(__VA_ARGS__);      \
         apr_time_t end = apr_time_now();   \
         g_metric.api_time_cost_us[fn_index] += (end - start); \
-        g_metric.memeroy_usage_bytes[fn_index] = get_memory_usage(); \
+        g_metric.memeroy_usage_bytes = hdns_max(get_memory_usage(), g_metric.memeroy_usage_bytes); \
         hdns_list_cleanup(results);        \
         fn_index++;                \
     } while (0)
 
 typedef struct {
     int64_t total_times;
-    int64_t memeroy_usage_bytes[4];
+    int64_t memeroy_usage_bytes;
     int64_t api_time_cost_us[4];
 } hdns_metric_t;
 
 
 hdns_metric_t g_metric = {
         .total_times=0,
+        .memeroy_usage_bytes=0
 };
 
 
@@ -129,10 +130,7 @@ int main(int argc, char *argv[]) {
                         "hdns_get_results_for_hosts_sync_with_cache"};
     printf("Benchmark Summary: \n");
     printf("API Call Times: %d\n", g_metric.total_times);
-    printf("API Memory Usage: \n");
-    for (int i = 0; i < 4; i++) {
-        printf("\t%s: %d KB\n", api_name[i], g_metric.memeroy_usage_bytes[i] / 1024);
-    }
+    printf("API Memory Usage: %d MB\n", g_metric.memeroy_usage_bytes / 1024 / 1024);
     printf("API Time Cost: \n");
     for (int i = 0; i < 4; i++) {
         printf("\t%s: %d ms\n", api_name[i], g_metric.api_time_cost_us[i] / g_metric.total_times / 1000);

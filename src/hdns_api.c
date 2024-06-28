@@ -53,6 +53,9 @@ int hdns_sdk_init() {
         hdns_log_fatal("hdns_pool_create failure, code:%d %s.\n", s, apr_strerror(s, buf, sizeof(buf)));
         return HDNS_ERROR;
     }
+    //  最多个允许保留1个内存块，内存块要尽快归还操作系统
+    apr_allocator_max_free_set(apr_pool_allocator_get(g_hdns_api_pool), 22);
+
     if ((s = apr_thread_pool_create(&g_hdns_api_thread_pool,
                                     HDNS_THREAD_POOL_CORE_SIZE,
                                     HDNS_THREAD_POOL_MAX_SIZE,

@@ -8,7 +8,7 @@
 阿里云[HTTPDNS](https://www.aliyun.com/product/httpdns)
 是面向多端应用（移动端APP、PC客户端应用、嵌入式应用等）具有防劫持、精准调度、实时解析生效等特性的域名解析服务。阿里云EMAS团队提供了C
 SDK，
-以降低开发者通过C\C++语言接入[HTTPDNS](https://www.aliyun.com/product/httpdns)的门槛，用户可以通过调用相关API方便地使用HTTPDNS进行域名解析。
+以降低开发者通过C/C++语言接入[HTTPDNS](https://www.aliyun.com/product/httpdns)的门槛，用户可以通过调用相关API方便地使用HTTPDNS进行域名解析。
 
 ## SDK限制
 

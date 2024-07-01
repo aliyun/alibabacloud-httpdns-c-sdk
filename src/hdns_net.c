@@ -95,14 +95,12 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
     apr_sockaddr_t *sa = NULL;
     apr_time_t start;
     if (hdns_list_is_empty(task->ips)) {
-        hdns_pool_destroy(task->pool);
-        return NULL;
+       goto cleanup;
     }
     hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     hdns_list_for_each_entry_safe(cursor, task->ips) {
         if (task->stop_signal) {
-            hdns_pool_destroy(task->pool);
-            return NULL;
+            goto cleanup;
         }
         hdns_ip_t *ip = hdns_ip_create(task->pool, cursor->data);
         ip->rt = 30 * APR_USEC_PER_SEC;
@@ -144,6 +142,7 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
         hdns_list_add(sorted_ips, ip, NULL);
     }
     hdns_list_sort(sorted_ips, hdns_to_list_cmp_fn_t(hdns_ip_cmp));
+    cleanup:
     task->fn(sorted_ips, task->param);
     hdns_pool_destroy(task->pool);
     return NULL;

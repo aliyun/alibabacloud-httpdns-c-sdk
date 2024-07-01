@@ -843,7 +843,8 @@ int hdns_get_sdns_extra(hdns_list_head_t *results, hdns_query_type_t query_type,
     return HDNS_ERROR;
 }
 
-void hdns_client_cleanup(hdns_client_t *client) {
+static void *APR_THREAD_FUNC hdns_client_cleanup_task(apr_thread_t *thread, void *data) {
+    hdns_client_t *client = data;
     if (client != NULL) {
         // 停止该客户端关联的所有ip测速线程
         apr_thread_pool_tasks_cancel(g_hdns_api_thread_pool, client);
@@ -858,6 +859,17 @@ void hdns_client_cleanup(hdns_client_t *client) {
         // 释放客户端内存池
         hdns_pool_destroy(client->pool);
         hdns_log_info("The client has been destroyed.");
+    }
+}
+
+void hdns_client_cleanup(hdns_client_t *client) {
+    if (client != NULL) {
+        // 延迟30秒结束，等待正在执行的异步任务
+        apr_thread_pool_schedule(g_hdns_api_thread_pool,
+                                 hdns_client_cleanup_task,
+                                 client,
+                                 30 * APR_USEC_PER_SEC,
+                                 NULL);
     }
 }
 

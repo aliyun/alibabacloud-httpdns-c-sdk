@@ -359,13 +359,13 @@ hdns_net_detector_t *hdns_net_detector_create(apr_thread_pool_t *thread_pool) {
 
     return detector;
 }
-
-void hdns_net_detector_cleanup(hdns_net_detector_t *detector) {
+void hdns_net_detector_stop(hdns_net_detector_t *detector) {
     detector->speed_detector->stop_signal = true;
     detector->change_detector->stop_signal = true;
     apr_thread_cond_broadcast(detector->speed_detector->not_empty_cond);
-
     apr_thread_pool_tasks_cancel(detector->thread_pool, detector);
+}
+void hdns_net_detector_cleanup(hdns_net_detector_t *detector) {
     apr_thread_mutex_destroy(detector->change_detector->lock);
     if (detector->change_detector->local_ips != NULL) {
         hdns_list_free(detector->change_detector->local_ips);

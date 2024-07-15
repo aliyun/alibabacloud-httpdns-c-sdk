@@ -97,6 +97,8 @@ typedef struct {
 
 hdns_net_detector_t *hdns_net_detector_create(apr_thread_pool_t *thread_pool);
 
+void hdns_net_detector_stop(hdns_net_detector_t *detector);
+
 void hdns_net_detector_cleanup(hdns_net_detector_t *detector);
 
 void hdns_net_add_chg_cb_task(hdns_net_detector_t *detector,

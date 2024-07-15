@@ -881,11 +881,12 @@ void hdns_sdk_cleanup() {
         return;
     }
     // 关停网络变化监测线程和测速分发线程
-    hdns_net_detector_cleanup(g_hdns_net_detector);
+    hdns_net_detector_stop(g_hdns_net_detector);
     if (g_hdns_api_thread_pool != NULL) {
         apr_thread_pool_destroy(g_hdns_api_thread_pool);
         g_hdns_api_thread_pool = NULL;
     }
+    hdns_net_detector_cleanup(g_hdns_net_detector);
     hdns_session_pool_cleanup();
     if (hdns_stdout_file != NULL) {
         apr_file_close(hdns_stdout_file);

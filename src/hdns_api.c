@@ -170,8 +170,29 @@ void hdns_client_set_region(hdns_client_t *client, const char *region) {
 
 void hdns_client_set_schedule_center_region(hdns_client_t *client, const char *region) {
     apr_thread_mutex_lock(client->config->lock);
-    client->config->boot_server_region = apr_pstrdup(client->config->pool, region);
+    bool changed = strcmp(region, client->config->boot_server_region);
+    if (changed) {
+        client->config->boot_server_region = apr_pstrdup(client->config->pool, region);
+    }
     apr_thread_mutex_unlock(client->config->lock);
+
+    apr_thread_mutex_lock(client->scheduler->lock);
+    if (changed) {
+        hdns_scheduler_t *scheduler = client->scheduler;
+        hdns_list_free(scheduler->ipv4_resolvers);
+        hdns_list_free(scheduler->ipv6_resolvers);
+        scheduler->cur_ipv4_resolver_index = 0;
+        scheduler->cur_ipv6_resolver_index = 0;
+        scheduler->ipv4_resolvers = hdns_list_new(NULL);
+        scheduler->ipv6_resolvers = hdns_list_new(NULL);
+
+        hdns_list_dup(scheduler->ipv4_resolvers,
+                      hdns_config_get_boot_servers(client->config, true), hdns_to_list_clone_fn_t(apr_pstrdup));
+        hdns_list_dup(scheduler->ipv6_resolvers,
+                      hdns_config_get_boot_servers(client->config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
+
+    }
+    apr_thread_mutex_unlock(client->scheduler->lock);
 }
 
 void hdns_client_enable_update_cache_after_net_change(hdns_client_t *client, bool enable) {

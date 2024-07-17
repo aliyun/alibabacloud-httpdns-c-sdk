@@ -363,6 +363,7 @@ hdns_net_detector_t *hdns_net_detector_create(apr_thread_pool_t *thread_pool) {
 void hdns_net_detector_stop(hdns_net_detector_t *detector) {
     detector->speed_detector->stop_signal = true;
     detector->change_detector->stop_signal = true;
+    hdns_net_cancel_chg_cb_task(detector->thread_pool, detector);
     apr_thread_cond_broadcast(detector->speed_detector->not_empty_cond);
     apr_thread_pool_tasks_cancel(detector->thread_pool, detector);
 }

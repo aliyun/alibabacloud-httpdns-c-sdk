@@ -588,8 +588,8 @@ void hdns_net_cancel_chg_cb_task(hdns_net_detector_t *detector, void *owner) {
             hdns_pool_destroy(cursor->pool);
         }
     }
-    apr_thread_pool_tasks_cancel(detector->thread_pool, owner);
     apr_thread_mutex_unlock(detector->change_detector->lock);
+    apr_thread_pool_tasks_cancel(detector->thread_pool, owner);
 }
 
 

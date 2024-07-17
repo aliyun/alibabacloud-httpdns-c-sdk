@@ -52,6 +52,10 @@ typedef enum {
         hdns_log_format(HDNS_LOG_TRACE, __FILE__, __LINE__, __FUNCTION__, format, ## args)
 #endif
 
+void hdns_log_create(hdns_pool_t* pool);
+
+void hdns_log_cleanup();
+
 void hdns_log_set_print(hdns_log_print_pt p);
 
 void hdns_log_set_format(hdns_log_format_pt p);

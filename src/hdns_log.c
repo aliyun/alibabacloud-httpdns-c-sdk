@@ -4,6 +4,7 @@ hdns_log_print_pt hdns_log_print = hdns_log_print_default;
 hdns_log_format_pt hdns_log_format = hdns_log_format_default;
 hdns_log_level_e hdns_log_level = HDNS_LOG_WARN;
 apr_file_t *hdns_stdout_file = NULL;
+apr_thread_mutex_t *hdns_print_lock = NULL;
 
 
 static const char *level_strings[] = {
@@ -12,10 +13,17 @@ static const char *level_strings[] = {
 
 #ifdef LOG_USE_COLOR
 static const char *level_colors[] = {
-  "\x1b[35m", "\x1b[31m", "\x1b[33m", "\x1b[32m", "\x1b[36m", "\x1b[94m"
+        "\x1b[35m", "\x1b[31m", "\x1b[33m", "\x1b[32m", "\x1b[36m", "\x1b[94m"
 };
 #endif
 
+void hdns_log_create(hdns_pool_t *pool) {
+    apr_thread_mutex_create(&hdns_print_lock, APR_THREAD_MUTEX_DEFAULT, pool);
+}
+
+void hdns_log_cleanup() {
+    apr_thread_mutex_destroy(hdns_print_lock);
+}
 
 void hdns_log_set_print(hdns_log_print_pt p) {
     hdns_log_print = p;
@@ -34,12 +42,14 @@ void hdns_log_set_output(apr_file_t *output) {
 }
 
 void hdns_log_print_default(const char *message, int len) {
+    apr_thread_mutex_lock(hdns_print_lock);
     if (hdns_stdout_file == NULL) {
         fprintf(stdout, "%s", message);
     } else {
         apr_size_t bnytes = len;
         apr_file_write(hdns_stdout_file, message, &bnytes);
     }
+    apr_thread_mutex_unlock(hdns_print_lock);
 }
 
 void hdns_log_format_default(int level,

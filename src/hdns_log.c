@@ -38,7 +38,13 @@ void hdns_log_set_level(hdns_log_level_e level) {
 }
 
 void hdns_log_set_output(apr_file_t *output) {
+    apr_thread_mutex_lock(hdns_print_lock);
+    if (hdns_stdout_file != NULL) {
+        apr_file_close(hdns_stdout_file);
+        hdns_stdout_file = NULL;
+    }
     hdns_stdout_file = output;
+    apr_thread_mutex_unlock(hdns_print_lock);
 }
 
 void hdns_log_print_default(const char *message, int len) {

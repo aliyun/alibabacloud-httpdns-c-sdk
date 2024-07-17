@@ -155,7 +155,8 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, vo
     while (!detector->speed_detector->stop_signal) {
         apr_thread_mutex_lock(detector->speed_detector->lock);
         while (!detector->speed_detector->stop_signal && hdns_list_size(detector->speed_detector->tasks) <= 0) {
-            apr_thread_cond_wait(detector->speed_detector->not_empty_cond, detector->speed_detector->lock);
+            // 避免hdns_net_detector_stop竞态条件，导致无法唤醒
+            apr_thread_cond_timedwait(detector->speed_detector->not_empty_cond, detector->speed_detector->lock, apr_time_from_sec(5));
         }
         hdns_list_for_each_entry_safe(cursor, detector->speed_detector->tasks) {
             hdns_net_speed_detect_task_t *task = cursor->data;
@@ -362,6 +363,7 @@ hdns_net_detector_t *hdns_net_detector_create(apr_thread_pool_t *thread_pool) {
 void hdns_net_detector_stop(hdns_net_detector_t *detector) {
     detector->speed_detector->stop_signal = true;
     detector->change_detector->stop_signal = true;
+    hdns_net_cancel_chg_cb_task(detector, detector);
     apr_thread_cond_broadcast(detector->speed_detector->not_empty_cond);
     apr_thread_pool_tasks_cancel(detector->thread_pool, detector);
 }

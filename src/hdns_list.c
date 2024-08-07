@@ -39,7 +39,17 @@ int32_t hdns_list_add(hdns_list_head_t *head, const void *data, hdns_list_clone_
     }
     hdns_list_node_t *node = hdns_palloc(head->pool, sizeof(hdns_list_node_t));
     if (clone != NULL) {
+        // apr在x86环境下的预编译库是stdcall模式，而vs默认约定是cdecl，就会导致源码和apr库的指针调用约定不一致
+#if defined(_WIN32) && defined(_M_IX86)
+        if (clone == (hdns_list_clone_fn_t)apr_pstrdup) {
+            hdns_list_clone_stdcall_fn_t clone_with_call_convention = (hdns_list_clone_stdcall_fn_t)clone;
+            node->data = clone_with_call_convention(head->pool, data);
+        } else {
+            node->data = clone(head->pool, data);
+        }
+#else
         node->data = clone(head->pool, data);
+#endif
     } else {
         node->data = data;
     }

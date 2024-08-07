@@ -186,7 +186,7 @@ hdns_http_response_t *hdns_resv_send_req(hdns_pool_t *req_pool, hdns_resv_req_t 
     apr_table_set(http_req->query_params, "query", hdns_query_type_to_string(resv_req->query_type));
 
     apr_table_set(http_req->query_params, "platform", HDNS_PLATFORM);
-    apr_table_set(http_req->query_params, "sdkVersion", HDNS_VER);
+    apr_table_set(http_req->query_params, "sdk_version", HDNS_VER);
     apr_table_set(http_req->query_params, "sid", resv_req->session_id);
     if (using_sign) {
         hdns_sign_t *signature = hdns_gen_resv_req_sign(req_pool, resv_req->host, resv_req->secret_key);

@@ -63,7 +63,7 @@ void hdns_test_http_post(CuTest *tc) {
     req->body_len += region_len;
 
     b = hdns_create_buf(req->body->pool, 32);
-    char sdk[] = "&sdkVersion=1.0.0";
+    char sdk[] = "&sdk_version=1.0.0";
     int sdk_len = strlen(sdk);
     hdns_buf_append_string(req->pool, b, sdk, sdk_len);
     hdns_list_add(req->body, b, NULL);

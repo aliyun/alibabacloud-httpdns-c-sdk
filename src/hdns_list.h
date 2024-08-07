@@ -48,12 +48,10 @@ struct hdns_list_node_s {
 typedef hdns_list_node_t hdns_list_head_t;
 
 #if defined(_WIN32) && defined(_M_IX86)
-typedef void *(__stdcall *hdns_list_clone_fn_t )(hdns_pool_t *pool, const void *data);
-#else
+typedef void* (__stdcall* hdns_list_clone_stdcall_fn_t)(hdns_pool_t* pool, const void* data);
+#endif
 
 typedef void *(*hdns_list_clone_fn_t )(hdns_pool_t *pool, const void *data);
-
-#endif
 
 typedef int32_t (*hdns_list_cmp_pt)(const void *data1, const void *data2);
 

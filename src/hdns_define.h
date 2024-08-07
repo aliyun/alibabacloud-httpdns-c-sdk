@@ -173,7 +173,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define CRLF   "\x0d\x0a"
 
 #define HDNS_PLATFORM   "linux"
-#define HDNS_VERSION    "2.2.0"
+#define HDNS_VERSION    "2.2.2"
 #define HDNS_VER        "alibabacloud-httpdns-c-sdk-" HDNS_VERSION
 
 #define HDNS_FALSE     0

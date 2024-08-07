@@ -174,7 +174,7 @@ static hdns_http_request_t *create_hdns_schd_req(hdns_scheduler_t *scheduler, hd
     req->uri = apr_pstrcat(req_pool, "/", account_id, "/ss", NULL);
     apr_table_set(req->query_params, "region", region);
     apr_table_set(req->query_params, "platform", HDNS_PLATFORM);
-    apr_table_set(req->query_params, "sdkVersion", HDNS_VER);
+    apr_table_set(req->query_params, "sdk_version", HDNS_VER);
     apr_table_set(req->query_params, "sid", scheduler->config->session_id);
     if (using_sign && hdns_str_is_not_blank(secret_key)) {
         char *nonce = generate_nonce(req_pool);

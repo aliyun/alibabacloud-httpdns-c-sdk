@@ -68,7 +68,7 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
      */
     int ret = HDNS_ERROR;
     hdns_resv_resp_t *cache_resp = hdns_cache_table_get(cache, cache_key, rr_type);
-    if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip) && hdns_list_is_not_empty(cache_resp->ips)) {
+    if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip)) {
         hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
         ret = HDNS_OK;
         goto cleanup;

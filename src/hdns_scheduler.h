@@ -27,6 +27,7 @@ typedef struct {
     apr_thread_pool_t *thread_pool;
     hdns_config_t *config;
     apr_thread_mutex_t *lock;
+    volatile hdns_state_e state;
 } hdns_scheduler_t;
 
 

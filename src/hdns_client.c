@@ -428,6 +428,10 @@ typedef struct {
 
 void hdns_net_speed_cache_cb_fn(hdns_list_head_t *sorted_ips, void *user_params) {
     hdns_net_speed_cache_cb_fn_param_t *param = user_params;
+    if (hdns_list_is_empty(sorted_ips)) {
+        hdns_pool_destroy(param->pool);
+        return;
+    }
     hdns_list_for_each_entry_safe(sorted_cursor, sorted_ips) {
         hdns_list_for_each_entry_safe(cursor, param->resp->ips) {
             hdns_ip_t *sorted_ip = sorted_cursor->data;
@@ -471,7 +475,8 @@ static void hdns_probe_resv_resp_ips(hdns_client_t *client, hdns_resv_resp_t *re
                                        param,
                                        resp->ips,
                                        (*port),
-                                       client);
+                                       client,
+                                       &(client->state));
     }
 }
 

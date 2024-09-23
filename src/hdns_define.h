@@ -42,6 +42,15 @@ typedef enum {
     HDNS_HTTP_DELETE
 } http_method_e;
 
+typedef enum {
+    HDNS_STATE_INIT = 0,
+    HDNS_STATE_START,
+    HDNS_STATE_RUNNING,
+    HDNS_STATE_STOPPING,
+    HDNS_STATE_DESTROYED
+} hdns_state_e;
+
+
 
 typedef enum {
     HDNS_OK = 0,

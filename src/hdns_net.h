@@ -62,8 +62,8 @@ typedef struct {
     hdns_list_head_t *ips;
     int port;
     void *param;
-    void *ownner;
-    volatile bool stop_signal;
+    void *owner;
+    volatile hdns_state_e *ownner_state;
 } hdns_net_speed_detect_task_t;
 
 typedef struct {
@@ -115,7 +115,8 @@ void hdns_net_add_speed_detect_task(hdns_net_detector_t *detector,
                                     void *param,
                                     hdns_list_head_t *ips,
                                     int port,
-                                    void *owner);
+                                    void *owner,
+                                    hdns_state_e *owner_state);
 
 hdns_net_type_t hdns_net_get_type(hdns_net_detector_t *detector);
 

@@ -99,7 +99,8 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
     }
     hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     hdns_list_for_each_entry_safe(cursor, task->ips) {
-        if (task->stop_signal) {
+        bool stop_signal = (*(task->ownner_state) == HDNS_STATE_STOPPING);
+        if (stop_signal) {
             goto cleanup;
         }
         hdns_ip_t *ip = hdns_ip_create(task->pool, cursor->data);
@@ -124,7 +125,7 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
-        rv = apr_socket_timeout_set(sock, 5 * APR_USEC_PER_SEC);
+        rv = apr_socket_timeout_set(sock, 3 * APR_USEC_PER_SEC);
         if (rv != APR_SUCCESS) {
             apr_socket_close(sock);
             hdns_list_add(sorted_ips, ip, NULL);
@@ -164,7 +165,7 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, vo
                                                   hdns_net_speed_detect_runner,
                                                   task,
                                                   0,
-                                                  task->ownner);
+                                                  task->owner);
             if (s != APR_SUCCESS) {
                 hdns_log_error("Submit task failed");
             }
@@ -598,7 +599,8 @@ void hdns_net_add_speed_detect_task(hdns_net_detector_t *detector,
                                     void *param,
                                     hdns_list_head_t *ips,
                                     int port,
-                                    void *owner) {
+                                    void *owner,
+                                    hdns_state_e *ownner_state) {
     if (NULL == detector) {
         return;
     }
@@ -610,8 +612,8 @@ void hdns_net_add_speed_detect_task(hdns_net_detector_t *detector,
     task->port = port;
     task->fn = fn;
     task->param = param;
-    task->ownner = owner;
-    task->stop_signal = false;
+    task->owner = owner;
+    task->ownner_state = ownner_state;
     hdns_list_node_t *entry = hdns_palloc(pool, sizeof(hdns_list_node_t));
     entry->data = task;
     entry->pool = pool;

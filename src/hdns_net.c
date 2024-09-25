@@ -389,7 +389,7 @@ void hdns_net_type_detector_update_cache(hdns_net_chg_cb_task_t *task) {
     apr_time_t start = apr_time_now();
     do {
         net_stack_type = detect_net_stack();
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
         //网络切换后，需要等待一段时间后才能探测到网络栈
     } while (net_stack_type == HDNS_NET_UNKNOWN
              && apr_time_sec(apr_time_now() - start) < 30
@@ -590,7 +590,6 @@ void hdns_net_cancel_chg_cb_task(hdns_net_detector_t *detector, void *owner) {
         }
     }
     apr_thread_mutex_unlock(detector->change_detector->lock);
-    apr_thread_pool_tasks_cancel(detector->thread_pool, owner);
 }
 
 

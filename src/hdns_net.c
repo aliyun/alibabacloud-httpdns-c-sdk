@@ -80,7 +80,7 @@ static void *APR_THREAD_FUNC hdns_net_change_detect_task(apr_thread_t *thread, v
             }
             apr_thread_mutex_unlock(detector->change_detector->lock);
         }
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
     }
     hdns_log_info("Network monitoring task terminated.");
     return NULL;
@@ -172,7 +172,7 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, vo
             hdns_list_del(cursor);
         }
         apr_thread_mutex_unlock(detector->speed_detector->lock);
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
     }
     hdns_log_info("Network speed monitoring task terminated.");
     return NULL;

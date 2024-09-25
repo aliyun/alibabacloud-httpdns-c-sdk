@@ -77,8 +77,8 @@ static int hdns_hash_do_get_keys_and_values_callback_fn(void *rec,
                                                         const void *key,
                                                         apr_ssize_t klen,
                                                         const void *value) {
-    hdns_to_void_p(key);
-    hdns_to_int(klen);
+    hdns_unused_var(key);
+    hdns_unused_var(klen);
     hdns_list_head_t *list = rec;
     hdns_list_add(list, value, NULL);
     return 1;
@@ -112,8 +112,8 @@ static int hdns_hash_do_get_keys_callback_fn(void *rec,
                                              const void *key,
                                              apr_ssize_t klen,
                                              const void *value) {
-    hdns_to_void_p(key);
-    hdns_to_int(klen);
+    hdns_unused_var(key);
+    hdns_unused_var(klen);
     hdns_list_head_t *list = rec;
     const hdns_cache_entry_t *entry = value;
     // SNDS entry ignore

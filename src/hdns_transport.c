@@ -362,7 +362,7 @@ size_t hdns_curl_default_write_callback(char *ptr, size_t size, size_t nmemb, vo
     }
 
     if ((bytes = t->resp->write_body(t->resp, ptr, len)) < 0) {
-        hdns_log_debug("write body failure, %d.", bytes);
+        hdns_log_debug("write body failure, %zu.", bytes);
         t->resp->extra_info->error_code = HDNS_WRITE_BODY_ERROR;
         t->resp->extra_info->reason = "write body failure.";
         return 0;
@@ -387,7 +387,7 @@ size_t hdns_curl_default_read_callback(char *buffer, size_t size, size_t nitems,
     }
 
     if ((bytes = t->req->read_body(t->req, buffer, len)) < 0) {
-        hdns_log_debug("read body failure, %d.", bytes);
+        hdns_log_debug("read body failure, %zu.", bytes);
         t->resp->extra_info->error_code = HDNS_READ_BODY_ERROR;
         t->resp->extra_info->reason = "read body failure.";
         return CURL_READFUNC_ABORT;

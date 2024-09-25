@@ -15,7 +15,7 @@
 hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *resv_req, hdns_cache_t *cache);
 
 hdns_status_t hdns_batch_fetch_resv_results(hdns_client_t *client,
-                                            hdns_list_head_t *hosts,
+                                            const hdns_list_head_t *hosts,
                                             hdns_query_type_t query_type,
                                             const char *client_ip,
                                             hdns_cache_t *cache);
@@ -162,6 +162,8 @@ hdns_status_t hdns_do_single_resolve_with_req(hdns_client_t *client,
                 hdns_resv_resp_destroy(resp);
                 break;
             }
+            default:
+                break;
         }
         if (query_type_for_server > 0) {
             resv_req->query_type = query_type_for_server;
@@ -293,6 +295,8 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
                     hdns_resv_resp_destroy(resp);
                     break;
                 }
+                default:
+                    break;
             }
         }
         status = hdns_batch_fetch_resv_results(client,
@@ -364,7 +368,7 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
 
 
 hdns_status_t hdns_batch_fetch_resv_results(hdns_client_t *client,
-                                            hdns_list_head_t *hosts,
+                                            const hdns_list_head_t *hosts,
                                             hdns_query_type_t query_type,
                                             const char *client_ip,
                                             hdns_cache_t *cache) {

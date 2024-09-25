@@ -310,6 +310,7 @@ APR_THREAD_FUNC hdns_get_result_for_host_async_with_cache_thread(apr_thread_t *t
     }
 
     param->success = param->success && hit_cache;
+    return NULL;
 }
 
 static void *
@@ -465,17 +466,17 @@ void test_hdns_api_multi_threads(CuTest *tc) {
     hdns_test_task_param_t *task_params[10];
     int arr_size = sizeof(task_params) / sizeof(task_params[0]);
 
-    apr_thread_start_t *tasks[10] = {
-            hdns_get_result_for_host_sync_with_custom_request_thread,
-            hdns_get_result_for_host_sync_with_cache_thread,
-            hdns_get_result_for_host_sync_without_cache_thread,
-            hdns_get_results_for_hosts_sync_with_cache_thread,
-            hdns_get_results_for_hosts_sync_without_cache_thread,
-            hdns_get_result_for_host_async_with_custom_request_thread,
-            hdns_get_result_for_host_async_with_cache_thread,
-            hdns_get_result_for_host_async_without_cache_thread,
-            hdns_get_results_for_hosts_async_with_cache_thread,
-            hdns_get_results_for_hosts_async_without_cache_thread
+    apr_thread_start_t tasks[10] = {
+            (apr_thread_start_t) hdns_get_result_for_host_sync_with_custom_request_thread,
+            (apr_thread_start_t) hdns_get_result_for_host_sync_with_cache_thread,
+            (apr_thread_start_t) hdns_get_result_for_host_sync_without_cache_thread,
+            (apr_thread_start_t) hdns_get_results_for_hosts_sync_with_cache_thread,
+            (apr_thread_start_t) hdns_get_results_for_hosts_sync_without_cache_thread,
+            (apr_thread_start_t) hdns_get_result_for_host_async_with_custom_request_thread,
+            (apr_thread_start_t) hdns_get_result_for_host_async_with_cache_thread,
+            (apr_thread_start_t) hdns_get_result_for_host_async_without_cache_thread,
+            (apr_thread_start_t) hdns_get_results_for_hosts_async_with_cache_thread,
+            (apr_thread_start_t) hdns_get_results_for_hosts_async_without_cache_thread
     };
 
     char *msgs[10] = {

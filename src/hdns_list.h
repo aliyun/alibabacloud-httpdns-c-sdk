@@ -63,7 +63,7 @@ void hdns_list_free(hdns_list_head_t *list);
 
 int32_t hdns_list_add(hdns_list_head_t *head, const void *data, hdns_list_clone_fn_t clone);
 
-hdns_list_node_t *hdns_list_first(hdns_list_head_t *head);
+hdns_list_node_t *hdns_list_first(const hdns_list_head_t *head);
 
 void hdns_list_del(hdns_list_node_t *entry);
 

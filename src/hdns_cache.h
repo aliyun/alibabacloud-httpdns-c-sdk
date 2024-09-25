@@ -11,7 +11,7 @@
 HDNS_CPP_START
 
 typedef struct {
-    hdns_resv_resp_t *pool;
+    hdns_pool_t *pool;
     hdns_hash_t *v4_table;
     hdns_hash_t *v6_table;
     apr_thread_mutex_t *lock;

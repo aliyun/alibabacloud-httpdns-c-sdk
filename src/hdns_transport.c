@@ -46,7 +46,7 @@ static void hdns_move_transport_state(hdns_http_transport_t *t, hdns_transport_s
 
 
 static int hdns_curl_debug_callback(void *handle, curl_infotype type, char *data, size_t size, void *userp) {
-    hdns_to_void_p(userp);
+    hdns_unused_var(userp);
     switch (type) {
         default:
             break;
@@ -84,7 +84,7 @@ static void hdns_init_curl_headers(hdns_http_transport_t *t) {
     union hdns_func_u func;
 
     if (t->req->method == HDNS_HTTP_PUT || t->req->method == HDNS_HTTP_POST) {
-        header = apr_psprintf(t->pool, "Content-Length: %" APR_INT64_T_FMT, t->req->body_len);
+        header = apr_psprintf(t->pool, "Content-Length: %" PRId64, t->req->body_len);
         t->curl_ctx->headers = curl_slist_append(t->curl_ctx->headers, header);
     }
 
@@ -226,7 +226,7 @@ static int hdns_init_curl_url(hdns_http_transport_t *t) {
                                         t->req->proto,
                                         host,
                                         uristr,
-                                        querystr.len,
+                                        hdns_to_int(querystr.len),
                                         querystr.data);
     }
     hdns_log_debug("url:%s.", t->curl_ctx->url);
@@ -362,7 +362,7 @@ size_t hdns_curl_default_write_callback(char *ptr, size_t size, size_t nmemb, vo
     }
 
     if ((bytes = t->resp->write_body(t->resp, ptr, len)) < 0) {
-        hdns_log_debug("write body failure, %d.", bytes);
+        hdns_log_debug("write body failure, %zu.", bytes);
         t->resp->extra_info->error_code = HDNS_WRITE_BODY_ERROR;
         t->resp->extra_info->reason = "write body failure.";
         return 0;
@@ -387,7 +387,7 @@ size_t hdns_curl_default_read_callback(char *buffer, size_t size, size_t nitems,
     }
 
     if ((bytes = t->req->read_body(t->req, buffer, len)) < 0) {
-        hdns_log_debug("read body failure, %d.", bytes);
+        hdns_log_debug("read body failure, %zu.", bytes);
         t->resp->extra_info->error_code = HDNS_READ_BODY_ERROR;
         t->resp->extra_info->reason = "read body failure.";
         return CURL_READFUNC_ABORT;

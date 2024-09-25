@@ -13,7 +13,7 @@ bool hdns_is_valid_ipv6(const char *ipv6);
 
 bool hdns_is_valid_ipv4(const char *ip);
 
-void hdns_md5(const char* content, size_t size, unsigned char* digest);
+void hdns_md5(const char* content, size_t size, char* digest);
 
-void hdns_encode_hex(const char* data, size_t size, char* hex);
+void hdns_encode_hex(const unsigned char* data, size_t size, char* hex);
 #endif

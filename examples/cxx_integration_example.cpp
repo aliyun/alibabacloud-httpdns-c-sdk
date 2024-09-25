@@ -11,8 +11,8 @@
 
 
 static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
-    hdns_to_void_p(buffer);
-    hdns_to_void_p(write_data);
+    hdns_unused_var(buffer);
+    hdns_unused_var(write_data);
     size_t real_size = size * nmemb;
     printf("get %zuB data\n", size * nmemb);
     return real_size;
@@ -58,38 +58,9 @@ static void mock_access_business_web_server(const char *dst_ip) {
     }
 }
 
-// 3. 构建解析回调函数
-static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *results, void *param) {
-    bool *success = static_cast<bool *>(param);
-    *success = hdns_status_is_ok(status);
-    if (hdns_status_is_ok(status)) {
-
-        hdns_list_for_each_entry_safe(cursor, results) {
-            printf("resolve success, ips [ ");
-            auto *resp = static_cast<hdns_resv_resp_t *>(cursor->data);
-            hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                printf("%s", (char *) ip_cursor->data);
-                if (!hdns_list_is_end_node(ip_cursor, resp->ips)) {
-                    printf("%s", ",");
-                }
-            }
-            printf("]\n");
-        }
-    } else {
-        fprintf(stderr, "resv failed, error_code %s, error_msg:%s", status->error_code, status->error_msg);
-    }
-    if (hdns_status_is_ok(status)) {
-        char ip[HDNS_IP_ADDRESS_STRING_LENGTH];
-        if (hdns_select_ip_randomly(results, HDNS_QUERY_AUTO, ip) == HDNS_OK) {
-            mock_access_business_web_server(ip);
-        }
-    }
-}
-
-
 int main(int argc, char *argv[]) {
-    hdns_to_void_p(argv);
-    hdns_to_int(argc);
+    hdns_unused_var(argv);
+    hdns_unused_var(argc);
     hdns_client_t *client = nullptr;
     hdns_list_head_t *results = nullptr;
     hdns_resv_resp_t *resp = nullptr;

@@ -11,10 +11,10 @@
 
 
 static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void *write_data) {
-    hdns_to_void_p(buffer);
-    hdns_to_void_p(write_data);
+    hdns_unused_var(buffer);
+    hdns_unused_var(write_data);
     size_t real_size = size * nmemb;
-    printf("get %dB data\n", size * nmemb);
+    printf("get %zuB data\n", size * nmemb);
     return real_size;
 }
 
@@ -88,8 +88,8 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
 
 
 int main(int argc, char *argv[]) {
-    hdns_to_void_p(argv);
-    hdns_to_int(argc);
+    hdns_unused_var(argv);
+    hdns_unused_var(argc);
     // 1. HTTPDNS SDK 环境初始化
     if (hdns_sdk_init() != HDNS_OK) {
         goto cleanup;

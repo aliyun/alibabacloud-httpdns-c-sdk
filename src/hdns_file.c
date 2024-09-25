@@ -19,7 +19,7 @@ int32_t hdns_file_create_dir(const char *dir_path) {
     } else {
         char errbuf[128];
         apr_strerror(rv, errbuf, sizeof(errbuf));
-        hdns_log_info(stderr, "Error checking directory '%s': %s", dir_path, errbuf);
+        hdns_log_info("Error checking directory '%s': %s", dir_path, errbuf);
     }
     hdns_pool_destroy(mp);
     return rv == APR_SUCCESS ? HDNS_OK : HDNS_ERROR;

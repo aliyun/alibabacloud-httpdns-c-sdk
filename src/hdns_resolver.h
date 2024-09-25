@@ -69,17 +69,17 @@ typedef struct {
 
 hdns_resv_resp_t *hdns_resv_resp_create_empty(hdns_pool_t *pool, const char *host, hdns_rr_type_t type);
 
-hdns_status_t hdns_resv_req_valid(hdns_resv_req_t *req);
+hdns_status_t hdns_resv_req_valid(const hdns_resv_req_t *req);
 
 hdns_resv_req_t *hdns_resv_req_new(hdns_pool_t *pool, hdns_config_t *config);
 
 void hdns_resv_req_free(hdns_resv_req_t *req);
 
-hdns_resv_req_t *hdns_resv_req_clone(hdns_pool_t *pool, hdns_resv_req_t *origin_req);
+hdns_resv_req_t *hdns_resv_req_clone(hdns_pool_t *pool, const hdns_resv_req_t *origin_req);
 
 hdns_http_response_t *hdns_resv_send_req(hdns_pool_t *req_pool, hdns_resv_req_t *resv_req);
 
-hdns_resv_resp_t *hdns_resv_resp_clone(hdns_pool_t *pool, hdns_resv_resp_t *origin_resp);
+hdns_resv_resp_t *hdns_resv_resp_clone(hdns_pool_t *pool, const hdns_resv_resp_t *origin_resp);
 
 void hdns_resv_resp_destroy(hdns_resv_resp_t *resp);
 

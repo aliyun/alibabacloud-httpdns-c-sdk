@@ -14,6 +14,21 @@
 #define  HDNS_API_RESOLVE             "/resolve"
 #define  HDNS_API_SIGN_RESOLVE        "/sign_resolve"
 
+#define  HDNS_QUERY_TYPE_A        "4"
+#define  HDNS_QUERY_TYPE_AAAA     "6"
+#define  HDNS_QUERY_TYPE_BOTH   "4,6"
+
+static const char *hdns_query_type_to_string(hdns_query_type_t query_type_e) {
+    switch (query_type_e) {
+        case HDNS_QUERY_IPV4:
+            return HDNS_QUERY_TYPE_A;
+        case HDNS_QUERY_IPV6:
+            return HDNS_QUERY_TYPE_AAAA;
+        default:
+            return HDNS_QUERY_TYPE_BOTH;
+    }
+}
+
 
 static int parse_single_resv_resp(const char *body, hdns_list_head_t *resv_resps, const char *cache_key);
 
@@ -249,7 +264,7 @@ hdns_resv_req_t *hdns_resv_req_new(hdns_pool_t *pool, hdns_config_t *config) {
     return resv_req;
 }
 
-hdns_resv_resp_t *hdns_resv_resp_clone(hdns_pool_t *pool, hdns_resv_resp_t *origin_resp) {
+hdns_resv_resp_t *hdns_resv_resp_clone(hdns_pool_t *pool, const hdns_resv_resp_t *origin_resp) {
     if (NULL == pool) {
         hdns_pool_create(&pool, NULL);
     }
@@ -275,7 +290,7 @@ void hdns_resv_resp_destroy(hdns_resv_resp_t *resp) {
     }
 }
 
-hdns_status_t hdns_resv_req_valid(hdns_resv_req_t *req) {
+hdns_status_t hdns_resv_req_valid(const hdns_resv_req_t *req) {
     if (NULL == req) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,
@@ -402,7 +417,7 @@ void hdns_resv_req_free(hdns_resv_req_t *req) {
     }
 }
 
-hdns_resv_req_t *hdns_resv_req_clone(hdns_pool_t *pool, hdns_resv_req_t *origin_req) {
+hdns_resv_req_t *hdns_resv_req_clone(hdns_pool_t *pool, const hdns_resv_req_t *origin_req) {
     if (NULL == pool) {
         hdns_pool_create(&pool, NULL);
     }

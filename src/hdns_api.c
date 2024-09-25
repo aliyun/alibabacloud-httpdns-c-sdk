@@ -23,9 +23,9 @@ static hdns_net_detector_t *g_hdns_net_detector = NULL;
 
 
 static void empty_hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *results, void *param) {
-    hdns_to_void_p(status);
-    hdns_to_void_p(results);
-    hdns_to_void_p(param);
+    hdns_unused_var(status);
+    hdns_unused_var(results);
+    hdns_unused_var(param);
     if (NULL == status) {
         hdns_log_error("Pre-resolution failed.");
     }
@@ -490,7 +490,7 @@ typedef struct {
 } hdns_single_resv_with_custom_req_param_t;
 
 static void *APR_THREAD_FUNC hdns_single_resv_with_custom_req_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_single_resv_with_custom_req_param_t *param = data;
     hdns_list_head_t *results = NULL;
     hdns_status_t status = hdns_get_result_for_host_sync_with_custom_request(param->client, param->resv_req, &results);
@@ -546,7 +546,7 @@ typedef struct {
 } hdns_single_resv_task_param_t;
 
 static void *APR_THREAD_FUNC hdns_single_resv_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_single_resv_task_param_t *param = data;
     hdns_list_head_t *results = NULL;
     hdns_status_t status = hdns_get_result_for_host_sync(param->client,
@@ -641,7 +641,7 @@ typedef struct {
 
 
 static void *APR_THREAD_FUNC hdns_batch_resv_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_batch_resv_task_param_t *param = data;
     hdns_list_head_t *results = NULL;
     hdns_status_t status = hdns_get_results_for_hosts_sync(param->client,
@@ -883,6 +883,7 @@ static void *APR_THREAD_FUNC hdns_client_cleanup_task(apr_thread_t *thread, void
         hdns_pool_destroy(client->pool);
         hdns_log_info("The client has been destroyed.");
     }
+    return NULL;
 }
 
 void hdns_client_cleanup(hdns_client_t *client) {

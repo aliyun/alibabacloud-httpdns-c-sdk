@@ -45,7 +45,7 @@ void hdns_net_type_detector_update_cache(hdns_net_chg_cb_task_t *task);
 
 
 static void *APR_THREAD_FUNC hdns_net_chg_cb_task_runner(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_net_chg_cb_task_t *task = data;
     task->fn(task);
     apr_atomic_dec32(&task->parallelism);
@@ -53,8 +53,8 @@ static void *APR_THREAD_FUNC hdns_net_chg_cb_task_runner(apr_thread_t *thread, v
 }
 
 static void *APR_THREAD_FUNC hdns_net_change_detect_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_detector_t *detector = data;
     while (!detector->change_detector->stop_signal) {
         if (hdns_net_is_changed(detector)) {
@@ -80,24 +80,24 @@ static void *APR_THREAD_FUNC hdns_net_change_detect_task(apr_thread_t *thread, v
             }
             apr_thread_mutex_unlock(detector->change_detector->lock);
         }
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
     }
     hdns_log_info("Network monitoring task terminated.");
     return NULL;
 }
 
 static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_speed_detect_task_t *task = data;
     apr_status_t rv;
     apr_socket_t *sock = NULL;
     apr_sockaddr_t *sa = NULL;
     apr_time_t start;
+    hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     if (hdns_list_is_empty(task->ips)) {
        goto cleanup;
     }
-    hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     hdns_list_for_each_entry_safe(cursor, task->ips) {
         bool stop_signal = (*(task->ownner_state) == HDNS_STATE_STOPPING);
         if (stop_signal) {
@@ -150,8 +150,8 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
 }
 
 static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_detector_t *detector = data;
     while (!detector->speed_detector->stop_signal) {
         apr_thread_mutex_lock(detector->speed_detector->lock);
@@ -172,7 +172,7 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, vo
             hdns_list_del(cursor);
         }
         apr_thread_mutex_unlock(detector->speed_detector->lock);
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
     }
     hdns_log_info("Network speed monitoring task terminated.");
     return NULL;
@@ -389,7 +389,7 @@ void hdns_net_type_detector_update_cache(hdns_net_chg_cb_task_t *task) {
     apr_time_t start = apr_time_now();
     do {
         net_stack_type = detect_net_stack();
-        apr_sleep(1 * APR_USEC_PER_SEC);
+        apr_sleep(APR_USEC_PER_SEC / 2);
         //网络切换后，需要等待一段时间后才能探测到网络栈
     } while (net_stack_type == HDNS_NET_UNKNOWN
              && apr_time_sec(apr_time_now() - start) < 30
@@ -590,7 +590,6 @@ void hdns_net_cancel_chg_cb_task(hdns_net_detector_t *detector, void *owner) {
         }
     }
     apr_thread_mutex_unlock(detector->change_detector->lock);
-    apr_thread_pool_tasks_cancel(detector->thread_pool, owner);
 }
 
 

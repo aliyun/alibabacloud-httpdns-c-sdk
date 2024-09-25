@@ -50,17 +50,17 @@ bool hdns_is_valid_ipv4(const char *ip) {
     return inet_pton(AF_INET, ip, &addr) == 1;
 }
 
-void hdns_md5(const char *content, size_t size, unsigned char *digest) {
+void hdns_md5(const char *content, size_t size, char *digest) {
     apr_md5_ctx_t ctx;
     apr_md5_init(&ctx);
     apr_md5_update(&ctx, content, size);
-    char binary_digest[HDNS_MD5_STRING_LEN / 2];
+    unsigned char binary_digest[HDNS_MD5_STRING_LEN / 2];
     apr_md5_final(binary_digest, &ctx);
     hdns_encode_hex(binary_digest, HDNS_MD5_STRING_LEN / 2, digest);
 }
 
 
-void hdns_encode_hex(const char *data, size_t size, char *hex) {
+void hdns_encode_hex(const unsigned char *data, size_t size, char *hex) {
     const char hex_digits[] = "0123456789abcdef";
     for (int32_t i = 0; i < size; i++) {
         hex[i * 2] = hex_digits[(data[i] >> 4) & 0x0F];

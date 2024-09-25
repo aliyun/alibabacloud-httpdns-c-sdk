@@ -195,7 +195,7 @@ typedef struct {
 } hdns_sched_refresh_task_param_t;
 
 static void *APR_THREAD_FUNC hdns_sched_refresh_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_sched_refresh_task_param_t *param = data;
     hdns_status_t status = hdns_scheduler_refresh_resolvers(param->scheduler);
     if (hdns_status_is_ok(&status)) {

@@ -7,11 +7,11 @@
 #include "hdns_cache.h"
 
 
-static char *get_cache_key(hdns_cache_entry_t *entry) {
+static char *get_cache_key(const hdns_cache_entry_t *entry) {
     return hdns_str_is_blank(entry->cache_key) ? entry->host : entry->cache_key;
 }
 
-static hdns_hash_t *select_hash_table(hdns_cache_t *cache, hdns_query_type_t type) {
+static hdns_hash_t *select_hash_table(hdns_cache_t *cache, hdns_rr_type_t type) {
     return type == HDNS_RR_TYPE_A ? cache->v4_table : cache->v6_table;
 }
 
@@ -77,8 +77,8 @@ static int hdns_hash_do_get_keys_and_values_callback_fn(void *rec,
                                                         const void *key,
                                                         apr_ssize_t klen,
                                                         const void *value) {
-    hdns_to_void_p(key);
-    hdns_to_int(klen);
+    hdns_unused_var(key);
+    hdns_unused_var(klen);
     hdns_list_head_t *list = rec;
     hdns_list_add(list, value, NULL);
     return 1;
@@ -112,10 +112,10 @@ static int hdns_hash_do_get_keys_callback_fn(void *rec,
                                              const void *key,
                                              apr_ssize_t klen,
                                              const void *value) {
-    hdns_to_void_p(key);
-    hdns_to_int(klen);
+    hdns_unused_var(key);
+    hdns_unused_var(klen);
     hdns_list_head_t *list = rec;
-    hdns_cache_entry_t *entry = value;
+    const hdns_cache_entry_t *entry = value;
     // SNDS entry ignore
     if (hdns_str_is_not_blank(entry->cache_key)
         && hdns_str_is_not_blank(entry->host)

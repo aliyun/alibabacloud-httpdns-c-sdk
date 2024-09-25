@@ -226,7 +226,7 @@ static int hdns_init_curl_url(hdns_http_transport_t *t) {
                                         t->req->proto,
                                         host,
                                         uristr,
-                                        (int) querystr.len,
+                                        hdns_to_int(querystr.len),
                                         querystr.data);
     }
     hdns_log_debug("url:%s.", t->curl_ctx->url);

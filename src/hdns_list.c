@@ -51,7 +51,7 @@ int32_t hdns_list_add(hdns_list_head_t *head, const void *data, hdns_list_clone_
         node->data = clone(head->pool, data);
 #endif
     } else {
-        node->data = (void *) data;
+        node->data = hdns_to_void_p(data);
     }
     hdns_list_insert_tail(node, head);
     return HDNS_OK;

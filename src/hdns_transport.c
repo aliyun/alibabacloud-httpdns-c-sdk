@@ -46,7 +46,7 @@ static void hdns_move_transport_state(hdns_http_transport_t *t, hdns_transport_s
 
 
 static int hdns_curl_debug_callback(void *handle, curl_infotype type, char *data, size_t size, void *userp) {
-    hdns_to_void_p(userp);
+    hdns_unused_var(userp);
     switch (type) {
         default:
             break;

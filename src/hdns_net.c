@@ -45,7 +45,7 @@ void hdns_net_type_detector_update_cache(hdns_net_chg_cb_task_t *task);
 
 
 static void *APR_THREAD_FUNC hdns_net_chg_cb_task_runner(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
+    hdns_unused_var(thread);
     hdns_net_chg_cb_task_t *task = data;
     task->fn(task);
     apr_atomic_dec32(&task->parallelism);
@@ -53,8 +53,8 @@ static void *APR_THREAD_FUNC hdns_net_chg_cb_task_runner(apr_thread_t *thread, v
 }
 
 static void *APR_THREAD_FUNC hdns_net_change_detect_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_detector_t *detector = data;
     while (!detector->change_detector->stop_signal) {
         if (hdns_net_is_changed(detector)) {
@@ -87,8 +87,8 @@ static void *APR_THREAD_FUNC hdns_net_change_detect_task(apr_thread_t *thread, v
 }
 
 static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_speed_detect_task_t *task = data;
     apr_status_t rv;
     apr_socket_t *sock = NULL;
@@ -150,8 +150,8 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
 }
 
 static void *APR_THREAD_FUNC hdns_net_speed_detect_task(apr_thread_t *thread, void *data) {
-    hdns_to_void_p(thread);
-    hdns_to_void_p(data);
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
     hdns_net_detector_t *detector = data;
     while (!detector->speed_detector->stop_signal) {
         apr_thread_mutex_lock(detector->speed_detector->lock);

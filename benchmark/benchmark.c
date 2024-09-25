@@ -66,8 +66,8 @@ hdns_metric_t g_metric = {
 
 
 int main(int argc, char *argv[]) {
-    hdns_to_void_p(argv);
-    hdns_to_int(argc);
+    hdns_unused_var(argv);
+    hdns_unused_var(argc);
     // 1. HTTPDNS SDK 环境初始化
     if (hdns_sdk_init() != HDNS_OK) {
         goto cleanup;

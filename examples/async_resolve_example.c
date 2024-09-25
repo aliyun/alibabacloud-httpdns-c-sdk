@@ -14,7 +14,7 @@ static size_t write_data_callback(void *buffer, size_t size, size_t nmemb, void 
     hdns_to_void_p(buffer);
     hdns_to_void_p(write_data);
     size_t real_size = size * nmemb;
-    printf("get %dB data\n", size * nmemb);
+    printf("get %zuB data\n", size * nmemb);
     return real_size;
 }
 

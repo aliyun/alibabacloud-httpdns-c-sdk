@@ -13,20 +13,20 @@ PROJECT(httpdns_c_sdk LANGUAGES C)
 ####################################  编译选项  ###########################################
 # default Release C flags
 IF (CMAKE_HOST_UNIX OR CMAKE_HOST_APPLE)
-    SET(CMAKE_C_FLAGS " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    SET(CMAKE_CXX_FLAGS " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_C_FLAGS " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_CXX_FLAGS " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    SET(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    SET(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_C_FLAGS_DEBUG " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_CXX_FLAGS_DEBUG " -g -ggdb -O0 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    SET(CMAKE_C_FLAGS_RELEASE " -O3 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_C_FLAGS_RELEASE " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_CXX_FLAGS_RELEASE " -O3 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    SET(CMAKE_C_FLAGS_MINSIZEREF " -Os -w  -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    SET(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_C_FLAGS_MINSIZEREF " -Os -Wall -Werror  -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_CXX_FLAGS_MINSIZEREF " -Os -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
-    SET(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
-    SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -w -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_C_FLAGS_RELWITHDEBINFO " -O2 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
+    SET(CMAKE_CXX_FLAGS_RELWITHDEBINFO " -O2 -Wall -Werror -fpic -fPIC -D_LARGEFILE64_SOURCE")
 
     SET(CMAKE_C_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")
     SET(CMAKE_CXX_FLAGS_COVERAGE " ${CMAKE_C_FLAGS_DEBUG} -fprofile-arcs -ftest-coverage")

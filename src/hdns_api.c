@@ -883,6 +883,7 @@ static void *APR_THREAD_FUNC hdns_client_cleanup_task(apr_thread_t *thread, void
         hdns_pool_destroy(client->pool);
         hdns_log_info("The client has been destroyed.");
     }
+    return NULL;
 }
 
 void hdns_client_cleanup(hdns_client_t *client) {

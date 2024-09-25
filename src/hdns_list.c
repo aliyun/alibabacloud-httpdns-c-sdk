@@ -51,13 +51,13 @@ int32_t hdns_list_add(hdns_list_head_t *head, const void *data, hdns_list_clone_
         node->data = clone(head->pool, data);
 #endif
     } else {
-        node->data = data;
+        node->data = (void *) data;
     }
     hdns_list_insert_tail(node, head);
     return HDNS_OK;
 }
 
-hdns_list_node_t *hdns_list_first(hdns_list_head_t *head) {
+hdns_list_node_t *hdns_list_first(const hdns_list_head_t *head) {
     return head->next;
 }
 

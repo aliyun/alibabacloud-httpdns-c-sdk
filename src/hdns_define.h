@@ -77,21 +77,6 @@ typedef enum {
     HDNS_QUERY_BOTH = 0x03,
 } hdns_query_type_t;
 
-#define  HDNS_QUERY_TYPE_A        "4"
-#define  HDNS_QUERY_TYPE_AAAA     "6"
-#define  HDNS_QUERY_TYPE_BOTH   "4,6"
-
-static const char *hdns_query_type_to_string(hdns_query_type_t query_type_e) {
-    switch (query_type_e) {
-        case HDNS_QUERY_IPV4:
-            return HDNS_QUERY_TYPE_A;
-        case HDNS_QUERY_IPV6:
-            return HDNS_QUERY_TYPE_AAAA;
-        default:
-            return HDNS_QUERY_TYPE_BOTH;
-    }
-}
-
 // APR方法别名
 typedef apr_hash_t hdns_hash_t;
 typedef apr_pool_t hdns_pool_t;

@@ -28,7 +28,7 @@ static hdns_sign_t *hdns_generate_sign(hdns_pool_t *pool,
 
     char hex_sign_str[HDNS_MD5_STRING_LEN + 1];
 
-    hdns_md5((unsigned char *) str_for_sign, strlen(str_for_sign), (unsigned char *) hex_sign_str);
+    hdns_md5(str_for_sign, strlen(str_for_sign), hex_sign_str);
 
     hdns_sign_t *signature = hdns_palloc(pool, sizeof(hdns_sign_t));
     signature->sign = apr_pstrdup(pool, hex_sign_str);

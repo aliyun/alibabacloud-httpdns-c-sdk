@@ -53,9 +53,9 @@ int64_t get_memory_usage();
     } while (0)
 
 typedef struct {
-    int64_t total_times;
-    int64_t memeroy_usage_bytes;
-    int64_t api_time_cost_us[4];
+    int32_t total_times;
+    int32_t memeroy_usage_bytes;
+    int32_t api_time_cost_us[4];
 } hdns_metric_t;
 
 

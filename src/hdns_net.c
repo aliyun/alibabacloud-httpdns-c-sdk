@@ -94,10 +94,10 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
     apr_socket_t *sock = NULL;
     apr_sockaddr_t *sa = NULL;
     apr_time_t start;
+    hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     if (hdns_list_is_empty(task->ips)) {
        goto cleanup;
     }
-    hdns_list_head_t *sorted_ips = hdns_list_new(task->pool);
     hdns_list_for_each_entry_safe(cursor, task->ips) {
         bool stop_signal = (*(task->ownner_state) == HDNS_STATE_STOPPING);
         if (stop_signal) {

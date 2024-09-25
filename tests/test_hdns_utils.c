@@ -36,7 +36,7 @@ void test_hdns_md5(CuTest *tc) {
 void test_hdns_encode_hex(CuTest *tc) {
     char *data = "a-bc";
     char hex[32];
-    hdns_encode_hex(data, strlen(data), hex);
+    hdns_encode_hex((unsigned char*) data, strlen(data), hex);
     bool success = (strcmp(hex, "612d6263") == 0);
     CuAssert(tc, "test_hdns_encode_hex failed", success);
 }

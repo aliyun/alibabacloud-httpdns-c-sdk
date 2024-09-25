@@ -9,10 +9,11 @@
 void test_config_valid(CuTest *tc) {
     hdns_sdk_init();
     hdns_pool_new(pool);
-    hdns_config_t *config = hdns_config_create(pool);
+    hdns_config_t *config = hdns_config_create();
     config->account_id = apr_pstrdup(pool, "100000");
     hdns_status_t status = hdns_config_valid(config);
     hdns_pool_destroy(pool);
+    hdns_pool_destroy(config->pool);
     hdns_sdk_cleanup();
     CuAssert(tc, "配置验证未通过", hdns_status_is_ok(&status));
 }

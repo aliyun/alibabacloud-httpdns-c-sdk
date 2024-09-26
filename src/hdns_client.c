@@ -511,8 +511,9 @@ hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *re
             if (hdns_http_should_retry(http_resp)) {
                 hdns_scheduler_failover(client->scheduler, resolver);
                 retry_times--;
+                continue;
             }
-            continue;
+            break;
         }
         // 服务端正常响应
         if (http_resp->status == HDNS_HTTP_STATUS_OK) {

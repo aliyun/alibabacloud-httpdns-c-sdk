@@ -111,6 +111,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define hdns_pcalloc(p, s) apr_pcalloc(p, s)
 
 // HTTPDNS定义宏
+#define hdns_to_long(v)   (long)(v)
 #define hdns_to_int(v)   (int)(v)
 #define hdns_to_char(v)   (char)(v)
 #define hdns_to_void_p(v) (void*)(v)

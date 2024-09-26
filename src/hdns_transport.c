@@ -476,8 +476,8 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
         }
 
         // controller
-        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYPEER, t->controller->verify_peer);
-        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, t->controller->verify_host);
+        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYPEER, hdns_to_long(t->controller->verify_peer));
+        curl_easy_setopt_safe(CURLOPT_SSL_VERIFYHOST, hdns_to_long(t->controller->verify_host));
         if (t->controller->using_http2) {
 #ifdef CURL_HTTP_VERSION_2
             curl_easy_setopt_safe(CURLOPT_HTTP_VERSION, CURL_HTTP_VERSION_2_0);

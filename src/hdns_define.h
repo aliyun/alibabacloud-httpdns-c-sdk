@@ -111,6 +111,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define hdns_pcalloc(p, s) apr_pcalloc(p, s)
 
 // HTTPDNS定义宏
+#define hdns_to_long(v)   (long)(v)
 #define hdns_to_int(v)   (int)(v)
 #define hdns_to_char(v)   (char)(v)
 #define hdns_to_void_p(v) (void*)(v)
@@ -168,7 +169,7 @@ typedef apr_array_header_t hdns_array_header_t;
 #define CRLF   "\x0d\x0a"
 
 #define HDNS_PLATFORM   "linux"
-#define HDNS_VERSION    "2.2.2"
+#define HDNS_VERSION    "2.2.4"
 #define HDNS_VER        "alibabacloud-httpdns-c-sdk-" HDNS_VERSION
 
 #define HDNS_FALSE     0

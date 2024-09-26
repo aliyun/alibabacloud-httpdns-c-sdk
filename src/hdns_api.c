@@ -889,6 +889,7 @@ static void *APR_THREAD_FUNC hdns_client_cleanup_task(apr_thread_t *thread, void
 void hdns_client_cleanup(hdns_client_t *client) {
     if (client != NULL) {
         client->state = HDNS_STATE_STOPPING;
+        client->scheduler->state = HDNS_STATE_STOPPING;
         // 延迟30秒结束，等待正在执行的异步任务
         apr_thread_pool_schedule(g_hdns_api_thread_pool,
                                  hdns_client_cleanup_task,

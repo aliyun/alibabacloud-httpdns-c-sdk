@@ -84,7 +84,7 @@ static void hdns_init_curl_headers(hdns_http_transport_t *t) {
     union hdns_func_u func;
 
     if (t->req->method == HDNS_HTTP_PUT || t->req->method == HDNS_HTTP_POST) {
-        header = apr_psprintf(t->pool, "Content-Length: %" PRId64, t->req->body_len);
+        header = apr_psprintf(t->pool, "Content-Length: %" APR_INT64_T_FMT, (apr_int64_t) t->req->body_len);
         t->curl_ctx->headers = curl_slist_append(t->curl_ctx->headers, header);
     }
 

@@ -128,7 +128,5 @@ int hdns_http_send_request(hdns_http_controller_t *ctl, hdns_http_request_t *req
 
 bool hdns_http_should_retry(hdns_http_response_t *http_resp) {
     // HTTP建链失败或500状态码，进行重试
-    return (HDNS_CONNECTION_FAILED == http_resp->extra_info->error_code)
-           || (HDNS_FAILED_CONNECT == http_resp->extra_info->error_code)
-           || (5 == http_resp->status / 100);
+    return (5 == http_resp->status / 100);
 }

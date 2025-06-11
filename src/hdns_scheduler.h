@@ -23,6 +23,7 @@ typedef struct {
     int32_t cur_ipv4_resolver_index;
     hdns_list_head_t *ipv6_resolvers;
     int32_t cur_ipv6_resolver_index;
+    apr_time_t last_refresh_time;
     hdns_net_detector_t *detector;
     apr_thread_pool_t *thread_pool;
     hdns_config_t *config;

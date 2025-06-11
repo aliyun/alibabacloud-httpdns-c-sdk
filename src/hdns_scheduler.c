@@ -16,6 +16,8 @@ static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips);
 
 hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler);
 
+void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler);
+
 static void hdns_sched_do_parse_sched_resp(hdns_pool_t *req_pool,
                                            hdns_list_head_t *body_bufs,
                                            hdns_list_head_t *ips,
@@ -97,6 +99,8 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->cur_ipv6_resolver_index = 0;
     apr_thread_mutex_create(&scheduler->lock, APR_THREAD_MUTEX_DEFAULT, pool);
     scheduler->state = HDNS_STATE_RUNNING;
+    scheduler->last_refresh_time = apr_time_now();
+    hdns_scheduler_start_refresh_timer(scheduler);
     return scheduler;
 }
 
@@ -167,15 +171,13 @@ static hdns_http_request_t *create_hdns_schd_req(hdns_scheduler_t *scheduler, hd
     hdns_http_request_t *req = hdns_http_request_create(req_pool);
     hdns_config_t *config = scheduler->config;
     apr_thread_mutex_lock(config->lock);
-    bool using_https = config->using_https;
     bool using_sign = config->using_sign;
     char *account_id = apr_pstrdup(req_pool, config->account_id);
     char *region = apr_pstrdup(req_pool, config->region);
     char *secret_key = apr_pstrdup(req_pool, config->secret_key);
     apr_thread_mutex_unlock(config->lock);
-    if (!using_https) {
-        req->proto = HDNS_HTTP_PREFIX;
-    }
+    // 调度服务始终使用HTTPS协议
+    req->proto = HDNS_HTTPS_PREFIX;
     req->uri = apr_pstrcat(req_pool, "/", account_id, "/ss", NULL);
     apr_table_set(req->query_params, "region", region);
     apr_table_set(req->query_params, "platform", HDNS_PLATFORM);
@@ -211,6 +213,23 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_task(apr_thread_t *thread, void 
     return NULL;
 }
 
+static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread, void *data) {
+    hdns_unused_var(thread);
+    hdns_unused_var(data);
+    hdns_sched_refresh_task_param_t *param = data;
+    hdns_scheduler_t *scheduler = param->scheduler;
+    while (scheduler->state != HDNS_STATE_STOPPING) {
+        if (scheduler->last_refresh_time - apr_time_now() > 10 * 60 * APR_USEC_PER_SEC) {
+            scheduler->last_refresh_time = apr_time_now();
+            hdns_scheduler_refresh_resolvers(scheduler);
+        }
+        apr_sleep(APR_USEC_PER_SEC / 2);
+    }
+    hdns_log_info("timer refresh task terminated.");
+    hdns_pool_destroy(param->pool);
+    return NULL;
+}
+
 hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler) {
     hdns_pool_new(pool);
     hdns_sched_refresh_task_param_t *task_param = hdns_palloc(pool, sizeof(hdns_sched_refresh_task_param_t));
@@ -228,9 +247,30 @@ hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler) {
     return hdns_status_ok(scheduler->config->session_id);
 }
 
+
+void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler) {
+    hdns_pool_new(pool);
+    hdns_sched_refresh_task_param_t *task_param = hdns_palloc(pool, sizeof(hdns_sched_refresh_task_param_t));
+    task_param->scheduler = scheduler;
+    task_param->pool = pool;
+    apr_status_t status = apr_thread_pool_push(scheduler->thread_pool,
+                                               hdns_sched_refresh_timer_task,
+                                               task_param,
+                                               0,
+                                               scheduler);
+
+    if (status != APR_SUCCESS) {
+        hdns_log_error("Submit timer refresh task failed");
+    }
+}
+
+
+
 hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
     hdns_status_t status;
     hdns_pool_new(req_pool);
+    // 记录上次刷新的时间戳
+    scheduler->last_refresh_time = apr_time_now();
 
     hdns_list_head_t *boot_servers = get_boot_servers(scheduler, req_pool);
 

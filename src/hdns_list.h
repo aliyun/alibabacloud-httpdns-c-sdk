@@ -81,7 +81,7 @@ void hdns_list_dup(hdns_list_head_t *dst_head,
 void hdns_list_filter(hdns_list_head_t *dst_head,
                       const hdns_list_head_t *src_head,
                       hdns_list_clone_fn_t clone,
-                      hdns_list_filter_fn_t filter)
+                      hdns_list_filter_fn_t filter);
 
 void *hdns_list_get(const hdns_list_head_t *head, int index);
 

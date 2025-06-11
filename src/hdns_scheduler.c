@@ -219,7 +219,7 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     hdns_sched_refresh_task_param_t *param = data;
     hdns_scheduler_t *scheduler = param->scheduler;
     while (scheduler->state != HDNS_STATE_STOPPING) {
-        if (scheduler->last_refresh_time - apr_time_now() > 10 * 60 * APR_USEC_PER_SEC) {
+        if (scheduler->last_refresh_time - apr_time_now() > 20 * 60 * APR_USEC_PER_SEC) {
             scheduler->last_refresh_time = apr_time_now();
             hdns_scheduler_refresh_resolvers(scheduler);
         }

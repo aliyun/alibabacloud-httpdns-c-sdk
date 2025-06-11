@@ -20,6 +20,9 @@ HDNS_CPP_START
 #define hdns_to_list_clone_fn_t(func) \
    (hdns_list_clone_fn_t)func
 
+#define hdns_to_list_filter_fn_t(func) \
+   (hdns_list_filter_fn_t)func
+
 #define hdns_to_list_cmp_fn_t(func) \
    (hdns_list_cmp_pt) func
 
@@ -53,6 +56,8 @@ typedef void* (__stdcall* hdns_list_clone_stdcall_fn_t)(hdns_pool_t* pool, const
 
 typedef void *(*hdns_list_clone_fn_t )(hdns_pool_t *pool, const void *data);
 
+typedef bool (*hdns_list_filter_fn_t )(const void *data);
+
 typedef int32_t (*hdns_list_cmp_pt)(const void *data1, const void *data2);
 
 typedef bool (*hdns_list_search_pt)(const void *data, const void *target);
@@ -72,6 +77,11 @@ int32_t hdns_list_rotate(hdns_list_head_t *head);
 void hdns_list_dup(hdns_list_head_t *dst_head,
                    const hdns_list_head_t *src_head,
                    hdns_list_clone_fn_t clone);
+
+void hdns_list_filter(hdns_list_head_t *dst_head,
+                      const hdns_list_head_t *src_head,
+                      hdns_list_clone_fn_t clone,
+                      hdns_list_filter_fn_t filter)
 
 void *hdns_list_get(const hdns_list_head_t *head, int index);
 

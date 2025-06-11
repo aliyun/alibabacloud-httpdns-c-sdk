@@ -102,8 +102,7 @@ void hdns_client_add_pre_resolve_host(hdns_client_t *client, const char *host) {
 
 hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (NULL == client) {
-        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",
-                                 client->config->session_id);
+        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",NULL);
     }
     client->state = HDNS_STATE_START;
     // 异步拉取解析列表
@@ -153,6 +152,9 @@ void hdns_client_set_using_sign(hdns_client_t *client, bool using_sign) {
 }
 
 void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times) {
+    if (retry_times < 0) {
+        return;
+    }
     apr_thread_mutex_lock(client->config->lock);
     client->config->retry_times = retry_times;
     apr_thread_mutex_unlock(client->config->lock);
@@ -248,7 +250,7 @@ void hdns_client_add_custom_ttl_item(hdns_client_t *client, const char *host, co
 }
 
 int hdns_client_get_session_id(hdns_client_t *client, char *session_id) {
-    if (NULL == client || NULL == client->config || client->config->session_id) {
+    if (NULL == client || NULL == client->config || NULL == client->config->session_id) {
         return HDNS_ERROR;
     }
     strcpy(session_id, client->config->session_id);

@@ -1,4 +1,9 @@
 # ChangeLog - Aliyun HTTPDNS SDK for C
+## 版本号：2.2.5 日期：2025-06-11
+
+### 变更内容
+
+- 若干bugfix
 
 ## 版本号：2.2.4 日期：2024-09-25
 

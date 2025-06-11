@@ -84,10 +84,14 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->ipv6_resolvers = hdns_list_new(NULL);
 
     apr_thread_mutex_lock(config->lock);
-    hdns_list_dup(scheduler->ipv4_resolvers,
-                  hdns_config_get_boot_servers(config, true), hdns_to_list_clone_fn_t(apr_pstrdup));
-    hdns_list_dup(scheduler->ipv6_resolvers,
-                  hdns_config_get_boot_servers(config, false), hdns_to_list_clone_fn_t(apr_pstrdup));
+    hdns_list_filter(scheduler->ipv4_resolvers,
+                     hdns_config_get_boot_servers(config, true),
+                     hdns_to_list_clone_fn_t(apr_pstrdup),
+                     hdns_to_list_filter_fn_t(hdns_is_valid_ipv4));
+    hdns_list_filter(scheduler->ipv6_resolvers,
+                     hdns_config_get_boot_servers(config, false),
+                     hdns_to_list_clone_fn_t(apr_pstrdup),
+                     hdns_to_list_filter_fn_t(hdns_is_valid_ipv6));
     apr_thread_mutex_unlock(config->lock);
     scheduler->cur_ipv4_resolver_index = 0;
     scheduler->cur_ipv6_resolver_index = 0;
@@ -328,6 +332,9 @@ void hdns_scheduler_failover(hdns_scheduler_t *scheduler, const char *server) {
     if (hdns_is_valid_ipv4(server)) {
         scheduler->cur_ipv4_resolver_index++;
     } else if (hdns_is_valid_ipv6(server)) {
+        scheduler->cur_ipv6_resolver_index++;
+    } else {
+        scheduler->cur_ipv4_resolver_index++;
         scheduler->cur_ipv6_resolver_index++;
     }
     if (scheduler->cur_ipv6_resolver_index >= hdns_list_size(scheduler->ipv6_resolvers)) {

@@ -99,7 +99,7 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->cur_ipv6_resolver_index = 0;
     apr_thread_mutex_create(&scheduler->lock, APR_THREAD_MUTEX_DEFAULT, pool);
     scheduler->state = HDNS_STATE_RUNNING;
-    scheduler->last_refresh_time = apr_time_now();
+    scheduler->is_refreshed = FALSE;
     hdns_scheduler_start_refresh_timer(scheduler);
     return scheduler;
 }
@@ -218,12 +218,9 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     hdns_unused_var(data);
     hdns_sched_refresh_task_param_t *param = data;
     hdns_scheduler_t *scheduler = param->scheduler;
-    while (scheduler->state != HDNS_STATE_STOPPING) {
-        if (apr_time_now() - scheduler->last_refresh_time > 20 * 60 * APR_USEC_PER_SEC) {
-            scheduler->last_refresh_time = apr_time_now();
-            hdns_scheduler_refresh_resolvers(scheduler);
-        }
-        apr_sleep(APR_USEC_PER_SEC / 2);
+    while (scheduler->state != HDNS_STATE_STOPPING && !scheduler->is_refreshed) {
+        hdns_scheduler_refresh_resolvers(scheduler);
+        apr_sleep(APR_USEC_PER_SEC);
     }
     hdns_log_info("timer refresh task terminated.");
     hdns_pool_destroy(param->pool);
@@ -269,8 +266,6 @@ void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler) {
 hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
     hdns_status_t status;
     hdns_pool_new(req_pool);
-    // 记录上次刷新的时间戳
-    scheduler->last_refresh_time = apr_time_now();
 
     hdns_list_head_t *boot_servers = get_boot_servers(scheduler, req_pool);
 
@@ -314,6 +309,7 @@ hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
             hdns_parse_sched_resp_body(req_pool, http_resp->body, scheduler);
             hdns_log_info("try server %s fetch resolve server success", boot_server);
             status = hdns_status_ok(scheduler->config->session_id);
+            scheduler->is_refreshed = true;
             break;
         } else {
             char *resp_body = hdns_buf_list_content(req_pool, http_resp->body);

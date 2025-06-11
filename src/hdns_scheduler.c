@@ -220,7 +220,7 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     hdns_scheduler_t *scheduler = param->scheduler;
     while (scheduler->state != HDNS_STATE_STOPPING && !scheduler->is_refreshed) {
         hdns_scheduler_refresh_resolvers(scheduler);
-        apr_sleep(APR_USEC_PER_SEC);
+        apr_sleep(20 * APR_USEC_PER_SEC);
     }
     hdns_log_info("timer refresh task terminated.");
     hdns_pool_destroy(param->pool);

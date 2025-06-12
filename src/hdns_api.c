@@ -110,6 +110,8 @@ hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (!hdns_status_is_ok(&status)) {
         return status;
     }
+    // 定时更新
+    hdns_scheduler_start_refresh_timer(client->scheduler);
     // 异步预解析
     status = hdns_get_results_for_hosts_async_with_cache(client,
                                                          client->config->pre_resolve_hosts,

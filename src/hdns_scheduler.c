@@ -99,8 +99,8 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->cur_ipv6_resolver_index = 0;
     apr_thread_mutex_create(&scheduler->lock, APR_THREAD_MUTEX_DEFAULT, pool);
     scheduler->state = HDNS_STATE_RUNNING;
-    scheduler->is_refreshed = FALSE;
-    hdns_scheduler_start_refresh_timer(scheduler);
+    scheduler->next_timer_refresh_time = apr_time_now() + 30 * APR_USEC_PER_SEC;
+    scheduler->is_refreshed = false;
     return scheduler;
 }
 
@@ -123,6 +123,7 @@ static void hdns_parse_sched_resp_body(hdns_pool_t *req_pool,
         scheduler->cur_ipv4_resolver_index = 0;
         apr_thread_mutex_unlock(scheduler->lock);
         hdns_probe_resolvers(scheduler, true);
+        scheduler->is_refreshed = true;
     } else {
         char *response_body = hdns_buf_list_content(req_pool, body_bufs);
         hdns_log_info("ipv4 resolver list is empty, scheduler update failed, response body is %s", response_body);
@@ -135,6 +136,7 @@ static void hdns_parse_sched_resp_body(hdns_pool_t *req_pool,
         scheduler->cur_ipv6_resolver_index = 0;
         apr_thread_mutex_unlock(scheduler->lock);
         hdns_probe_resolvers(scheduler, false);
+        scheduler->is_refreshed = true;
     } else {
         char *response_body = hdns_buf_list_content(req_pool, body_bufs);
         hdns_log_info("ipv6 resolver list is empty, scheduler update failed, response body is %s", response_body);
@@ -218,9 +220,14 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     hdns_unused_var(data);
     hdns_sched_refresh_task_param_t *param = data;
     hdns_scheduler_t *scheduler = param->scheduler;
-    while (scheduler->state != HDNS_STATE_STOPPING && !scheduler->is_refreshed) {
-        hdns_scheduler_refresh_resolvers(scheduler);
-        apr_sleep(20 * APR_USEC_PER_SEC);
+    while (scheduler->state != HDNS_STATE_STOPPING) {
+        if (apr_time_now() > scheduler->next_timer_refresh_time) {
+            scheduler->next_timer_refresh_time = scheduler->is_refreshed ?
+                                                 (apr_time_now() + 60 * 60 * APR_USEC_PER_SEC) :
+                                                 (apr_time_now() + 60 * APR_USEC_PER_SEC);
+            hdns_scheduler_refresh_resolvers(scheduler);
+        }
+        apr_sleep(APR_USEC_PER_SEC / 2);
     }
     hdns_log_info("timer refresh task terminated.");
     hdns_pool_destroy(param->pool);
@@ -309,7 +316,7 @@ hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
             hdns_parse_sched_resp_body(req_pool, http_resp->body, scheduler);
             hdns_log_info("try server %s fetch resolve server success", boot_server);
             status = hdns_status_ok(scheduler->config->session_id);
-            scheduler->is_refreshed = true;
+            scheduler->next_timer_refresh_time = true;
             break;
         } else {
             char *resp_body = hdns_buf_list_content(req_pool, http_resp->body);

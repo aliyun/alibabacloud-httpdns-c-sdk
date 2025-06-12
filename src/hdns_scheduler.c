@@ -222,9 +222,9 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     hdns_scheduler_t *scheduler = param->scheduler;
     while (scheduler->state != HDNS_STATE_STOPPING) {
         if (apr_time_now() > scheduler->next_timer_refresh_time) {
-            scheduler->next_timer_refresh_time = scheduler->is_refreshed ?
-                                                 (apr_time_now() + 6 * 60 * 60 * APR_USEC_PER_SEC) :
-                                                 (apr_time_now() + 5 * 60 * APR_USEC_PER_SEC);
+            scheduler->next_timer_refresh_time = (scheduler->is_refreshed ?
+                                                  (apr_time_now() + 6 * 60 * 60 * APR_USEC_PER_SEC) :
+                                                  (apr_time_now() + 5 * 60 * APR_USEC_PER_SEC));
             hdns_scheduler_refresh_resolvers(scheduler);
         }
         apr_sleep(APR_USEC_PER_SEC / 2);
@@ -316,7 +316,7 @@ hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
             hdns_parse_sched_resp_body(req_pool, http_resp->body, scheduler);
             hdns_log_info("try server %s fetch resolve server success", boot_server);
             status = hdns_status_ok(scheduler->config->session_id);
-            scheduler->next_timer_refresh_time = true;
+            scheduler->is_refreshed = true;
             break;
         } else {
             char *resp_body = hdns_buf_list_content(req_pool, http_resp->body);

@@ -223,8 +223,8 @@ static void *APR_THREAD_FUNC hdns_sched_refresh_timer_task(apr_thread_t *thread,
     while (scheduler->state != HDNS_STATE_STOPPING) {
         if (apr_time_now() > scheduler->next_timer_refresh_time) {
             scheduler->next_timer_refresh_time = scheduler->is_refreshed ?
-                                                 (apr_time_now() + 60 * 60 * APR_USEC_PER_SEC) :
-                                                 (apr_time_now() + 60 * APR_USEC_PER_SEC);
+                                                 (apr_time_now() + 6 * 60 * 60 * APR_USEC_PER_SEC) :
+                                                 (apr_time_now() + 5 * 60 * APR_USEC_PER_SEC);
             hdns_scheduler_refresh_resolvers(scheduler);
         }
         apr_sleep(APR_USEC_PER_SEC / 2);

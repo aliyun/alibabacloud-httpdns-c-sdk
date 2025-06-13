@@ -16,8 +16,6 @@ static void parse_ip_array(cJSON *c_json_array, hdns_list_head_t *ips);
 
 hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler);
 
-void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler);
-
 static void hdns_sched_do_parse_sched_resp(hdns_pool_t *req_pool,
                                            hdns_list_head_t *body_bufs,
                                            hdns_list_head_t *ips,

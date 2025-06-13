@@ -508,15 +508,12 @@ hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *re
                                        HDNS_RESOLVE_FAIL_CODE,
                                        http_resp->extra_info->reason,
                                        client->config->session_id);
-            if (hdns_http_should_retry(http_resp)) {
-                hdns_scheduler_failover(client->scheduler, resolver);
-                retry_times--;
-                continue;
-            }
-            break;
-        }
-        // 服务端正常响应
-        if (http_resp->status == HDNS_HTTP_STATUS_OK) {
+            // 建连失败后全部进行重试
+            hdns_scheduler_failover(client->scheduler, resolver);
+            retry_times--;
+            continue;
+        } else if (http_resp->status == HDNS_HTTP_STATUS_OK) {
+            // 服务端正常响应
             hdns_parse_resv_resp(resv_req, http_resp, req_pool, resv_resps);
             hdns_list_for_each_entry(entry_cursor, resv_resps) {
                 hdns_apply_custom_ttl(client, entry_cursor->data);
@@ -524,19 +521,20 @@ hdns_status_t hdns_fetch_resv_results(hdns_client_t *client, hdns_resv_req_t *re
                 hdns_probe_resv_resp_ips(client, entry_cursor->data);
             }
             status = hdns_status_ok(client->config->session_id);
+            break;
         } else {
+            // 服务端异常响应
             status = hdns_status_error(HDNS_RESOLVE_FAIL,
                                        HDNS_RESOLVE_FAIL_CODE,
                                        apr_pstrcat(req_pool, "Http response body: ",
                                                    hdns_buf_list_content(req_pool, http_resp->body), NULL),
                                        client->config->session_id);
-        }
-        if (hdns_http_should_retry(http_resp)) {
+            if (!hdns_http_should_retry(http_resp)) {
+                break;
+            }
             hdns_scheduler_failover(client->scheduler, resolver);
             retry_times--;
-            continue;
         }
-        break;
     }
     hdns_pool_destroy(req_pool);
     return status;

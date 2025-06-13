@@ -228,7 +228,7 @@ hdns_status_t hdns_resv_req_append_sdns_param(hdns_resv_req_t *req, const char *
  * @param[in]   query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @return  操作状态，如果status的code是0表示成功，否则表示失败，error_msg包含了错误信息
  * @note :
@@ -299,7 +299,7 @@ hdns_status_t hdns_get_result_for_host_sync_with_custom_request(hdns_client_t *c
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[out]     results         解析结果，需要通过hdns_list_cleanup进行内存释放
@@ -322,7 +322,7 @@ hdns_status_t hdns_get_result_for_host_sync_with_cache(hdns_client_t *client,
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[out]     results         解析结果，需要通过hdns_list_cleanup进行内存释放
@@ -345,7 +345,7 @@ hdns_status_t hdns_get_result_for_host_sync_without_cache(hdns_client_t *client,
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[out]     results         解析结果，需要通过hdns_list_cleanup进行内存释放
@@ -368,7 +368,7 @@ hdns_status_t hdns_get_results_for_hosts_sync_with_cache(hdns_client_t *client,
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[out]     results         解析结果，需要通过hdns_list_cleanup进行内存释放
@@ -406,7 +406,7 @@ hdns_status_t hdns_get_result_for_host_async_with_custom_request(hdns_client_t *
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[in]   cb              解析结束后的回调函数
@@ -431,7 +431,7 @@ hdns_status_t hdns_get_result_for_host_async_with_cache(hdns_client_t *client,
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[in]   cb              解析结束后的回调函数
@@ -456,7 +456,7 @@ hdns_status_t hdns_get_result_for_host_async_without_cache(hdns_client_t *client
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[in]   cb              解析结束后的回调函数
@@ -481,7 +481,7 @@ hdns_status_t hdns_get_results_for_hosts_async_with_cache(hdns_client_t *client,
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[in]      client_ip 可选，客户端ip, 默认为接口调用方的出口IP
  * @param[in]   cb              解析结束后的回调函数
@@ -505,7 +505,7 @@ hdns_status_t hdns_get_results_for_hosts_async_without_cache(hdns_client_t *clie
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[out]     ip            写入ip的buffer
  * @return  操作状态，0表示成功，否则表示失败
@@ -520,7 +520,7 @@ int hdns_select_ip_randomly(hdns_list_head_t *results, hdns_query_type_t query_t
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[out]     ip            写入ip的buffer
  * @return  操作状态，0表示成功，否则表示失败
@@ -536,7 +536,7 @@ int hdns_select_first_ip(hdns_list_head_t *results, hdns_query_type_t query_type
  * @param[in]      query_type    请求类型
  *         - HDNS_QUERY_AUTO：根据网络栈自动解析；
  *         - HDNS_QUERY_IPV4：解析IPV4类型；
- *         - HDNS_QUERY_IPV4：解析IPV4类型；
+ *         - HDNS_QUERY_IPV6：解析IPv6类型
  *         - HDNS_QUERY_BOTH：解析IPV4和IPV6类型
  * @param[out]     extra      写入extra的buffer
  * @return  操作状态，0表示成功，否则表示失败

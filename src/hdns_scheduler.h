@@ -23,6 +23,8 @@ typedef struct {
     int32_t cur_ipv4_resolver_index;
     hdns_list_head_t *ipv6_resolvers;
     int32_t cur_ipv6_resolver_index;
+    apr_time_t    next_timer_refresh_time;
+    bool is_refreshed;
     hdns_net_detector_t *detector;
     apr_thread_pool_t *thread_pool;
     hdns_config_t *config;
@@ -36,6 +38,8 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
                                         apr_thread_pool_t *thread_pool);
 
 hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler);
+
+hdns_status_t hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler);
 
 void hdns_scheduler_failover(hdns_scheduler_t *scheduler, const char *server);
 

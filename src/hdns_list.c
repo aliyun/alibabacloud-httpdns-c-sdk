@@ -96,6 +96,23 @@ void hdns_list_dup(hdns_list_head_t *dst_head,
     }
 }
 
+void hdns_list_filter(hdns_list_head_t *dst_head,
+                      const hdns_list_head_t *src_head,
+                      hdns_list_clone_fn_t clone,
+                      hdns_list_filter_fn_t filter) {
+    if (NULL == dst_head || NULL == src_head) {
+        return;
+    }
+    for (hdns_list_node_t *cursor = hdns_list_first(src_head); cursor != src_head; cursor = cursor->next) {
+        if (filter != NULL && !filter(cursor->data)) {
+            continue;
+        }
+        hdns_list_add(dst_head, cursor->data, clone);
+    }
+}
+
+
+
 void *hdns_list_get(const hdns_list_head_t *head, int index) {
     if (NULL == head || index < 0) {
         return NULL;

@@ -11,6 +11,14 @@
 #define HDNS_THREAD_POOL_CORE_SIZE  4
 #define HDNS_THREAD_POOL_MAX_SIZE   16
 #define HDNS_THREAD_IDLE_TIME       30
+#define HDNS_THREAD_MAX_TASK_COUNT  200
+
+#define CHECK_HDNS_TASK_COUNT() \
+    do { \
+        if (apr_thread_pool_tasks_count(g_hdns_api_thread_pool) > HDNS_THREAD_MAX_TASK_COUNT) { \
+            return hdns_status_error(HDNS_RESOLVE_FAIL, HDNS_RESOLVE_FAIL_CODE, "too many async tasks", NULL); \
+        } \
+    } while(0)
 
 
 static hdns_pool_t *g_hdns_api_pool = NULL;
@@ -102,12 +110,11 @@ void hdns_client_add_pre_resolve_host(hdns_client_t *client, const char *host) {
 
 hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (NULL == client) {
-        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",
-                                 client->config->session_id);
+        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.", NULL);
     }
     client->state = HDNS_STATE_START;
-    // 异步拉取解析列表
-    hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
+    // 定时刷新解析服务IP列表
+    hdns_status_t status = hdns_scheduler_start_refresh_timer(client->scheduler);
     if (!hdns_status_is_ok(&status)) {
         return status;
     }
@@ -153,6 +160,9 @@ void hdns_client_set_using_sign(hdns_client_t *client, bool using_sign) {
 }
 
 void hdns_client_set_retry_times(hdns_client_t *client, int32_t retry_times) {
+    if (retry_times < 0) {
+        return;
+    }
     apr_thread_mutex_lock(client->config->lock);
     client->config->retry_times = retry_times;
     apr_thread_mutex_unlock(client->config->lock);
@@ -248,7 +258,7 @@ void hdns_client_add_custom_ttl_item(hdns_client_t *client, const char *host, co
 }
 
 int hdns_client_get_session_id(hdns_client_t *client, char *session_id) {
-    if (NULL == client || NULL == client->config || client->config->session_id) {
+    if (NULL == client || NULL == client->config || NULL == client->config->session_id) {
         return HDNS_ERROR;
     }
     strcpy(session_id, client->config->session_id);
@@ -504,6 +514,7 @@ hdns_status_t hdns_get_result_for_host_async_with_custom_request(hdns_client_t *
                                                                  const hdns_resv_req_t *resv_req,
                                                                  hdns_resv_done_callback_pt cb,
                                                                  void *cb_param) {
+    CHECK_HDNS_TASK_COUNT();
     if (NULL == cb) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,
@@ -567,6 +578,7 @@ hdns_status_t hdns_get_result_for_host_async_with_cache(hdns_client_t *client,
                                                         const char *client_ip,
                                                         hdns_resv_done_callback_pt cb,
                                                         void *cb_param) {
+    CHECK_HDNS_TASK_COUNT();
     if (NULL == cb) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,
@@ -601,6 +613,7 @@ hdns_status_t hdns_get_result_for_host_async_without_cache(hdns_client_t *client
                                                            const char *client_ip,
                                                            hdns_resv_done_callback_pt cb,
                                                            void *cb_param) {
+    CHECK_HDNS_TASK_COUNT();
     if (NULL == cb) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,
@@ -662,6 +675,7 @@ hdns_status_t hdns_get_results_for_hosts_async_with_cache(hdns_client_t *client,
                                                           const char *client_ip,
                                                           hdns_resv_done_callback_pt cb,
                                                           void *cb_param) {
+    CHECK_HDNS_TASK_COUNT();
     if (NULL == cb) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,
@@ -703,6 +717,7 @@ hdns_status_t hdns_get_results_for_hosts_async_without_cache(hdns_client_t *clie
                                                              const char *client_ip,
                                                              hdns_resv_done_callback_pt cb,
                                                              void *cb_param) {
+    CHECK_HDNS_TASK_COUNT();
     if (NULL == cb) {
         return hdns_status_error(HDNS_FAILED_VERIFICATION,
                                  HDNS_FAILED_VERIFICATION_CODE,

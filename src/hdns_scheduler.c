@@ -318,7 +318,6 @@ hdns_status_t hdns_scheduler_refresh_resolvers(hdns_scheduler_t *scheduler) {
             hdns_parse_sched_resp_body(req_pool, http_resp->body, scheduler);
             hdns_log_info("try server %s fetch resolve server success", boot_server);
             status = hdns_status_ok(scheduler->config->session_id);
-            scheduler->is_refreshed = true;
             break;
         } else {
             char *resp_body = hdns_buf_list_content(req_pool, http_resp->body);

@@ -102,7 +102,7 @@ void hdns_client_add_pre_resolve_host(hdns_client_t *client, const char *host) {
 
 hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (NULL == client) {
-        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",NULL);
+        return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.", NULL);
     }
     client->state = HDNS_STATE_START;
     // 定时刷新解析服务IP列表

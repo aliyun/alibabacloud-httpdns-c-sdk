@@ -39,7 +39,7 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
 
 hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler);
 
-void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler);
+hdns_status_t hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler);
 
 void hdns_scheduler_failover(hdns_scheduler_t *scheduler, const char *server);
 

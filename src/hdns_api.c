@@ -105,13 +105,11 @@ hdns_status_t hdns_client_start(hdns_client_t *client) {
         return hdns_status_error(HDNS_INVALID_ARGUMENT, HDNS_INVALID_ARGUMENT_CODE, "The client is null.",NULL);
     }
     client->state = HDNS_STATE_START;
-    // 异步拉取解析列表
-    hdns_status_t status = hdns_scheduler_refresh_async(client->scheduler);
+    // 定时刷新解析服务IP列表
+    hdns_status_t status = hdns_scheduler_start_refresh_timer(client->scheduler);
     if (!hdns_status_is_ok(&status)) {
         return status;
     }
-    // 定时更新
-    hdns_scheduler_start_refresh_timer(client->scheduler);
     // 异步预解析
     status = hdns_get_results_for_hosts_async_with_cache(client,
                                                          client->config->pre_resolve_hosts,

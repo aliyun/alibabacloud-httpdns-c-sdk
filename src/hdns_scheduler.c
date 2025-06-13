@@ -99,7 +99,7 @@ hdns_scheduler_t *hdns_scheduler_create(hdns_config_t *config,
     scheduler->cur_ipv6_resolver_index = 0;
     apr_thread_mutex_create(&scheduler->lock, APR_THREAD_MUTEX_DEFAULT, pool);
     scheduler->state = HDNS_STATE_RUNNING;
-    scheduler->next_timer_refresh_time = apr_time_now() + 30 * APR_USEC_PER_SEC;
+    scheduler->next_timer_refresh_time = apr_time_now();
     scheduler->is_refreshed = false;
     return scheduler;
 }
@@ -252,7 +252,7 @@ hdns_status_t hdns_scheduler_refresh_async(hdns_scheduler_t *scheduler) {
 }
 
 
-void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler) {
+hdns_status_t hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler) {
     hdns_pool_new(pool);
     hdns_sched_refresh_task_param_t *task_param = hdns_palloc(pool, sizeof(hdns_sched_refresh_task_param_t));
     task_param->scheduler = scheduler;
@@ -264,8 +264,10 @@ void hdns_scheduler_start_refresh_timer(hdns_scheduler_t *scheduler) {
                                                scheduler);
 
     if (status != APR_SUCCESS) {
-        hdns_log_error("Submit timer refresh task failed");
+        return hdns_status_error(HDNS_SCHEDULE_FAIL, HDNS_SCHEDULE_FAIL_CODE, "Submit task failed",
+                                 scheduler->config->session_id);
     }
+    return hdns_status_ok(scheduler->config->session_id);
 }
 
 

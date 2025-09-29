@@ -12,12 +12,16 @@
 int main(int argc, char *argv[]) {
     hdns_unused_var(argv);
     hdns_unused_var(argc);
+    hdns_client_t *client = NULL;
+    hdns_list_head_t *hosts = NULL;
+    hdns_list_head_t *results = NULL;
+    hdns_status_t status;
     // 1. HTTPDNS SDK 环境初始化
     if (hdns_sdk_init() != HDNS_OK) {
         goto cleanup;
     }
     // 2. 创建客户端（可复用）
-    hdns_client_t *client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
+    client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
     if (client == NULL) {
         goto cleanup;
     }
@@ -30,19 +34,22 @@ int main(int argc, char *argv[]) {
     hdns_client_set_region(client, "cn");
 
     // 4. 启动客户端
-    hdns_client_start(client);
+    status = hdns_client_start(client);
+    if (!hdns_status_is_ok(&status)) {
+        fprintf(stderr, "client start failed, error_code %s, error_msg:%s\n", status.error_code, status.error_msg);
+        goto cleanup;
+    }
     // 5. 批量域名解析
-    hdns_list_head_t *results = NULL;
-    hdns_list_head_t *hosts = hdns_list_create();
+    hosts = hdns_list_create();
     hdns_list_add_str(hosts, "www.taobao.com");
     hdns_list_add_str(hosts, "www.aliyun.com");
     hdns_list_add_str(hosts, "www.tmall.com");
 
-    hdns_status_t status = hdns_get_results_for_hosts_sync_with_cache(client,
-                                                                      hosts,
-                                                                      HDNS_QUERY_IPV4,
-                                                                      NULL,
-                                                                      &results);
+    status = hdns_get_results_for_hosts_sync_with_cache(client,
+                                                        hosts,
+                                                        HDNS_QUERY_IPV4,
+                                                        NULL,
+                                                        &results);
     // 6. 获取解析结果
     if (hdns_status_is_ok(&status)) {
         hdns_list_for_each_entry_safe(cursor, results) {

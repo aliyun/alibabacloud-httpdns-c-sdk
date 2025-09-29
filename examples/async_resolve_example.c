@@ -90,12 +90,14 @@ static void hdns_resv_done_callback(hdns_status_t *status, hdns_list_head_t *res
 int main(int argc, char *argv[]) {
     hdns_unused_var(argv);
     hdns_unused_var(argc);
+    hdns_client_t *client = NULL;
+    hdns_status_t status;
     // 1. HTTPDNS SDK 环境初始化
     if (hdns_sdk_init() != HDNS_OK) {
         goto cleanup;
     }
     // 2. 创建客户端（可复用）
-    hdns_client_t *client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
+    client = hdns_client_create(MOCK_HTTPDNS_ACCOUNT, MOCK_HTTPDNS_SECRET);
     if (client == NULL) {
         goto cleanup;
     }
@@ -108,24 +110,28 @@ int main(int argc, char *argv[]) {
     hdns_client_set_region(client, "cn");
 
     // 4. 启动客户端
-    hdns_client_start(client);
+    status = hdns_client_start(client);
+    if (!hdns_status_is_ok(&status)) {
+        fprintf(stderr, "client start failed, error_code %s, error_msg:%s\n", status.error_code, status.error_msg);
+        goto cleanup;
+    }
 
     // 5. 异步域名解析
     bool success = false;
-    hdns_status_t status = hdns_get_result_for_host_async_with_cache(client,
-                                                                     MOCK_BUSINESS_HOST,
-                                                                     HDNS_QUERY_AUTO,
-                                                                     NULL,
-                                                                     hdns_resv_done_callback,
-                                                                     &success);
+    status = hdns_get_result_for_host_async_with_cache(client,
+                                                       MOCK_BUSINESS_HOST,
+                                                       HDNS_QUERY_AUTO,
+                                                       NULL,
+                                                       hdns_resv_done_callback,
+                                                       &success);
     if (!hdns_status_is_ok(&status)) {
         goto cleanup;
     }
     // 6. 等待结果完成（正常业务可以不做等待，而是操作其他异步任务，这里仅为了演示）
     apr_sleep(1 * APR_USEC_PER_SEC);
+    cleanup:
     // 8. 客户端释放
     hdns_client_cleanup(client);
-    cleanup:
     // 9. SDK环境释放
     hdns_sdk_cleanup();
     printf("OK, Exit.\n");

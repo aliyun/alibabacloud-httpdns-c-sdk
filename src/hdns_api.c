@@ -118,15 +118,17 @@ hdns_status_t hdns_client_start(hdns_client_t *client) {
     if (!hdns_status_is_ok(&status)) {
         return status;
     }
-    // 异步预解析
-    status = hdns_get_results_for_hosts_async_with_cache(client,
-                                                         client->config->pre_resolve_hosts,
-                                                         HDNS_QUERY_AUTO,
-                                                         NULL,
-                                                         empty_hdns_resv_done_callback,
-                                                         NULL);
-    if (!hdns_status_is_ok(&status)) {
-        return status;
+    if (!hdns_list_is_empty(client->config->pre_resolve_hosts)) {
+        // 异步预解析（配置了预解析域名时）
+        status = hdns_get_results_for_hosts_async_with_cache(client,
+                                                             client->config->pre_resolve_hosts,
+                                                             HDNS_QUERY_AUTO,
+                                                             NULL,
+                                                             empty_hdns_resv_done_callback,
+                                                             NULL);
+        if (!hdns_status_is_ok(&status)) {
+            return status;
+        }
     }
     client->state = HDNS_STATE_RUNNING;
     return hdns_status_ok(client->config->session_id);

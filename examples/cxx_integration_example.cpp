@@ -83,7 +83,11 @@ int main(int argc, char *argv[]) {
     hdns_client_set_region(client, "cn");
 
     // 4. 启动客户端
-    hdns_client_start(client);
+    status = hdns_client_start(client);
+    if (!hdns_status_is_ok(&status)) {
+        fprintf(stderr, "client start failed, error_code %s, error_msg:%s\n", status.error_code, status.error_msg);
+        goto cleanup;
+    }
 
 
     // 5. 同步解析

@@ -511,6 +511,10 @@ int hdns_curl_transport_setup(hdns_http_transport_t *t) {
             curl_easy_setopt_safe(CURLOPT_PROXYAUTH, CURLAUTH_BASIC);
             curl_easy_setopt_safe(CURLOPT_PROXYUSERPWD, t->controller->proxy_auth);
         }
+    } else {
+        // 除非SDK内部指定代理，其他情况忽略任何代理
+        curl_easy_setopt_safe(CURLOPT_PROXY, "");
+        curl_easy_setopt_safe(CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
     }
 
     //req

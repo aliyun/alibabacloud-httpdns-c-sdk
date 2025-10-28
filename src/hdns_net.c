@@ -437,6 +437,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
     if (getifaddrs(&ifaddr) == -1) {
         hdns_pool_destroy(pool);
         hdns_log_error("getifaddrs failed:%s.", strerror(errno));
+        apr_thread_mutex_unlock(change_detector->lock);
         return false;
     }
     for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
@@ -454,6 +455,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
             if (s != 0) {
                 hdns_log_error("getnameinfo() failed: %s\n", gai_strerror(s));
                 hdns_pool_destroy(pool);
+                apr_thread_mutex_unlock(change_detector->lock);
                 return false;
             }
             if (hdns_is_valid_ipv6(ip) || hdns_is_valid_ipv4(ip)) {
@@ -478,6 +480,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
         hdns_log_error("WSAStartup failed.\n");
         hdns_pool_destroy(pool);
+        apr_thread_mutex_unlock(change_detector->lock);
         return false;
     }
 
@@ -485,6 +488,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
         hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
         WSACleanup();
         hdns_pool_destroy(pool);
+        apr_thread_mutex_unlock(change_detector->lock);
         return false;
     }
 
@@ -497,6 +501,7 @@ bool hdns_net_is_changed(hdns_net_detector_t *detector) {
         hdns_log_error("gethostname failed with error: %d\n", WSAGetLastError());
         WSACleanup();
         hdns_pool_destroy(pool);
+        apr_thread_mutex_unlock(change_detector->lock);
         return false;
     }
 

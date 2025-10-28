@@ -131,6 +131,15 @@ static void *APR_THREAD_FUNC hdns_net_speed_detect_runner(apr_thread_t *thread, 
             hdns_list_add(sorted_ips, ip, NULL);
             continue;
         }
+#if defined(_WIN32)
+        /* Windows requires explicit non-blocking to honor custom timeouts */
+        rv = apr_socket_opt_set(sock, APR_SO_NONBLOCK, 1);
+        if (rv != APR_SUCCESS) {
+            apr_socket_close(sock);
+            hdns_list_add(sorted_ips, ip, NULL);
+            continue;
+        }
+#endif
         start = apr_time_now();
         rv = apr_socket_connect(sock, sa);
         if (rv != APR_SUCCESS) {

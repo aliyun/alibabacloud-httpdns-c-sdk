@@ -23,8 +23,6 @@ hdns_status_t hdns_batch_fetch_resv_results(hdns_client_t *client,
 
 static hdns_query_type_t unwrap_auto_query_type(hdns_net_detector_t *detector);
 
-static void hdns_normalize_localdns_results(hdns_list_head_t *results);
-
 static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
                                                   const char *host,
                                                   const char *cache_key,
@@ -81,6 +79,15 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     }
     if (enable_failover_localdns) {
         hdns_resv_resp_t *localdns_resp = hdns_localdns_resolve(results->pool, host, rr_type);
+        // 删除 AAAA response 里的 IPv4 地址
+        if (rr_type == HDNS_RR_TYPE_AAAA) {
+            hdns_list_for_each_entry_safe(ip_cursor, localdns_resp->ips) {
+                char *ip = ip_cursor->data;
+                if (hdns_is_valid_ipv4(ip)) {
+                    hdns_list_del(ip_cursor);
+                }
+            }
+        }
         hdns_list_add(results, localdns_resp, NULL);
         ret = HDNS_OK;
         goto cleanup;
@@ -90,25 +97,6 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     cleanup:
     hdns_resv_resp_destroy(cache_resp);
     return ret;
-}
-
-static void hdns_normalize_localdns_results(hdns_list_head_t *results) {
-    if (hdns_list_is_empty(results)) {
-        return;
-    }
-    
-    // 删除 AAAA response 里的 IPv4 地址
-    hdns_list_for_each_entry_safe(cursor, results) {
-        hdns_resv_resp_t *resp = cursor->data;
-        if (resp != NULL && resp->type == HDNS_RR_TYPE_AAAA && resp->from_localdns) {
-            hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
-                char *ip = ip_cursor->data;
-                if (hdns_is_valid_ipv4(ip)) {
-                    hdns_list_del(ip_cursor);
-                }
-            }
-        }
-    }
 }
 
 hdns_status_t hdns_do_single_resolve(hdns_client_t *client,
@@ -218,8 +206,6 @@ hdns_status_t hdns_do_single_resolve_with_req(hdns_client_t *client,
                                                                      results,
                                                                      resv_req->query_type,
                                                                      HDNS_RR_TYPE_AAAA);
-
-    hdns_normalize_localdns_results(results);
 
     if (ipv4_collect_status == HDNS_OK && ipv6_collect_status == HDNS_OK) {
         status = hdns_status_ok(client->config->session_id);
@@ -376,8 +362,6 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
                                                                          results,
                                                                          query_type,
                                                                          HDNS_RR_TYPE_AAAA);
-        
-        hdns_normalize_localdns_results(results);
         
         success = success && (ipv4_collect_status == HDNS_OK);
         success = success && (ipv6_collect_status == HDNS_OK);

@@ -7,6 +7,7 @@
 #include "hdns_buf.h"
 #include "hdns_localdns.h"
 #include "hdns_log.h"
+#include "hdns_utils.h"
 
 #include "hdns_client.h"
 
@@ -21,6 +22,8 @@ hdns_status_t hdns_batch_fetch_resv_results(hdns_client_t *client,
                                             hdns_cache_t *cache);
 
 static hdns_query_type_t unwrap_auto_query_type(hdns_net_detector_t *detector);
+
+static void hdns_normalize_localdns_results(hdns_list_head_t *results);
 
 static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
                                                   const char *host,
@@ -69,9 +72,12 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     int ret = HDNS_ERROR;
     hdns_resv_resp_t *cache_resp = hdns_cache_table_get(cache, cache_key, rr_type);
     if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip)) {
-        hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
-        ret = HDNS_OK;
-        goto cleanup;
+        // 缓存命中但 ips 为空，如果开启降级则继续走 LocalDNS
+        if (!hdns_list_is_empty(cache_resp->ips)) {
+            hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
+            ret = HDNS_OK;
+            goto cleanup;
+        }
     }
     if (enable_failover_localdns) {
         hdns_resv_resp_t *localdns_resp = hdns_localdns_resolve(results->pool, host, rr_type);
@@ -84,6 +90,25 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     cleanup:
     hdns_resv_resp_destroy(cache_resp);
     return ret;
+}
+
+static void hdns_normalize_localdns_results(hdns_list_head_t *results) {
+    if (hdns_list_is_empty(results)) {
+        return;
+    }
+    
+    // 删除 AAAA response 里的 IPv4 地址
+    hdns_list_for_each_entry_safe(cursor, results) {
+        hdns_resv_resp_t *resp = cursor->data;
+        if (resp != NULL && resp->type == HDNS_RR_TYPE_AAAA && resp->from_localdns) {
+            hdns_list_for_each_entry_safe(ip_cursor, resp->ips) {
+                char *ip = ip_cursor->data;
+                if (hdns_is_valid_ipv4(ip)) {
+                    hdns_list_del(ip_cursor);
+                }
+            }
+        }
+    }
 }
 
 hdns_status_t hdns_do_single_resolve(hdns_client_t *client,
@@ -193,6 +218,8 @@ hdns_status_t hdns_do_single_resolve_with_req(hdns_client_t *client,
                                                                      results,
                                                                      resv_req->query_type,
                                                                      HDNS_RR_TYPE_AAAA);
+
+    hdns_normalize_localdns_results(results);
 
     if (ipv4_collect_status == HDNS_OK && ipv6_collect_status == HDNS_OK) {
         status = hdns_status_ok(client->config->session_id);
@@ -349,6 +376,9 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
                                                                          results,
                                                                          query_type,
                                                                          HDNS_RR_TYPE_AAAA);
+        
+        hdns_normalize_localdns_results(results);
+        
         success = success && (ipv4_collect_status == HDNS_OK);
         success = success && (ipv6_collect_status == HDNS_OK);
         if (!success) {
@@ -418,7 +448,7 @@ static hdns_query_type_t unwrap_auto_query_type(hdns_net_detector_t *detector) {
         case HDNS_IPV4_ONLY:
             return HDNS_QUERY_IPV4;
         case HDNS_IPV6_ONLY:
-            return HDNS_QUERY_IPV6;
+            return HDNS_QUERY_BOTH;
         default:
             return HDNS_QUERY_BOTH;
     }

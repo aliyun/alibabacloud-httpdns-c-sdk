@@ -808,6 +808,8 @@ static int hdns_select_ip(hdns_list_head_t *results, hdns_query_type_t query_typ
             net_type = hdns_net_get_type(g_hdns_net_detector);
             if (net_type == HDNS_NET_UNKNOWN) {
                 net_type = HDNS_IPV4_ONLY;
+            } else if (net_type == HDNS_IPV6_ONLY) {
+                net_type = HDNS_DUAL_STACK;
             }
             break;
         }
@@ -856,6 +858,8 @@ int hdns_get_sdns_extra(hdns_list_head_t *results, hdns_query_type_t query_type,
             net_type = hdns_net_get_type(g_hdns_net_detector);
             if (net_type == HDNS_NET_UNKNOWN) {
                 net_type = HDNS_IPV4_ONLY;
+            } else if (net_type == HDNS_IPV6_ONLY) {
+                net_type = HDNS_DUAL_STACK;
             }
             break;
         }

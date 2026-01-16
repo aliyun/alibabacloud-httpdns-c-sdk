@@ -7,6 +7,7 @@
 #include "hdns_buf.h"
 #include "hdns_localdns.h"
 #include "hdns_log.h"
+#include "hdns_utils.h"
 
 #include "hdns_client.h"
 
@@ -69,12 +70,24 @@ static int collect_resv_resp_in_cache_or_localdns(hdns_cache_t *cache,
     int ret = HDNS_ERROR;
     hdns_resv_resp_t *cache_resp = hdns_cache_table_get(cache, cache_key, rr_type);
     if (cache_resp != NULL && (!hdns_cache_entry_is_expired(cache_resp) || enable_expired_ip)) {
-        hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
-        ret = HDNS_OK;
-        goto cleanup;
+        // 缓存命中但 ips 为空，如果开启降级则继续走 LocalDNS
+        if (!hdns_list_is_empty(cache_resp->ips)) {
+            hdns_list_add(results, cache_resp, hdns_to_list_clone_fn_t(hdns_resv_resp_clone));
+            ret = HDNS_OK;
+            goto cleanup;
+        }
     }
     if (enable_failover_localdns) {
         hdns_resv_resp_t *localdns_resp = hdns_localdns_resolve(results->pool, host, rr_type);
+        // 删除 AAAA response 里的 IPv4 地址
+        if (rr_type == HDNS_RR_TYPE_AAAA) {
+            hdns_list_for_each_entry_safe(ip_cursor, localdns_resp->ips) {
+                char *ip = ip_cursor->data;
+                if (hdns_is_valid_ipv4(ip)) {
+                    hdns_list_del(ip_cursor);
+                }
+            }
+        }
         hdns_list_add(results, localdns_resp, NULL);
         ret = HDNS_OK;
         goto cleanup;
@@ -349,6 +362,7 @@ hdns_status_t hdns_do_batch_resolve(hdns_client_t *client,
                                                                          results,
                                                                          query_type,
                                                                          HDNS_RR_TYPE_AAAA);
+        
         success = success && (ipv4_collect_status == HDNS_OK);
         success = success && (ipv6_collect_status == HDNS_OK);
         if (!success) {
@@ -418,7 +432,7 @@ static hdns_query_type_t unwrap_auto_query_type(hdns_net_detector_t *detector) {
         case HDNS_IPV4_ONLY:
             return HDNS_QUERY_IPV4;
         case HDNS_IPV6_ONLY:
-            return HDNS_QUERY_IPV6;
+            return HDNS_QUERY_BOTH;
         default:
             return HDNS_QUERY_BOTH;
     }
